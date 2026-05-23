@@ -1,0 +1,35 @@
+{
+  "name": "cash-flow-wave",
+  "displayName": "Cash Flow Wave",
+  "description": "A mobile application to help users manage their cash flow effectively.",
+  "author": {
+    "name": "Nguyen '@tadcouq._' Dat",
+    "url": "https://tdcq.me/"
+  },
+  "contributors": [
+    {
+      "name": "Tran '@cyra.23.05' Tung",
+      "url": "http://itscyra.me/"
+    }
+  ],
+  "homepage": "https://github.com/8xEducation/AC3030-AC3040",
+  "bugs": {
+    "email": "8xedu@tdcq.me"
+  },
+  "license": "BEER-WARE",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "expo": "~54.0.33",
+    "expo-status-bar": "~3.0.9",
+    "react": "19.1.0",
+    "react-native": "0.81.5"
+  },
+  "private": true
+}
