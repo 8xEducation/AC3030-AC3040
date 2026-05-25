@@ -41,9 +41,10 @@ yarn-error.*
 /android
 
 # core "trợ lý super power" files
-/.claude
-/context
-CLAUDE.md
-AGENTS.md
+# /.claude
+# /context
+# CLAUDE.md
+# AGENTS.md
 
-# powered by true hardcore music: Hơi Ảo #11 - Lucin3x: https://www.youtube.com/watch?v=sknOBFSmOv4
+# powered by true hardcore music: 
+# Hơi Ảo #11 - Lucin3x: https://www.youtube.com/watch?v=sknOBFSmOv4
