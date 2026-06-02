@@ -5,33 +5,136 @@ change.
 
 ## Current Phase
 
-- [e.g. Not started / In progress / Complete]
+- In progress
 
 ## Current Goal
 
-- [What you are building right now]
+- Completed baseline MVP - Ready for device testing and final review
 
 ## Completed
 
-- None yet.
+- [x] Installed dependencies: WatermelonDB, Zustand, React Native Reanimated, Lucide React Native, Gifted Charts, Flash List, AsyncStorage
+- [x] Configured babel.config.js with WatermelonDB and Reanimated plugins
+- [x] Configured metro.config.js for Expo
+- [x] Created tsconfig.json with strict mode, path aliases, and decorator support
+- [x] Created database schema (5 tables: accounts, transactions, debts, budgets, categories)
+- [x] Created WatermelonDB models with decorators for all tables
+- [x] Created database initialization (src/database/index.ts)
+- [x] Created TypeScript enums (TransactionType, AccountType, DebtType, DebtStatus, BudgetTimeframe, CategoryType)
+- [x] Created utility functions: currencyFormatter (toCents, fromCents, formatCurrency), dateHelpers (toTimestamp, fromTimestamp)
+- [x] Created Zustand store with persist middleware for theme, currency, language, and onboarding state
+- [x] Implemented TransactionFactory (Design Pattern)
+- [x] Implemented AccountObserver and DebtObserver (Observer Pattern)
+- [x] Created Controllers for data management: AccountController, TransactionController, DebtController, BudgetController
+- [x] Created global theme.ts for semantic colors, dark mode support, and react hook integration
+- [x] Implemented NetWorthCard UI component using SVG gradients and Lucide icons
+- [x] Implemented DashboardScreen as primary viewport with demo interaction utilities
+- [x] Implemented TimeframeStrategy (Weekly vs Monthly) for budget cycle calculations (Strategy Pattern)
+- [x] Implemented ReportFacade for Pie/Bar Chart data aggregation (Facade Pattern)
+- [x] Implemented SmartBudgetScreen to manage, calculate, and rollover budgets
+- [x] Implemented DebtLedgerScreen to manage open/settled debts and linked wallet transactions
+- [x] Implemented SettingsScreen to configure themes, currency, language, and database resets
+- [x] Wired custom bottom tab navigation in App.tsx linking all modules seamlessly
+- [x] Integrated visual charts using Gifted Charts inside Dashboard (Daily Bar Chart and Category Donut Chart)
+- [x] Established Jest unit testing suite to verify financial algorithms and formatting invariants (100% pass)
+- [x] TypeScript compilation passes with no errors
+- [x] Installed and configured expo-local-authentication for iOS & Android
+- [x] Implemented startup biometric lock using BiometricLockScreen and toggle in SettingsScreen
+- [x] Implemented multi-slide onboarding flow in OnboardingScreen for currency & style customization on first boot
+- [x] Wired onboarding and biometric locks dynamically in App.tsx
+- [x] Resolved fatal Hermes engine crashes and Flow syntax parsing errors
 
 ## In Progress
 
-- None yet.
+- None
 
 ## Next Up
 
-- [First unit to build]
+- None
 
 ## Open Questions
 
-- [Any unresolved product or technical decisions]
+- None
 
 ## Architecture Decisions
 
-- [Decisions made that affect the system design or
-  data model — include why the decision was made]
+- Used WatermelonDB decorators with legacy Babel plugin for model definitions
+- Stored all monetary values as integers (cents) to prevent floating-point errors
+- Used soft deletion (is_active flag) for accounts and categories to preserve historical data
+- Separated transaction type (INCOME/EXPENSE/TRANSFER) from amount (always positive)
 
 ## Session Notes
 
-- [Context needed to resume work in the next session]
+- Database layer is ready for use. Models can be imported from src/database/index.ts.
+- Currency formatting logic is protected; do not modify currencyFormatter.ts after unit tests pass.
+- Schema is at version 1; any structural changes require a migration step.
+
+# Progress Tracker & Build Error Log
+
+This document tracks the configuration adjustments, build compilation errors, and runtime issues encountered during the development of **Cash Flow Wave** (Expo SDK 54 / React Native 0.81.5 / WatermelonDB), along with their root causes and resolutions.
+
+---
+
+## 1. Environment & Stack Overview
+- **Framework**: Expo SDK 54 (`expo@~54.0.33`)
+- **JavaScript Runtime**: Hermes Engine
+- **React Native Version**: `react-native@0.81.5`
+- **Database/ORM**: WatermelonDB (`@nozbe/watermelondb@^0.28.0`)
+- **Primary Tooling**: Babel 7, Metro Bundler
+
+---
+
+## 2. Compilation & Build Issues Log
+
+### Issue 1: Metro Extension Dependency Resolution Failure
+- **Symptom**: Metro bundler failed to resolve package dependencies (like `expo` or `@react-native/*`) because it could not find or load their package metadata.
+- **Root Cause**: The custom `metro.config.js` was overwriting the default Metro file extensions (`resolver.sourceExts`) to `['js', 'jsx', 'ts', 'tsx', 'cjs']`, which omitted the `.json` extension. Metro uses `.json` files to read dependency configurations.
+- **Resolution**: Updated `metro.config.js` to push/append `'cjs'` to the existing `sourceExts` array instead of replacing it, preserving the default extensions.
+
+---
+
+### Issue 2: TypeScript/Babel Decorator Field Initialization Error
+- **Symptom**: During compilation, Babel threw a syntax error in model files:
+  `SyntaxError: .../src/database/models/Account.ts: Definitely assigned fields cannot be initialized here, but only in the constructor`
+- **Root Cause**: WatermelonDB uses legacy TypeScript decorators (e.g., `@field`, `@children`). Babel's default decorator parsing in `babel-preset-expo` doesn't handle legacy decorator assignments correctly unless the class properties transform is configured in `loose: true` mode.
+- **Resolution**: Enabled `@babel/plugin-proposal-decorators` in legacy mode and `@babel/plugin-transform-class-properties` in loose mode in `babel.config.js` for our source files exclusively.
+
+---
+
+### Issue 3: Massive Cascade of Hermes Compiler & Runtime Crashes
+- **Symptoms**:
+  - `[runtime not ready]: TypeError: right operand of 'in' is not an object` in `_defineProperty`.
+  - `SyntaxError: Support for the experimental syntax 'flow' isn't currently enabled`.
+  - Hermes runtime crash reporting `_wrapNativeSuper(Error)` returned `undefined`.
+  - `hermesc` crashing during `expo export -c` with `error: Invalid expression encountered globalThis.DOMException = class DOMException extends Error {`.
+  - `hermesc` crashing with `error: invalid statement encountered. class MessageQueue {`.
+- **Root Cause**: The project suffered from a catastrophic package version mismatch. The user had installed a future version of `@babel/preset-expo` (`56.0.14`) while running Expo SDK `~54.0.33` (React Native 0.81.5).
+  1. `babel-preset-expo@56` defaults to the `hermes-v1` configuration for Hermes, assuming the engine natively supports ES6 `class` syntax and private fields.
+  2. However, the Hermes compiler (`hermesc`) included with React Native 0.81.5 does **not** fully support ES6 classes from source (it throws an invalid statement exception).
+  3. This mismatch caused `babel-preset-expo` to emit raw ES6 classes (and raw Flow types!) into the bundle for `node_modules`, crashing `hermesc` when compiling for production.
+  4. In development mode, the Hermes runtime *could* parse the classes, but executing ES6 classes extending native objects (like `Error`) crashed because `super()` returned an uninitialized object, triggering the `TypeError: right operand of 'in' is not an object`.
+  5. The previous developer attempted to fix these symptoms with a labyrinth of hacks: writing custom global Babel plugins, separating `node_modules` overrides, explicitly disabling `loose` transforms, and writing a custom `src/utils/polyfill.ts` for `DOMException`. These hacks broke React Native's internals even further.
+- **Resolution**:
+  1. Ran `npx expo install --fix` to downgrade `babel-preset-expo` from `56.0.14` to the correct compatible version `~54.0.10`.
+  2. Deleted the flawed `src/utils/polyfill.ts` and removed it from `metro.config.js`.
+  3. Reset `babel.config.js` to the standard baseline configuration, only applying legacy decorators to source files (using `exclude: /node_modules/`).
+  4. With version alignment restored, `babel-preset-expo@54` now correctly routes `hermes-stable` to the `hermes-v0` profile, transparently transpiling ES6 classes and Flow types to ES5 specifically for the RN 0.81.5 engine without crashing.
+
+---
+
+### Issue 4: WatermelonDB Native Module Missing in Expo Go
+- **Symptom**: `[runtime not ready]: Diagnostic error: NativeModules.WMDatabaseBridge is not defined! This means that you haven't properly linked WatermelonDB native module.`
+- **Root Cause**: WatermelonDB contains custom C++/Objective-C/Java native code that is completely absent from the standard "Expo Go" client app. When the app initializes, it attempts to load the native SQLite bridging module (`WMDatabaseBridge`) and fails, crashing the runtime.
+- **Resolution**:
+  1. Installed `expo-dev-client` and `@morrowdigital/watermelondb-expo-plugin`.
+  2. Registered the plugin in `app.json` (`"plugins": [..., "@morrowdigital/watermelondb-expo-plugin"]`).
+  3. Generated native directories (`ios` and `android`) using `npx expo prebuild --clean` to physically link the WatermelonDB native modules.
+  4. The project must now be run as a Custom Development Client via `npx expo run:ios` or `npx expo run:android` rather than the standard `expo start` command, in order to natively compile and execute the WatermelonDB C++ bridge.
+
+---
+
+## 3. Current Verification Status
+- **Unit Tests**: All 13 Jest unit tests (`npm test`) compile and pass successfully.
+- **TypeScript Type Checks**: Standard compilation check (`npx tsc --noEmit`) passes with zero errors.
+- **Production Build**: Successfully compiled Hermes bytecode (`hbc`) for iOS and Android via `npx expo export -c`.
+

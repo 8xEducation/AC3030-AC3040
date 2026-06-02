@@ -1,0 +1,826 @@
+import React, { useState, useEffect, useCallback } from 'react'
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  TouchableOpacity,
+  RefreshControl,
+  SafeAreaView,
+  Alert,
+  Dimensions,
+} from 'react-native'
+import { useThemeColors } from '../utils/theme'
+import { useAppStore } from '../store/appStore'
+import { NetWorthCard } from '../components/NetWorthCard'
+import { AccountController } from '../controllers/AccountController'
+import { TransactionController } from '../controllers/TransactionController'
+import { DebtController } from '../controllers/DebtController'
+import { seedDefaultCategories } from '../utils/seedCategories'
+import { AddAccountModal } from '../components/AddAccountModal'
+import { AddTransactionModal } from '../components/AddTransactionModal'
+import { ReportFacade, CategoryExpenseReportItem, DailyExpenseReportItem } from '../patterns/ReportFacade'
+import { database } from '../database'
+import Account from '../database/models/Account'
+import Transaction from '../database/models/Transaction'
+import Category from '../database/models/Category'
+import { AccountType, TransactionType, DebtType, CategoryType } from '../types'
+import { useTranslation } from '../utils/i18n'
+import { formatCurrency, fromCents } from '../utils/currencyFormatter'
+import { BarChart, PieChart } from 'react-native-gifted-charts'
+import {
+  Wallet,
+  CreditCard,
+  Plus,
+  Moon,
+  Sun,
+  Laptop,
+  RefreshCw,
+  ArrowDownLeft,
+  ArrowUpRight,
+  TrendingDown,
+  PieChart as PieIcon,
+  BarChart2,
+} from 'lucide-react-native'
+
+const { width: screenWidth } = Dimensions.get('window')
+
+export const DashboardScreen: React.FC = () => {
+  const colors = useThemeColors()
+  const { theme, setTheme, currencySymbol, currencyPosition } = useAppStore()
+  const { t } = useTranslation()
+  
+  const [refreshing, setRefreshing] = useState(false)
+  const [accounts, setAccounts] = useState<Account[]>([])
+  const [transactions, setTransactions] = useState<Transaction[]>([])
+  
+  // Analytics reports state
+  const [chartTab, setChartTab] = useState<'trend' | 'categories'>('trend')
+  const [dailyTrend, setDailyTrend] = useState<DailyExpenseReportItem[]>([])
+  const [categoryExpenses, setCategoryExpenses] = useState<CategoryExpenseReportItem[]>([])
+
+  // Modal States
+  const [isAddAccountVisible, setAddAccountVisible] = useState(false)
+  const [isAddTransactionVisible, setAddTransactionVisible] = useState(false)
+  // Calculate Net Worth Totals
+  const totalAssets = accounts
+    .filter((acc) => acc.accountType === AccountType.ASSET)
+    .reduce((sum, acc) => sum + acc.currentBalance, 0)
+
+  const totalLiabilities = accounts
+    .filter((acc) => acc.accountType === AccountType.LIABILITY)
+    .reduce((sum, acc) => sum + acc.currentBalance, 0)
+
+  // Fetch accounts, transactions, and report data
+  const loadData = useCallback(async () => {
+    setRefreshing(true)
+    const accountsRes = await AccountController.getActiveAccounts()
+    const txRes = await TransactionController.getTransactions()
+
+    // Aggregate monthly dates for Category Reports
+    const now = new Date()
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59)
+    
+    const catData = await ReportFacade.getExpensesByCategory(
+      Math.floor(startOfMonth.getTime() / 1000),
+      Math.floor(endOfMonth.getTime() / 1000)
+    )
+    const trendData = await ReportFacade.getDailyExpenseTrend(7)
+
+    if (accountsRes.success && accountsRes.data) {
+      setAccounts(accountsRes.data)
+    }
+    if (txRes.success && txRes.data) {
+      setTransactions(txRes.data)
+    }
+    
+    setCategoryExpenses(catData)
+    setDailyTrend(trendData)
+    setRefreshing(false)
+  }, [])
+
+  useEffect(() => {
+    seedDefaultCategories().then(loadData)
+  }, [loadData])
+
+  // Demo Action: Create Cash, Credit Card accounts, and Category seeds
+  const handleSeedDemoData = async () => {
+    try {
+      // 1. Seed Categories if they don't exist
+      const categoryCollection = database.get<Category>('categories')
+      const existingCats = await categoryCollection.query().fetch()
+      
+      let foodCatId = ''
+      let shopCatId = ''
+
+      await database.write(async () => {
+        if (existingCats.length === 0) {
+          const food = await categoryCollection.create((c) => {
+            c.name = 'Food & Dining'
+            c.type = CategoryType.EXPENSE
+            c.color = '#F59E0B' // Amber
+            c.icon = 'coffee'
+            c.isActive = true
+          })
+          const shop = await categoryCollection.create((c) => {
+            c.name = 'Shopping'
+            c.type = CategoryType.EXPENSE
+            c.color = '#EC4899' // Pink
+            c.icon = 'shopping-bag'
+            c.isActive = true
+          })
+          foodCatId = food.id
+          shopCatId = shop.id
+        } else {
+          foodCatId = existingCats.find((c) => c.name === 'Food & Dining')?.id || existingCats[0].id
+          shopCatId = existingCats.find((c) => c.name === 'Shopping')?.id || existingCats[0].id
+        }
+      })
+
+      // 2. Create Cash Wallet (Asset) with $1,500.00 starting
+      const cashRes = await AccountController.createAccount('Cash Wallet', AccountType.ASSET, 150000)
+      
+      // 3. Create Credit Card (Liability) with $400.00 debt starting
+      await AccountController.createAccount('Credit Card', AccountType.LIABILITY, 40000)
+
+      // 4. Create a Debt (Borrowed from Sarah) of $200.00
+      await DebtController.createDebt({
+        personName: 'Sarah Smith',
+        type: DebtType.BORROWED,
+        totalAmountInCents: 20000,
+        dueDate: Math.floor(Date.now() / 1000) + 14 * 24 * 60 * 60,
+        accountId: cashRes.data?.id || 'dummy_id',
+        linkToAccount: false,
+      })
+
+      // 5. Seed some initial transactions under the created categories
+      if (cashRes.data) {
+        await TransactionController.createTransaction({
+          accountId: cashRes.data.id,
+          type: TransactionType.EXPENSE,
+          amount: 2500, // $25.00
+          description: 'Weekly Groceries',
+          date: Math.floor(Date.now() / 1000) - 2 * 24 * 60 * 60, // 2 days ago
+          categoryId: foodCatId,
+        })
+
+        await TransactionController.createTransaction({
+          accountId: cashRes.data.id,
+          type: TransactionType.EXPENSE,
+          amount: 6500, // $65.00
+          description: 'New Sneakers',
+          date: Math.floor(Date.now() / 1000) - 1 * 24 * 60 * 60, // 1 day ago
+          categoryId: shopCatId,
+        })
+      }
+
+      Alert.alert('Success', 'Demo accounts, categories, and history seeded!')
+      loadData()
+    } catch (err: any) {
+      Alert.alert('Error', err?.message || 'Failed to seed demo data')
+    }
+  }
+
+  // Demo Action: Log a random expense
+  const handleLogDemoExpense = async () => {
+    if (accounts.length === 0) {
+      Alert.alert('No Accounts', 'Please create demo accounts first!')
+      return
+    }
+
+    const cashAcc = accounts.find((a) => a.name === 'Cash Wallet') || accounts[0]
+    
+    // Fetch categories to pick one
+    const categories = await database.get<Category>('categories').query().fetch()
+    const foodCat = categories.find((c) => c.name === 'Food & Dining')
+    const shopCat = categories.find((c) => c.name === 'Shopping')
+    const categoryId = Math.random() > 0.5 ? foodCat?.id : shopCat?.id
+
+    const res = await TransactionController.createTransaction({
+      accountId: cashAcc.id,
+      type: TransactionType.EXPENSE,
+      amount: Math.random() > 0.5 ? 1550 : 3500, // $15.50 or $35.00
+      description: Math.random() > 0.5 ? 'Lunch & Coffee' : 'Clothing Store',
+      date: Math.floor(Date.now() / 1000),
+      categoryId,
+    })
+
+    if (res.success) {
+      loadData()
+    } else {
+      Alert.alert('Error', res.error || 'Failed to log expense')
+    }
+  }
+
+  // Demo Action: Log a random income
+  const handleLogDemoIncome = async () => {
+    if (accounts.length === 0) {
+      Alert.alert('No Accounts', 'Please create demo accounts first!')
+      return
+    }
+
+    const cashAcc = accounts.find((a) => a.name === 'Cash Wallet') || accounts[0]
+    
+    const res = await TransactionController.createTransaction({
+      accountId: cashAcc.id,
+      type: TransactionType.INCOME,
+      amount: 12000, // $120.00
+      description: 'Freelance Coding',
+      date: Math.floor(Date.now() / 1000),
+    })
+
+    if (res.success) {
+      loadData()
+    } else {
+      Alert.alert('Error', res.error || 'Failed to log income')
+    }
+  }
+
+  // Cycle Themes
+  const toggleTheme = () => {
+    if (theme === 'light') setTheme('dark')
+    else if (theme === 'dark') setTheme('system')
+    else setTheme('light')
+  }
+
+  // Format data specifically for Gifted Charts components
+  const getFormattedBarData = () => {
+    return dailyTrend.map((item) => ({
+      value: fromCents(item.value),
+      label: item.label,
+      frontColor: colors.accentPrimary,
+    }))
+  }
+
+  const getFormattedPieData = () => {
+    return categoryExpenses.map((item) => ({
+      value: fromCents(item.value),
+      color: item.color,
+      text: item.text,
+    }))
+  }
+
+  const formattedBarData = getFormattedBarData()
+  const formattedPieData = getFormattedPieData()
+
+  // Calculate totals for Pie Chart helper text
+  const totalPieExpense = categoryExpenses.reduce((sum, item) => sum + fromCents(item.value), 0)
+
+  return (
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.bgBase }]}>
+      {/* Header */}
+      <View style={styles.header}>
+        <View>
+          <Text style={[styles.welcomeText, { color: colors.textMuted }]}>{t('dashboard.hello')}, User</Text>
+          <Text style={[styles.titleText, { color: colors.textPrimary }]}>{t('dashboard.title')}</Text>
+        </View>
+        <TouchableOpacity
+          style={[styles.iconButton, { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault }]}
+          onPress={toggleTheme}
+          activeOpacity={0.7}
+        >
+          {theme === 'light' && <Sun size={20} color={colors.textPrimary} />}
+          {theme === 'dark' && <Moon size={20} color={colors.textPrimary} />}
+          {theme === 'system' && <Laptop size={20} color={colors.textPrimary} />}
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={loadData} tintColor={colors.accentPrimary} />
+        }
+      >
+        {/* Net Worth Dashboard Card */}
+        <NetWorthCard totalAssets={totalAssets} totalLiabilities={totalLiabilities} />
+
+        {/* Action Center (Quick Demo Tools) */}
+        <View style={styles.sectionHeaderContainer}>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>{t('dashboard.action_center')}</Text>
+        </View>
+        
+        <View style={styles.actionGrid}>
+          {accounts.length === 0 ? (
+            <TouchableOpacity
+              style={[styles.actionButton, { backgroundColor: colors.accentPrimary }]}
+              onPress={() => setAddAccountVisible(true)}
+            >
+              <Plus size={18} color="#FFFFFF" />
+              <Text style={styles.actionButtonText}>{t('dashboard.add_account')}</Text>
+            </TouchableOpacity>
+          ) : (
+            <>
+              <TouchableOpacity
+                style={[styles.actionButton, { backgroundColor: colors.accentPrimary }]}
+                onPress={() => setAddTransactionVisible(true)}
+              >
+                <TrendingDown size={18} color="#FFFFFF" />
+                <Text style={styles.actionButtonText}>{t('dashboard.add_transaction')}</Text>
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
+
+        {/* Visual Reports section */}
+        {accounts.length > 0 && (
+          <View style={styles.reportsSection}>
+            <View style={styles.sectionHeaderContainer}>
+              <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>{t('dashboard.analytics')}</Text>
+              <View style={[styles.chartTabs, { backgroundColor: colors.bgElevated }]}>
+                <TouchableOpacity
+                  style={[styles.chartTabBtn, chartTab === 'trend' && { backgroundColor: colors.bgSurface }]}
+                  onPress={() => setChartTab('trend')}
+                >
+                  <BarChart2 size={14} color={chartTab === 'trend' ? colors.accentPrimary : colors.textMuted} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.chartTabBtn, chartTab === 'categories' && { backgroundColor: colors.bgSurface }]}
+                  onPress={() => setChartTab('categories')}
+                >
+                  <PieIcon size={14} color={chartTab === 'categories' ? colors.accentPrimary : colors.textMuted} />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View style={[styles.chartContainer, { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault }]}>
+              {chartTab === 'trend' ? (
+                // Daily Trend Bar Chart
+                <View style={styles.barChartWrapper}>
+                  <Text style={[styles.chartHeader, { color: colors.textPrimary }]}>{t('dashboard.trend')}</Text>
+                  {formattedBarData.length > 0 && formattedBarData.some(d => d.value > 0) ? (
+                    <BarChart
+                      data={formattedBarData}
+                      barWidth={22}
+                      spacing={18}
+                      noOfSections={3}
+                      barBorderRadius={6}
+                      frontColor={colors.accentPrimary}
+                      yAxisThickness={0}
+                      xAxisThickness={0}
+                      hideRules
+                      showGradient
+                      yAxisTextStyle={{ fontSize: 9, fontWeight: '600', color: colors.textMuted }}
+                      xAxisLabelTextStyle={{ fontSize: 9, fontWeight: '600', color: colors.textMuted }}
+                      height={120}
+                    />
+                  ) : (
+                    <Text style={[styles.noChartDataText, { color: colors.textMuted }]}>
+                      No expenses in the past 7 days to display.
+                    </Text>
+                  )}
+                </View>
+              ) : (
+                // Category Expenses Pie/Donut Chart
+                <View style={styles.pieChartWrapper}>
+                  <Text style={[styles.chartHeader, { color: colors.textPrimary }]}>{t('dashboard.monthly')}</Text>
+                  {formattedPieData.length > 0 ? (
+                    <View style={styles.pieAndLegendRow}>
+                      <PieChart
+                        data={formattedPieData}
+                        donut
+                        radius={60}
+                        innerRadius={42}
+                        innerCircleColor={colors.bgSurface}
+                        centerLabelComponent={() => (
+                          <View style={styles.pieCenterLabel}>
+                            <Text style={[styles.pieCenterTotal, { color: colors.textPrimary }]}>
+                              {currencySymbol}
+                              {Math.round(totalPieExpense)}
+                            </Text>
+                            <Text style={[styles.pieCenterText, { color: colors.textMuted }]}>Total</Text>
+                          </View>
+                        )}
+                      />
+                      
+                      {/* Legend List */}
+                      <View style={styles.pieLegendList}>
+                        {categoryExpenses.map((item, idx) => {
+                          const valStr = formatCurrency(item.value, currencySymbol, currencyPosition)
+                          const sharePct = totalPieExpense > 0 ? Math.round((fromCents(item.value) / totalPieExpense) * 100) : 0
+                          
+                          return (
+                            <View key={item.categoryId || idx} style={styles.legendItem}>
+                              <View style={[styles.legendDot, { backgroundColor: item.color }]} />
+                              <View style={styles.legendTextContainer}>
+                                <Text style={[styles.legendName, { color: colors.textPrimary }]} numberOfLines={1}>
+                                  {item.text}
+                                </Text>
+                                <Text style={[styles.legendAmount, { color: colors.textMuted }]}>
+                                  {valStr} ({sharePct}%)
+                                </Text>
+                              </View>
+                            </View>
+                          )
+                        })}
+                      </View>
+                    </View>
+                  ) : (
+                    <Text style={[styles.noChartDataText, { color: colors.textMuted }]}>
+                      No monthly expenses recorded to categorize.
+                    </Text>
+                  )}
+                </View>
+              )}
+            </View>
+          </View>
+        )}
+
+        {/* Accounts / Wallets List */}
+        <View style={styles.sectionHeaderContainer}>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>{t('dashboard.my_wallets')}</Text>
+          <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
+            <TouchableOpacity onPress={() => setAddAccountVisible(true)}>
+              <Plus size={20} color={colors.accentPrimary} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={loadData}>
+              <RefreshCw size={16} color={colors.textMuted} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {accounts.length === 0 ? (
+          <View style={[styles.emptyCard, { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault }]}>
+            <Wallet size={32} color={colors.textMuted} />
+            <Text style={[styles.emptyText, { color: colors.textMuted }]}>
+              No active accounts. Use "Seed Demo Accounts" to start instantly!
+            </Text>
+          </View>
+        ) : (
+          <View style={styles.accountsContainer}>
+            {accounts.map((acc) => {
+              const isAsset = acc.accountType === AccountType.ASSET
+              const formattedBal = formatCurrency(acc.currentBalance, currencySymbol, currencyPosition)
+              return (
+                <View
+                  key={acc.id}
+                  style={[
+                    styles.accountCard,
+                    { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault },
+                  ]}
+                >
+                  <View style={styles.accountCardLeft}>
+                    <View
+                      style={[
+                        styles.accountIconBg,
+                        { backgroundColor: isAsset ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)' },
+                      ]}
+                    >
+                      {isAsset ? (
+                        <Wallet size={18} color="#10B981" />
+                      ) : (
+                        <CreditCard size={18} color="#EF4444" />
+                      )}
+                    </View>
+                    <View>
+                      <Text style={[styles.accountName, { color: colors.textPrimary }]}>{acc.name}</Text>
+                      <Text style={[styles.accountTypeLabel, { color: colors.textMuted }]}>
+                        {acc.accountType}
+                      </Text>
+                    </View>
+                  </View>
+                  <Text
+                    style={[
+                      styles.accountBalance,
+                      { color: isAsset ? colors.textPrimary : colors.stateError },
+                    ]}
+                  >
+                    {formattedBal}
+                  </Text>
+                </View>
+              )
+            })}
+          </View>
+        )}
+
+        {/* Recent Transactions List */}
+        <View style={styles.sectionHeaderContainer}>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>{t('dashboard.recent_tx')}</Text>
+        </View>
+
+        {transactions.length === 0 ? (
+          <View style={[styles.emptyCard, { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault }]}>
+            <ArrowDownLeft size={32} color={colors.textMuted} />
+            <Text style={[styles.emptyText, { color: colors.textMuted }]}>
+              {t('dashboard.no_tx')}
+            </Text>
+          </View>
+        ) : (
+          <View style={styles.transactionsContainer}>
+            {transactions.slice(0, 5).map((tx) => {
+              const isIncome = tx.type === TransactionType.INCOME
+              const formattedAmt = formatCurrency(tx.amount, currencySymbol, currencyPosition)
+              
+              return (
+                <View
+                  key={tx.id}
+                  style={[
+                    styles.txCard,
+                    { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault },
+                  ]}
+                >
+                  <View style={styles.txCardLeft}>
+                    <View
+                      style={[
+                        styles.txIconBg,
+                        { backgroundColor: isIncome ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)' },
+                      ]}
+                    >
+                      {isIncome ? (
+                        <ArrowDownLeft size={16} color="#10B981" />
+                      ) : (
+                        <ArrowUpRight size={16} color="#EF4444" />
+                      )}
+                    </View>
+                    <View style={styles.txTextContainer}>
+                      <Text style={[styles.txDescription, { color: colors.textPrimary }]} numberOfLines={1}>
+                        {tx.description}
+                      </Text>
+                      <Text style={[styles.txDate, { color: colors.textMuted }]}>
+                        {new Date(tx.date * 1000).toLocaleDateString()}
+                      </Text>
+                    </View>
+                  </View>
+                  <Text
+                    style={[
+                      styles.txAmount,
+                      { color: isIncome ? '#10B981' : '#EF4444' },
+                    ]}
+                  >
+                    {isIncome ? '+' : '-'}{formattedAmt}
+                  </Text>
+                </View>
+              )
+            })}
+          </View>
+        )}
+      </ScrollView>
+
+      {/* Modals */}
+      <AddAccountModal
+        visible={isAddAccountVisible}
+        onClose={() => setAddAccountVisible(false)}
+        onSuccess={loadData}
+      />
+      <AddTransactionModal
+        visible={isAddTransactionVisible}
+        onClose={() => setAddTransactionVisible(false)}
+        onSuccess={loadData}
+      />
+    </SafeAreaView>
+  )
+}
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 8,
+  },
+  welcomeText: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  titleText: {
+    fontSize: 22,
+    fontWeight: '800',
+    letterSpacing: -0.5,
+  },
+  iconButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  scrollContent: {
+    paddingBottom: 32,
+  },
+  sectionHeaderContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  actionGrid: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    gap: 12,
+    marginBottom: 8,
+  },
+  actionButton: {
+    flex: 1,
+    height: 44,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    elevation: 2,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  actionButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 13,
+  },
+  reportsSection: {
+    width: '100%',
+  },
+  chartTabs: {
+    flexDirection: 'row',
+    borderRadius: 8,
+    padding: 3,
+    gap: 2,
+  },
+  chartTabBtn: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  chartContainer: {
+    marginHorizontal: 16,
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    elevation: 3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    minHeight: 180,
+    justifyContent: 'center',
+  },
+  chartHeader: {
+    fontSize: 13,
+    fontWeight: '700',
+    marginBottom: 16,
+  },
+  barChartWrapper: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  pieChartWrapper: {
+    width: '100%',
+  },
+  pieAndLegendRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 16,
+  },
+  pieCenterLabel: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pieCenterTotal: {
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  pieCenterText: {
+    fontSize: 9,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+  },
+  pieLegendList: {
+    flex: 1,
+    gap: 8,
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  legendDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  legendTextContainer: {
+    flex: 1,
+  },
+  legendName: {
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  legendAmount: {
+    fontSize: 9,
+    fontWeight: '500',
+    marginTop: 1,
+  },
+  noChartDataText: {
+    fontSize: 12,
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  emptyCard: {
+    marginHorizontal: 16,
+    padding: 24,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  emptyText: {
+    fontSize: 13,
+    textAlign: 'center',
+    lineHeight: 18,
+  },
+  accountsContainer: {
+    paddingHorizontal: 16,
+    gap: 10,
+  },
+  accountCard: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 14,
+    borderRadius: 14,
+    borderWidth: 1,
+  },
+  accountCardLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  accountIconBg: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  accountName: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  accountTypeLabel: {
+    fontSize: 11,
+    fontWeight: '500',
+    marginTop: 1,
+  },
+  accountBalance: {
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  transactionsContainer: {
+    paddingHorizontal: 16,
+    gap: 10,
+  },
+  txCard: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  txCardLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    flex: 1,
+  },
+  txIconBg: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  txTextContainer: {
+    flex: 1,
+    marginRight: 8,
+  },
+  txDescription: {
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  txDate: {
+    fontSize: 10,
+    fontWeight: '500',
+    marginTop: 2,
+  },
+  txAmount: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+})
