@@ -5,7 +5,10 @@
 | Layer | Technology | Role |
 | :--- | :--- | :--- |
 | Framework | React Native (Expo) + TypeScript | Builds the cross-platform application shell (iOS/Android) with strict static typing. |
+| Compiler | Babel | Transpiles TS/JSX, injects Reanimated worklets, and enables ES7 Decorators required by WatermelonDB. *(Bổ sung)* |
+| Bundler | Metro | Packages and bundles JavaScript code and assets; configured to resolve specific module extensions (.cjs). *(Bổ sung)* |
 | UI | StyleSheet + react-native-reanimated | Manages the user interface, layouts, and smooth animations (60fps) on mobile devices. |
+| Icons | lucide-react-native | Provides a comprehensive set of vector icons for the user interface. *(Bổ sung)* |
 | Charts | react-native-gifted-charts | Renders visual data (Pie Charts, Bar Charts) for the Dashboard and Analytics Reports. |
 | State | Zustand | Manages Client State (UI configurations, Currency symbols, Theme) in a lightweight manner without boilerplate. |
 | Database | WatermelonDB (SQLite-based) | Handles offline-first data storage, optimized for querying thousands of records (Transactions) without blocking the UI thread. |
@@ -14,13 +17,16 @@
 
 ## System Boundaries
 
-- `src/database` — Owns all local data structures. Contains Schemas, Models (`Account`, `Transaction`, `Debt`, `Budget`), and WatermelonDB connection configurations.
+- `src/database` — Owns all local data structures. Contains Schemas, Models (`Account`, `Transaction`, `Debt`, `Budget`, `Category` *(Bổ sung)*), and WatermelonDB connection configurations.
 - `src/patterns` — The "Brain" of the system. Encapsulates core business logic classes: `TransactionFactory` (input standardization), `AccountObserver` / `DebtObserver` (chain updates), `TimeframeStrategy` (budget cycle calculation), and `ReportFacade` (chart data aggregation).
 - `src/controllers` — The intermediary layer. Receives UI interactions, invokes Design Patterns to process logic, and coordinates Database read/write flows.
-- `src/screens` — Owns the UI Views grouped by business modules: `/Dashboard`, `/Transaction`, `/DebtLedger`, `/SmartBudget`, `/Settings`.
-- `src/components` — Owns reusable and shared UI components: `Numpad`, `NetWorthCard`, `ProgressBar`, `CategoryPicker`.
+~~- `src/screens` — Owns the UI Views grouped by business modules: `/Dashboard`, `/Transaction`, `/DebtLedger`, `/SmartBudget`, `/Settings`.~~
+- `src/screens` — Owns the UI Views. Hiện tại bao gồm: `DashboardScreen`, `DebtLedgerScreen`, `SmartBudgetScreen`, `SettingsScreen`, `OnboardingScreen`, và `BiometricLockScreen`. *(Sửa đổi)*
+~~- `src/components` — Owns reusable and shared UI components: `Numpad`, `NetWorthCard`, `ProgressBar`, `CategoryPicker`.~~
+- `src/components` — Owns reusable UI components. Hiện tại bao gồm: `AddAccountModal`, `AddTransactionModal`, `NetWorthCard`. *(Sửa đổi)*
 - `src/store` — Manages static Global State (Zustand). Stores user preferences unrelated to accounting logic (Currency symbol, Language, Dark Mode).
-- `src/utils` — Owns pure utility functions. Most notably `currencyFormatter.ts` (Integer <-> String conversion for UI rendering) and Date/Time formatting helpers.
+- `src/types` — Contains global TypeScript enums and interfaces (`TransactionType`, `AccountType`, v.v.) used across the application. *(Bổ sung)*
+- `src/utils` — Owns pure utility functions (`currencyFormatter.ts`, `dateHelpers.ts`) as well as configuration for theming (`theme.ts`) and localization (`i18n.ts`). *(Bổ sung thêm chi tiết)*
 
 ## Storage Model
 
