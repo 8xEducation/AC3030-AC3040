@@ -4,6 +4,7 @@ import Transaction from '../database/models/Transaction'
 import { BudgetTimeframe, TransactionType } from '../types'
 import { BudgetStrategyResolver } from '../patterns/BudgetStrategyResolver'
 import { Q } from '@nozbe/watermelondb'
+import { TimeService } from '../services/TimeService'
 
 export interface BudgetProgress {
   id: string
@@ -16,6 +17,9 @@ export interface BudgetProgress {
   endDate: number // timestamp in seconds
   timeframe: BudgetTimeframe
   anchorDay: number
+  categoryId?: string
+  categoryName?: string
+  categoryColor?: string
 }
 
 export class BudgetController {
@@ -27,6 +31,7 @@ export class BudgetController {
     amountInCents: number
     timeframe: BudgetTimeframe
     anchorDay: number
+    categoryId?: string
   }): Promise<{ success: boolean; data?: Budget; error?: string }> {
     if (!params.name || params.name.trim() === '') {
       return { success: false, error: 'Budget name is required' }
@@ -54,6 +59,7 @@ export class BudgetController {
       const budget = await database.write(async () => {
         return await database.get<Budget>('budgets').create((b) => {
           b.name = params.name.trim()
+          b.categoryId = params.categoryId || ''
           b.amount = params.amountInCents
           b.timeframe = params.timeframe
           b.anchorDay = params.anchorDay
@@ -75,7 +81,7 @@ export class BudgetController {
   static async getBudgetsProgress(): Promise<{ success: boolean; data?: BudgetProgress[]; error?: string }> {
     try {
       const budgets = await database.get<Budget>('budgets').query().fetch()
-      const now = new Date()
+      const now = TimeService.getNow()
       const nowSeconds = Math.floor(now.getTime() / 1000)
 
       const progressResults: BudgetProgress[] = []
@@ -101,13 +107,32 @@ export class BudgetController {
           })
         }
 
-        // 2. Fetch and sum all EXPENSE transactions in this budget cycle
+        // 2. Fetch and sum all EXPENSE transactions in this budget cycle, optionally filtered by category
+        const conditions = [
+          Q.where('type', TransactionType.EXPENSE),
+          Q.where('date', Q.between(currentStartDate, currentEndDate))
+        ];
+
+        if (budget.categoryId) {
+          conditions.push(Q.where('category_id', budget.categoryId));
+        }
+
         const transactions = await database.get<Transaction>('transactions')
-          .query(
-            Q.where('type', TransactionType.EXPENSE),
-            Q.where('date', Q.between(currentStartDate, currentEndDate))
-          )
+          .query(...conditions)
           .fetch()
+
+        let categoryName, categoryColor;
+        if (budget.categoryId) {
+          try {
+            const cat = await database.get<any>('categories').find(budget.categoryId);
+            if (cat) {
+              categoryName = cat.name;
+              categoryColor = cat.color;
+            }
+          } catch (e) {
+            // category might be deleted, ignore
+          }
+        }
 
         const spentAmount = transactions.reduce((sum, tx) => sum + tx.amount, 0)
         const remainingAmount = Math.max(0, budget.amount - spentAmount)
@@ -124,6 +149,9 @@ export class BudgetController {
           endDate: currentEndDate,
           timeframe: budget.timeframe as BudgetTimeframe,
           anchorDay: budget.anchorDay,
+          categoryId: budget.categoryId,
+          categoryName,
+          categoryColor,
         })
       }
 

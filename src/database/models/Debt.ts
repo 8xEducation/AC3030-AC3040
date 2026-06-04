@@ -8,7 +8,7 @@ export default class Debt extends Model {
   @field('type') type!: string;
   @field('total_amount') totalAmount!: number;
   @field('remaining_amount') remainingAmount!: number;
-  @date('due_date') dueDate!: number;
+  @field('due_date') dueDate!: number;
   @field('account_id') accountId!: string;
   @field('status') status!: string;
   @date('created_at') createdAt!: number;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native'
 import { useThemeColors } from '../utils/theme'
 import { AccountController } from '../controllers/AccountController'
@@ -17,14 +17,14 @@ export const AddAccountModal: React.FC<AddAccountModalProps> = ({ visible, onClo
   const colors = useThemeColors()
   const { t } = useTranslation()
   
-  const [name, setName] = useState('')
+  const nameRef = useRef('')
   const [type, setType] = useState<AccountType>(AccountType.ASSET)
   const [balance, setBalance] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
   const handleSave = async () => {
-    if (!name.trim()) {
+    if (!nameRef.current.trim()) {
       setError('Account name is required')
       return
     }
@@ -42,11 +42,11 @@ export const AddAccountModal: React.FC<AddAccountModalProps> = ({ visible, onClo
     setLoading(true)
     setError('')
     
-    const res = await AccountController.createAccount(name.trim(), type, balanceInCents)
+    const res = await AccountController.createAccount(nameRef.current.trim(), type, balanceInCents)
     setLoading(false)
     
     if (res.success) {
-      setName('')
+      nameRef.current = ''
       setBalance('')
       setType(AccountType.ASSET)
       onSuccess()
@@ -114,11 +114,14 @@ export const AddAccountModal: React.FC<AddAccountModalProps> = ({ visible, onClo
                 {/* Input Fields */}
                 <Text style={[styles.label, { color: colors.textPrimary }]}>{t('acc.name')}</Text>
                 <TextInput
+                  key={visible ? 'name-open' : 'name-closed'}
                   style={[styles.input, { backgroundColor: colors.bgBase, color: colors.textPrimary, borderColor: colors.borderDefault }]}
-                  placeholder="e.g., Main Checking, Chase Sapphire"
+                  placeholder="e.g. Cash Wallet"
                   placeholderTextColor={colors.textMuted}
-                  value={name}
-                  onChangeText={setName}
+                  defaultValue=""
+                  onChangeText={(val) => { nameRef.current = val }}
+                  autoCorrect={false}
+                  spellCheck={false}
                 />
 
                 <Text style={[styles.label, { color: colors.textPrimary, marginTop: 16 }]}>{t('acc.balance')}</Text>

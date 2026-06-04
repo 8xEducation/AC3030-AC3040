@@ -83,3 +83,5 @@ Khi chạy lệnh này:
 
 **Tóm lại chu trình hàng ngày của Dev:**
 Code `->` Mở máy ảo `->` Gõ `npm run ios` hoặc `npm run android` `->` Ứng dụng tự reload khi sửa code `.ts/.tsx`.
+
+### Nếu bạn đọc đến đây mà vẫn muốn dùng bun, chắc cũng không cần đâu nhỉ, động não đi hì hì.

@@ -8,7 +8,7 @@ export default class Transaction extends Model {
   @field('type') type!: string;
   @field('amount') amount!: number;
   @field('description') description!: string;
-  @date('date') date!: number;
+  @field('date') date!: number;
   @field('category_id') categoryId!: string;
   @field('to_account_id') toAccountId!: string;
   @date('created_at') createdAt!: number;

@@ -2,6 +2,7 @@ import { Database } from '@nozbe/watermelondb'
 import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite'
 
 import { schema } from './schema'
+import migrations from './migrations'
 import Account from './models/Account'
 import Transaction from './models/Transaction'
 import Debt from './models/Debt'
@@ -10,6 +11,7 @@ import Category from './models/Category'
 
 const adapter = new SQLiteAdapter({
   schema,
+  migrations,
   dbName: 'cashflowwave',
   jsi: false,
   onSetUpError: error => {

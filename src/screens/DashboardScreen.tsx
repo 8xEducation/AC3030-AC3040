@@ -12,6 +12,7 @@ import {
 } from 'react-native'
 import { useThemeColors } from '../utils/theme'
 import { useAppStore } from '../store/appStore'
+import { TimeService } from '../services/TimeService'
 import { NetWorthCard } from '../components/NetWorthCard'
 import { AccountController } from '../controllers/AccountController'
 import { TransactionController } from '../controllers/TransactionController'
@@ -47,8 +48,10 @@ const { width: screenWidth } = Dimensions.get('window')
 
 export const DashboardScreen: React.FC = () => {
   const colors = useThemeColors()
-  const { theme, setTheme, currencySymbol, currencyPosition } = useAppStore()
+  const { theme, setTheme, currencySymbol, currencyPosition, language } = useAppStore()
   const { t } = useTranslation()
+  const [currentDateString, setCurrentDateString] = useState('')
+  const [greetingKey, setGreetingKey] = useState<any>('dashboard.hello')
   
   const [refreshing, setRefreshing] = useState(false)
   const [accounts, setAccounts] = useState<Account[]>([])
@@ -78,7 +81,7 @@ export const DashboardScreen: React.FC = () => {
     const txRes = await TransactionController.getTransactions()
 
     // Aggregate monthly dates for Category Reports
-    const now = new Date()
+    const now = TimeService.getNow()
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59)
     
@@ -103,6 +106,31 @@ export const DashboardScreen: React.FC = () => {
   useEffect(() => {
     seedDefaultCategories().then(loadData)
   }, [loadData])
+
+  useEffect(() => {
+    const updateDateAndGreeting = () => {
+      const now = TimeService.getNow()
+      
+      // Update Date
+      const formatted = new Intl.DateTimeFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }).format(now)
+      setCurrentDateString(formatted)
+
+      // Update Greeting
+      const hour = now.getHours()
+      if (hour >= 5 && hour < 12) setGreetingKey('dashboard.morning')
+      else if (hour >= 12 && hour < 18) setGreetingKey('dashboard.afternoon')
+      else if (hour >= 18 && hour < 22) setGreetingKey('dashboard.evening')
+      else setGreetingKey('dashboard.night')
+    }
+    updateDateAndGreeting()
+    const interval = setInterval(updateDateAndGreeting, 60000)
+    return () => clearInterval(interval)
+  }, [language])
 
   // Demo Action: Create Cash, Credit Card accounts, and Category seeds
   const handleSeedDemoData = async () => {
@@ -272,8 +300,8 @@ export const DashboardScreen: React.FC = () => {
       {/* Header */}
       <View style={styles.header}>
         <View>
-          <Text style={[styles.welcomeText, { color: colors.textMuted }]}>{t('dashboard.hello')}, User</Text>
-          <Text style={[styles.titleText, { color: colors.textPrimary }]}>{t('dashboard.title')}</Text>
+          <Text style={[styles.welcomeText, { color: colors.textMuted }]}>{t(greetingKey)}</Text>
+          <Text style={[styles.titleText, { color: colors.textPrimary }]}>{currentDateString || t('dashboard.title')}</Text>
         </View>
         <TouchableOpacity
           style={[styles.iconButton, { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault }]}
@@ -588,9 +616,9 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   titleText: {
-    fontSize: 22,
-    fontWeight: '800',
-    letterSpacing: -0.5,
+    fontSize: 16,
+    fontWeight: '700',
+    marginTop: 2,
   },
   iconButton: {
     width: 40,

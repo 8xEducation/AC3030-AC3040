@@ -1,11 +1,17 @@
 import { BudgetTimeframeStrategy, BudgetCycle } from './BudgetTimeframeStrategy'
+import { TimeService } from '../services/TimeService'
 
 export class WeeklyBudgetStrategy implements BudgetTimeframeStrategy {
-  calculateCycle(anchorDay: number, referenceDate: Date = new Date()): BudgetCycle {
+  calculateCycle(anchorDay: number, referenceDate: Date = TimeService.getNow()): BudgetCycle {
     const start = new Date(referenceDate)
+    const firstDay = TimeService.getFirstDayOfWeek() // 0 = Sunday, 1 = Monday
     
-    // Normalize JS day of week (0 = Sunday, 1-6 = Mon-Sat) to ISO (1 = Monday, 7 = Sunday)
-    const currentDay = start.getDay() === 0 ? 7 : start.getDay()
+    // JS getDay(): 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+    // We want to map current day to a 1-7 range relative to firstDay
+    // If firstDay is 1 (Monday): Mon=1, Tue=2, ..., Sun=7
+    // If firstDay is 0 (Sunday): Sun=1, Mon=2, ..., Sat=7
+    let currentDay = start.getDay() - firstDay + 1
+    if (currentDay <= 0) currentDay += 7
     
     let daysToSubtract = currentDay - anchorDay
     if (daysToSubtract < 0) {

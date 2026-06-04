@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard, ScrollView } from 'react-native'
 import { useThemeColors } from '../utils/theme'
 import { useTranslation } from '../utils/i18n'
@@ -24,7 +24,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ visibl
   
   const [type, setType] = useState<TransactionType>(TransactionType.EXPENSE)
   const [amount, setAmount] = useState('')
-  const [description, setDescription] = useState('')
+  const descRef = useRef('')
   const [selectedAccountId, setSelectedAccountId] = useState('')
   const [selectedCategoryId, setSelectedCategoryId] = useState('')
   
@@ -88,7 +88,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ visibl
       accountId: selectedAccountId,
       type,
       amount: amountInCents,
-      description: description.trim() || (type === TransactionType.EXPENSE ? 'Expense' : 'Income'),
+      description: descRef.current.trim() || (type === TransactionType.EXPENSE ? 'Expense' : 'Income'),
       date: Math.floor(Date.now() / 1000),
       categoryId: type !== TransactionType.TRANSFER ? selectedCategoryId : undefined,
     })
@@ -97,7 +97,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ visibl
     
     if (res.success) {
       setAmount('')
-      setDescription('')
+      descRef.current = ''
       onSuccess()
       onClose()
     } else {
@@ -169,11 +169,14 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ visibl
 
                 <Text style={[styles.label, { color: colors.textPrimary, marginTop: 16 }]}>{t('modal.desc')}</Text>
                 <TextInput
+                  key={visible ? 'desc-open' : 'desc-closed'}
                   style={[styles.input, { backgroundColor: colors.bgBase, color: colors.textPrimary, borderColor: colors.borderDefault }]}
                   placeholder={t('tx.placeholder.desc')}
                   placeholderTextColor={colors.textMuted}
-                  value={description}
-                  onChangeText={setDescription}
+                  defaultValue=""
+                  onChangeText={(val) => { descRef.current = val }}
+                  autoCorrect={false}
+                  spellCheck={false}
                 />
 
                 {/* Account Selection */}

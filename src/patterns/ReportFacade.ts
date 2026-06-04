@@ -3,6 +3,7 @@ import Transaction from '../database/models/Transaction'
 import Category from '../database/models/Category'
 import { TransactionType } from '../types'
 import { Q } from '@nozbe/watermelondb'
+import { TimeService } from '../services/TimeService'
 
 export interface CategoryExpenseReportItem {
   value: number // total in cents or standard units? Better to return cents and let the chart format it.
@@ -74,7 +75,7 @@ export class ReportFacade {
     daysCount: number = 7
   ): Promise<DailyExpenseReportItem[]> {
     try {
-      const now = new Date()
+      const now = TimeService.getNow()
       now.setHours(23, 59, 59, 999)
       const endDateSeconds = Math.floor(now.getTime() / 1000)
 

@@ -1,7 +1,8 @@
 import { BudgetTimeframeStrategy, BudgetCycle } from './BudgetTimeframeStrategy'
+import { TimeService } from '../services/TimeService'
 
 export class MonthlyBudgetStrategy implements BudgetTimeframeStrategy {
-  calculateCycle(anchorDay: number, referenceDate: Date = new Date()): BudgetCycle {
+  calculateCycle(anchorDay: number, referenceDate: Date = TimeService.getNow()): BudgetCycle {
     const ref = new Date(referenceDate)
     const year = ref.getFullYear()
     const month = ref.getMonth() // 0-indexed (0 = Jan, 11 = Dec)

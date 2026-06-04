@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import {
   StyleSheet,
   Text,
@@ -34,7 +34,7 @@ export const DebtLedgerScreen: React.FC = () => {
 
   // Debt Creation State
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [personName, setPersonName] = useState('')
+  const personNameRef = useRef('')
   const [amountStr, setAmountStr] = useState('')
   const [debtType, setDebtType] = useState<DebtType>(DebtType.BORROWED)
   const [dueDateDays, setDueDateDays] = useState('14')
@@ -73,7 +73,7 @@ export const DebtLedgerScreen: React.FC = () => {
     const amountVal = parseFloat(amountStr)
     const daysVal = parseInt(dueDateDays)
 
-    if (!personName.trim()) {
+    if (!personNameRef.current.trim()) {
       Alert.alert('Error', 'Please enter a person\'s name')
       return
     }
@@ -94,7 +94,7 @@ export const DebtLedgerScreen: React.FC = () => {
     const dueDateSeconds = Math.floor(Date.now() / 1000) + daysVal * 24 * 60 * 60
 
     const res = await DebtController.createDebt({
-      personName,
+      personName: personNameRef.current.trim(),
       type: debtType,
       totalAmountInCents: amountInCents,
       dueDate: dueDateSeconds,
@@ -104,7 +104,7 @@ export const DebtLedgerScreen: React.FC = () => {
 
     if (res.success) {
       setIsCreateModalOpen(false)
-      setPersonName('')
+      personNameRef.current = ''
       setAmountStr('')
       setDueDateDays('14')
       loadData()
@@ -330,21 +330,24 @@ export const DebtLedgerScreen: React.FC = () => {
       <Modal visible={isCreateModalOpen} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContainer, { backgroundColor: colors.bgSurface }]}>
-            <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>Record New Debt</Text>
+            <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>{t('debt.record_new')}</Text>
             
-            <Text style={[styles.inputLabel, { color: colors.textMuted }]}>Person Name</Text>
+            <Text style={[styles.inputLabel, { color: colors.textMuted }]}>{t('debt.person_name')}</Text>
             <TextInput
+              key={isCreateModalOpen ? 'debt-person-open' : 'debt-person-closed'}
               style={[
                 styles.textInput,
                 { color: colors.textPrimary, borderColor: colors.borderDefault, backgroundColor: colors.bgElevated },
               ]}
               placeholder="e.g. John Doe"
               placeholderTextColor={colors.textMuted}
-              value={personName}
-              onChangeText={setPersonName}
+              defaultValue=""
+              onChangeText={(val) => { personNameRef.current = val }}
+              autoCorrect={false}
+              spellCheck={false}
             />
 
-            <Text style={[styles.inputLabel, { color: colors.textMuted }]}>Total Loan Amount</Text>
+            <Text style={[styles.inputLabel, { color: colors.textMuted }]}>{t('debt.loan_amount')}</Text>
             <TextInput
               style={[
                 styles.textInput,
@@ -355,9 +358,11 @@ export const DebtLedgerScreen: React.FC = () => {
               placeholderTextColor={colors.textMuted}
               value={amountStr}
               onChangeText={(val) => setAmountStr(val.replace(/[^0-9.]/g, ''))}
+              autoCorrect={false}
+              spellCheck={false}
             />
 
-            <Text style={[styles.inputLabel, { color: colors.textMuted }]}>Type</Text>
+            <Text style={[styles.inputLabel, { color: colors.textMuted }]}>{t('debt.type')}</Text>
             <View style={styles.segmentedControl}>
               <TouchableOpacity
                 style={[
@@ -367,7 +372,7 @@ export const DebtLedgerScreen: React.FC = () => {
                 onPress={() => setDebtType(DebtType.LENT)}
               >
                 <Text style={[styles.segmentText, { color: debtType === DebtType.LENT ? '#FFFFFF' : colors.textPrimary }]}>
-                  Lent (Receive)
+                  {t('debt.lent')}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -378,12 +383,12 @@ export const DebtLedgerScreen: React.FC = () => {
                 onPress={() => setDebtType(DebtType.BORROWED)}
               >
                 <Text style={[styles.segmentText, { color: debtType === DebtType.BORROWED ? '#FFFFFF' : colors.textPrimary }]}>
-                  Borrowed (Repay)
+                  {t('debt.borrowed')}
                 </Text>
               </TouchableOpacity>
             </View>
 
-            <Text style={[styles.inputLabel, { color: colors.textMuted }]}>Due Date Offset (Days)</Text>
+            <Text style={[styles.inputLabel, { color: colors.textMuted }]}>{t('debt.due_offset')}</Text>
             <TextInput
               style={[
                 styles.textInput,
@@ -394,9 +399,11 @@ export const DebtLedgerScreen: React.FC = () => {
               placeholderTextColor={colors.textMuted}
               value={dueDateDays}
               onChangeText={(val) => setDueDateDays(val.replace(/[^0-9]/g, ''))}
+              autoCorrect={false}
+              spellCheck={false}
             />
 
-            <Text style={[styles.inputLabel, { color: colors.textMuted }]}>Associated Wallet</Text>
+            <Text style={[styles.inputLabel, { color: colors.textMuted }]}>{t('debt.associated_wallet')}</Text>
             <View style={styles.accountSelectors}>
               {accounts.map((acc) => (
                 <TouchableOpacity
@@ -430,7 +437,7 @@ export const DebtLedgerScreen: React.FC = () => {
                 {linkToAccount && <Check size={12} color="#FFFFFF" />}
               </View>
               <Text style={[styles.toggleText, { color: colors.textPrimary }]}>
-                Deduct/Add starting amount in this wallet
+                {t('debt.deduct_add')}
               </Text>
             </TouchableOpacity>
 
@@ -439,14 +446,14 @@ export const DebtLedgerScreen: React.FC = () => {
                 style={[styles.cancelBtn, { borderColor: colors.borderDefault }]}
                 onPress={() => setIsCreateModalOpen(false)}
               >
-                <Text style={[styles.cancelBtnText, { color: colors.textPrimary }]}>Cancel</Text>
+                <Text style={[styles.cancelBtnText, { color: colors.textPrimary }]}>{t('modal.cancel')}</Text>
               </TouchableOpacity>
               
               <TouchableOpacity
                 style={[styles.submitBtn, { backgroundColor: colors.accentPrimary }]}
                 onPress={handleCreateDebt}
               >
-                <Text style={styles.submitBtnText}>Add Debt</Text>
+                <Text style={styles.submitBtnText}>{t('debt.add_debt')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -457,9 +464,9 @@ export const DebtLedgerScreen: React.FC = () => {
       <Modal visible={isRepayModalOpen} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContainer, { backgroundColor: colors.bgSurface }]}>
-            <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>Record Repayment</Text>
+            <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>{t('debt.record_repayment')}</Text>
             
-            <Text style={[styles.inputLabel, { color: colors.textMuted }]}>Repayment Amount</Text>
+            <Text style={[styles.inputLabel, { color: colors.textMuted }]}>{t('debt.repay_amount')}</Text>
             <TextInput
               style={[
                 styles.textInput,
@@ -470,6 +477,8 @@ export const DebtLedgerScreen: React.FC = () => {
               placeholderTextColor={colors.textMuted}
               value={repayAmountStr}
               onChangeText={(val) => setRepayAmountStr(val.replace(/[^0-9.]/g, ''))}
+              autoCorrect={false}
+              spellCheck={false}
             />
 
             <Text style={[styles.inputLabel, { color: colors.textMuted }]}>Pay From Wallet</Text>

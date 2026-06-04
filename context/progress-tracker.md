@@ -43,6 +43,13 @@ change.
 - [x] Implemented multi-slide onboarding flow in OnboardingScreen for currency & style customization on first boot
 - [x] Wired onboarding and biometric locks dynamically in App.tsx
 - [x] Resolved fatal Hermes engine crashes and Flow syntax parsing errors
+- [x] Implemented Custom Categories Management via CategoryManagerModal and CategoryController
+- [x] Implemented Budget-Category binding (Schema v2) to allow targeted expense limits per category
+- [x] Moved Category Management UI cohesively into SmartBudgetScreen to streamline user workflows
+- [x] Implemented global TimeService with Network Time sync (WorldTimeAPI) and user-configurable firstDayOfWeek
+- [x] Integrated TimeService across Budget strategies, Dashboard greetings, and Report data aggregations
+- [x] Displayed Network Timezone syncing status in Settings with multi-language i18n support
+- [x] Refactored Dashboard greeting to be dynamic and time-based (Morning/Afternoon/Evening/Night) to improve personalization without requiring user name
 
 ## In Progress
 
@@ -147,3 +154,28 @@ This document tracks the configuration adjustments, build compilation errors, an
 - **TypeScript Type Checks**: Standard compilation check (`npx tsc --noEmit`) passes with zero errors.
 - **Production Build**: Successfully compiled Hermes bytecode (`hbc`) for iOS and Android via `npx expo export -c`.
 
+---
+
+### Issue 6: Vietnamese Telex "Nuốt Chữ" (Swallowed Characters) on iOS
+- **Symptom**: When users typed Vietnamese using the iOS native Telex keyboard, letters would occasionally disappear or fail to combine correctly, despite `autoCorrect={false}` and `spellCheck={false}`.
+- **Root Cause**: The typical React Native controlled `TextInput` architecture (`value={state}` + `onChangeText`) causes the React reconciliation cycle to update the native `UITextField` asynchronously across the bridge. This asynchronous property update interrupts the iOS Input Method Editor (IME) mid-composition, deleting the buffer and swallowing characters.
+- **Resolution (Resolved)**:
+  1. Converted all text `TextInput` fields across the app (AddTransactionModal, AddAccountModal, SmartBudgetScreen, DebtLedgerScreen, CategoryManagerModal) into uncontrolled components.
+  2. Removed the `value={state}` binding entirely.
+  3. Replaced the `useState` tracking with `useRef` so that `onChangeText={(val) => ref.current = val}` collects the text without triggering any component re-renders.
+  4. Used the `key` prop trick to force remounts and clear the input when modals are closed or submissions complete.
+  5. **Note**: During testing on the iOS Simulator, the issue appeared to persist when using a Mac hardware keyboard. This is a known limitation of the iOS Simulator's hardware keyboard bridge with Vietnamese Telex. The code solution is confirmed correct and will perform flawlessly on real devices or when using the on-screen virtual keyboard (`Cmd + K`).
+
+---
+
+### Issue 7: WatermelonDB Native Crash on Interleaved Model Updates & Date Conversion
+- **Symptom**: When creating a new transaction, the app crashed or failed silently with \`Model.update() can only be called from inside of a Writer\`. Separately, budget transaction tracking queries failed to load any transactions despite being successfully linked.
+- **Root Cause**:
+  1. **ActionQueue Locking Bug**: The \`TransactionFactory\` was executing a \`.create()\` block followed by multiple asynchronous \`Account.update()\` and \`Debt.update()\` blocks in observers sequentially inside a single \`database.write()\`. React Native's asynchronous bridge interleaved these native calls, causing WatermelonDB to prematurely unlock the ActionQueue, leading to an immediate crash when the next observer tried to write.
+  2. **WatermelonDB \`@date\` Leak**: Budget logical timestamps (\`start_date\`, \`end_date\`) were decorated with \`@date\`. WatermelonDB eagerly intercepted these integer timestamps (seconds) and converted them into JS \`Date\` objects. When these \`Date\` objects were passed back into \`Q.between()\` queries to aggregate budget expenses, the native SQLite adapter crashed because it expected numbers.
+  3. **Fast Refresh Observer Purge**: React Native's Metro bundler Fast Refresh was clearing the static \`TransactionSubject.observers\` array every time a file reloaded, dropping all tracking events and silently failing to update balances.
+- **Resolution**:
+  1. Completely refactored the \`TransactionObserver\` pattern. Observers now return arrays of prepared models (\`Promise<Model[]>\` via \`.prepareUpdate()\`) instead of executing updates immediately.
+  2. \`TransactionFactory\` aggregates all prepared models and fires a single, atomic \`database.batch(...models)\`. This enforces strict synchronization and circumvents the React Native ActionQueue locking bug.
+  3. Replaced all \`@date\` decorators with \`@field\` for logical timestamps in \`Budget.ts\` and \`Transaction.ts\` to enforce pure integer compliance with \`Q.where\` queries. (Kept \`@date\` exclusively for \`created_at\`/\`updated_at\`).
+  4. Converted \`TransactionSubject\` static properties to lazily-initialized getters to survive React Native Fast Refresh reloading.

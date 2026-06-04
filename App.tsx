@@ -11,6 +11,7 @@ import { BiometricLockScreen } from './src/screens/BiometricLockScreen'
 import { useThemeColors } from './src/utils/theme'
 import { useAppStore } from './src/store/appStore'
 import { useTranslation } from './src/utils/i18n'
+import { TimeService } from './src/services/TimeService'
 import { Wallet, TrendingDown, ArrowUpRight, Settings as SettingsIcon } from 'lucide-react-native'
 
 type Tab = 'home' | 'budgets' | 'debts' | 'settings'
@@ -21,6 +22,10 @@ export default function App() {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<Tab>('home')
   const [isUnlocked, setIsUnlocked] = useState(false)
+
+  React.useEffect(() => {
+    TimeService.init()
+  }, [])
 
   // Determine status bar style based on active theme
   const statusBarStyle = theme === 'dark' ? 'light' : theme === 'light' ? 'dark' : 'auto'

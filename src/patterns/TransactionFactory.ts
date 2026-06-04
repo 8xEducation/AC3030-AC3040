@@ -3,12 +3,6 @@ import Transaction from '../database/models/Transaction'
 import { TransactionType } from '../types'
 import { TransactionSubject } from './TransactionSubject'
 import { TransactionContext } from './TransactionObserver'
-import { AccountObserver } from './AccountObserver'
-import { DebtObserver } from './DebtObserver'
-
-// Subscribe observers statically to guarantee they are registered when TransactionFactory is imported
-TransactionSubject.subscribe(new AccountObserver())
-TransactionSubject.subscribe(new DebtObserver())
 
 export interface CreateTransactionParams {
   accountId: string
@@ -29,7 +23,7 @@ export class TransactionFactory {
     context?: TransactionContext
   ): Promise<Transaction> {
     return await database.write(async () => {
-      const transaction = await database.get<Transaction>('transactions').create((t) => {
+      const transaction = database.get<Transaction>('transactions').prepareCreate((t) => {
         t.accountId = params.accountId
         t.type = params.type
         t.amount = params.amount
@@ -39,8 +33,10 @@ export class TransactionFactory {
         t.toAccountId = params.toAccountId || ''
       })
 
-      // Notify observers (e.g. AccountObserver and DebtObserver) to sync balances
-      await TransactionSubject.notifyCreated(transaction, context)
+      // Notify observers and collect models to batch
+      const observerModels = await TransactionSubject.notifyCreated(transaction, context)
+      
+      await database.batch(transaction, ...observerModels)
 
       return transaction
     })
@@ -66,8 +62,8 @@ export class TransactionFactory {
         toAccountId: transaction.toAccountId,
       } as unknown as Transaction
 
-      // Perform updates
-      await transaction.update((t) => {
+      // Prepare updates
+      const preparedTransaction = transaction.prepareUpdate((t) => {
         if (params.accountId !== undefined) t.accountId = params.accountId
         if (params.type !== undefined) t.type = params.type
         if (params.amount !== undefined) t.amount = params.amount
@@ -77,8 +73,10 @@ export class TransactionFactory {
         if (params.toAccountId !== undefined) t.toAccountId = params.toAccountId || ''
       })
 
-      // Notify observers to revert old and apply new balances
-      await TransactionSubject.notifyUpdated(transaction, oldTransaction, context)
+      // Notify observers to collect batched model updates
+      const observerModels = await TransactionSubject.notifyUpdated(transaction, oldTransaction, context)
+
+      await database.batch(preparedTransaction, ...observerModels)
 
       return transaction
     })
@@ -92,10 +90,13 @@ export class TransactionFactory {
     context?: TransactionContext
   ): Promise<void> {
     await database.write(async () => {
-      // Notify observers to revert balances before deleting the transaction record
-      await TransactionSubject.notifyDeleted(transaction, context)
+      // Collect observer updates
+      const observerModels = await TransactionSubject.notifyDeleted(transaction, context)
 
-      await transaction.destroyPermanently()
+      await database.batch(
+        transaction.prepareDestroyPermanently(),
+        ...observerModels
+      )
     })
   }
 }

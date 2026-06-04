@@ -12,7 +12,8 @@ import {
 import { useThemeColors } from '../utils/theme'
 import { useAppStore } from '../store/appStore'
 import { database } from '../database'
-import { Globe, Settings, Sun, Moon, Laptop, Landmark, Shield } from 'lucide-react-native'
+import { Globe, Settings, Sun, Moon, Laptop, Landmark, Shield, Clock, Calendar } from 'lucide-react-native'
+import { TimeService } from '../services/TimeService'
 import * as LocalAuthentication from 'expo-local-authentication'
 import { useTranslation } from '../utils/i18n'
 
@@ -29,6 +30,11 @@ export const SettingsScreen: React.FC = () => {
     setLanguage,
     isBiometricEnabled,
     setIsBiometricEnabled,
+    firstDayOfWeek,
+    setFirstDayOfWeek,
+    timeSyncMode,
+    setTimeSyncMode,
+    networkTimezone,
   } = useAppStore()
   const { t } = useTranslation()
 
@@ -103,6 +109,12 @@ export const SettingsScreen: React.FC = () => {
         Alert.alert('Error', err?.message || 'Biometric authentication error')
       }
     }
+  }
+
+  const handleToggleTimeSync = () => {
+    const newMode = timeSyncMode === 'device' ? 'network' : 'device'
+    setTimeSyncMode(newMode)
+    TimeService.init() // Re-init time service
   }
 
   return (
@@ -221,6 +233,8 @@ export const SettingsScreen: React.FC = () => {
           </View>
         </View>
 
+
+
         {/* Localization & Info */}
         <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('settings.lang')}</Text>
         <View style={[styles.settingsGroup, { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault }]}>
@@ -250,6 +264,70 @@ export const SettingsScreen: React.FC = () => {
           </View>
         </View>
 
+        {/* Time & Date Settings */}
+        <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('settings.time_date')}</Text>
+        <View style={[styles.settingsGroup, { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault }]}>
+          
+          <View style={styles.languageRow}>
+            <View style={styles.settingItemLeft}>
+              <Calendar size={18} color={colors.textMuted} />
+              <View>
+                <Text style={[styles.settingLabel, { color: colors.textPrimary, marginBottom: 0 }]}>{t('settings.first_day')}</Text>
+                <Text style={{ color: colors.textMuted, fontSize: 11, marginTop: 2 }}>{t('settings.first_day_desc')}</Text>
+              </View>
+            </View>
+            <View style={styles.languageSelectors}>
+              <TouchableOpacity
+                style={[styles.langBadge, firstDayOfWeek === 0 && { backgroundColor: colors.accentPrimary }]}
+                onPress={() => setFirstDayOfWeek(0)}
+              >
+                <Text style={{ color: firstDayOfWeek === 0 ? '#FFFFFF' : colors.textPrimary, fontWeight: '700', fontSize: 11 }}>
+                  {t('settings.sun')}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.langBadge, firstDayOfWeek === 1 && { backgroundColor: colors.accentPrimary }]}
+                onPress={() => setFirstDayOfWeek(1)}
+              >
+                <Text style={{ color: firstDayOfWeek === 1 ? '#FFFFFF' : colors.textPrimary, fontWeight: '700', fontSize: 11 }}>
+                  {t('settings.mon')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={styles.divider} />
+
+          <View style={styles.securityRow}>
+            <View style={styles.settingItemLeft}>
+              <Clock size={18} color={colors.textMuted} />
+              <View>
+                <Text style={[styles.settingLabel, { color: colors.textPrimary, marginBottom: 0 }]}>
+                  {t('settings.sync_network')}
+                </Text>
+                <Text style={{ color: colors.textMuted, fontSize: 11, marginTop: 2 }}>
+                  {timeSyncMode === 'network' && networkTimezone 
+                    ? `${t('settings.sync_network_desc')} (${networkTimezone})` 
+                    : t('settings.sync_network_desc')}
+                </Text>
+              </View>
+            </View>
+            <TouchableOpacity
+              style={[
+                styles.mockToggle,
+                {
+                  backgroundColor: timeSyncMode === 'network' ? colors.accentPrimary : colors.borderDefault,
+                  alignItems: timeSyncMode === 'network' ? 'flex-end' : 'flex-start',
+                },
+              ]}
+              onPress={handleToggleTimeSync}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.mockToggleKnob, { backgroundColor: colors.bgSurface }]} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {/* Security / Biometrics */}
         <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('settings.security')}</Text>
         <View style={[styles.settingsGroup, { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault }]}>
@@ -261,7 +339,7 @@ export const SettingsScreen: React.FC = () => {
                   {t('settings.biometric')}
                 </Text>
                 <Text style={{ color: colors.textMuted, fontSize: 11, marginTop: 2 }}>
-                  Require FaceID/TouchID on startup
+                  {t('settings.biometric_desc')}
                 </Text>
               </View>
             </View>
@@ -296,6 +374,8 @@ export const SettingsScreen: React.FC = () => {
 
         <View style={styles.footerSpacing} />
       </ScrollView>
+
+
     </SafeAreaView>
   )
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import {
   StyleSheet,
   Text,
@@ -13,43 +13,64 @@ import {
 } from 'react-native'
 import { useThemeColors } from '../utils/theme'
 import { useAppStore } from '../store/appStore'
+import { useTranslation } from '../utils/i18n'
 import { BudgetController, BudgetProgress } from '../controllers/BudgetController'
-import { BudgetTimeframe } from '../types'
+import { BudgetTimeframe, CategoryType } from '../types'
 import { formatCurrency } from '../utils/currencyFormatter'
-import { Plus, Trash2, Calendar, AlertTriangle, CheckCircle, Info } from 'lucide-react-native'
+import { Plus, Trash2, Calendar, AlertTriangle, CheckCircle, Info, Tag } from 'lucide-react-native'
+import { database } from '../database'
+import Category from '../database/models/Category'
+import { CategoryManagerModal } from '../components/CategoryManagerModal'
 
 export const SmartBudgetScreen: React.FC = () => {
   const colors = useThemeColors()
   const { currencySymbol, currencyPosition } = useAppStore()
+  const { t } = useTranslation()
 
   const [refreshing, setRefreshing] = useState(false)
   const [budgets, setBudgets] = useState<BudgetProgress[]>([])
   
   // Creation Form State
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [name, setName] = useState('')
+  const nameRef = useRef('')
   const [amountStr, setAmountStr] = useState('')
   const [timeframe, setTimeframe] = useState<BudgetTimeframe>(BudgetTimeframe.MONTHLY)
   const [anchorDayStr, setAnchorDayStr] = useState('1')
+  const [categories, setCategories] = useState<Category[]>([])
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | undefined>(undefined)
+  const [isCategoryManagerVisible, setIsCategoryManagerVisible] = useState(false)
+
+  const loadCategories = useCallback(async () => {
+    try {
+      const allCategories = await database.get<Category>('categories').query().fetch()
+      const expenseCats = allCategories.filter(c => c.type === CategoryType.EXPENSE && c.isActive)
+      setCategories(expenseCats)
+    } catch (err) {
+      console.error(err)
+    }
+  }, [])
 
   const loadBudgets = useCallback(async () => {
     setRefreshing(true)
     const res = await BudgetController.getBudgetsProgress()
     if (res.success && res.data) {
       setBudgets(res.data)
+    } else {
+      Alert.alert('Load Error', res.error || 'Failed to load budgets')
     }
     setRefreshing(false)
   }, [])
 
   useEffect(() => {
     loadBudgets()
-  }, [loadBudgets])
+    loadCategories()
+  }, [loadBudgets, loadCategories])
 
   const handleCreateBudget = async () => {
     const amountVal = parseFloat(amountStr)
     const anchorVal = parseInt(anchorDayStr)
 
-    if (!name.trim()) {
+    if (!nameRef.current.trim()) {
       Alert.alert('Error', 'Please enter a budget name')
       return
     }
@@ -66,17 +87,19 @@ export const SmartBudgetScreen: React.FC = () => {
     const amountInCents = Math.round(amountVal * 100)
 
     const res = await BudgetController.createBudget({
-      name,
+      name: nameRef.current.trim(),
       amountInCents,
       timeframe,
       anchorDay: anchorVal,
+      categoryId: selectedCategoryId,
     })
 
     if (res.success) {
       setIsModalOpen(false)
-      setName('')
+      nameRef.current = ''
       setAmountStr('')
       setAnchorDayStr('1')
+      setSelectedCategoryId(undefined)
       loadBudgets()
     } else {
       Alert.alert('Error', res.error || 'Failed to create budget')
@@ -106,17 +129,26 @@ export const SmartBudgetScreen: React.FC = () => {
       {/* Header */}
       <View style={styles.header}>
         <View>
-          <Text style={[styles.headerSubtitle, { color: colors.textMuted }]}>Manage & Save</Text>
-          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Smart Budgets</Text>
+          <Text style={[styles.headerSubtitle, { color: colors.textMuted }]}>{t('budget.manage')}</Text>
+          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>{t('budget.title')}</Text>
         </View>
-        <TouchableOpacity
-          style={[styles.addButton, { backgroundColor: colors.accentPrimary }]}
-          onPress={() => setIsModalOpen(true)}
-          activeOpacity={0.8}
-        >
-          <Plus size={20} color="#FFFFFF" />
-          <Text style={styles.addButtonText}>Add</Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          <TouchableOpacity
+            style={[styles.iconButton, { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault }]}
+            onPress={() => setIsCategoryManagerVisible(true)}
+            activeOpacity={0.8}
+          >
+            <Tag size={20} color={colors.textPrimary} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.addButton, { backgroundColor: colors.accentPrimary }]}
+            onPress={() => setIsModalOpen(true)}
+            activeOpacity={0.8}
+          >
+            <Plus size={20} color="#FFFFFF" />
+            <Text style={styles.addButtonText}>{t('budget.add')}</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView
@@ -128,15 +160,15 @@ export const SmartBudgetScreen: React.FC = () => {
         {budgets.length === 0 ? (
           <View style={[styles.emptyContainer, { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault }]}>
             <Info size={40} color={colors.textMuted} />
-            <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>No Budgets Set</Text>
+            <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>{t('budget.no_budgets')}</Text>
             <Text style={[styles.emptyText, { color: colors.textMuted }]}>
-              Define a weekly or monthly budget limit to monitor your spending automatically.
+              {t('budget.no_budgets_desc')}
             </Text>
             <TouchableOpacity
               style={[styles.createFirstBtn, { backgroundColor: colors.accentPrimary }]}
               onPress={() => setIsModalOpen(true)}
             >
-              <Text style={styles.createFirstBtnText}>Create Budget</Text>
+              <Text style={styles.createFirstBtnText}>{t('budget.create_first')}</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -149,18 +181,18 @@ export const SmartBudgetScreen: React.FC = () => {
 
               // Multi-Tier alert styling
               let progressBarColor = colors.accentPrimary
-              let statusLabel = 'Within Budget'
+              let statusLabel = t('budget.within')
               let StatusIcon = CheckCircle
               let statusColor = colors.stateSuccess
 
               if (pct >= 100) {
                 progressBarColor = colors.stateError
-                statusLabel = 'Budget Exceeded!'
+                statusLabel = t('budget.exceeded')
                 StatusIcon = AlertTriangle
                 statusColor = colors.stateError
               } else if (pct >= 80) {
                 progressBarColor = colors.stateWarning
-                statusLabel = 'Warning (Over 80%)'
+                statusLabel = t('budget.warning')
                 StatusIcon = AlertTriangle
                 statusColor = colors.stateWarning
               }
@@ -174,8 +206,16 @@ export const SmartBudgetScreen: React.FC = () => {
                   ]}
                 >
                   <View style={styles.budgetCardHeader}>
-                    <View>
-                      <Text style={[styles.budgetName, { color: colors.textPrimary }]}>{b.name}</Text>
+                    <View style={{ flex: 1 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
+                        <Text style={[styles.budgetName, { color: colors.textPrimary }]}>{b.name}</Text>
+                        {b.categoryId && b.categoryName && (
+                          <View style={{ backgroundColor: b.categoryColor, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 8, flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                            <Tag size={10} color="#FFF" />
+                            <Text style={{ fontSize: 10, fontWeight: '700', color: '#FFF' }}>{b.categoryName}</Text>
+                          </View>
+                        )}
+                      </View>
                       <View style={styles.cycleContainer}>
                         <Calendar size={12} color={colors.textMuted} />
                         <Text style={[styles.budgetDates, { color: colors.textMuted }]}>
@@ -191,11 +231,11 @@ export const SmartBudgetScreen: React.FC = () => {
 
                   <View style={styles.amountRow}>
                     <View>
-                      <Text style={[styles.amountLabel, { color: colors.textMuted }]}>Spent</Text>
+                      <Text style={[styles.amountLabel, { color: colors.textMuted }]}>{t('budget.spent')}</Text>
                       <Text style={[styles.spentText, { color: colors.textPrimary }]}>{formattedSpent}</Text>
                     </View>
                     <View style={styles.alignRight}>
-                      <Text style={[styles.amountLabel, { color: colors.textMuted }]}>Limit</Text>
+                      <Text style={[styles.amountLabel, { color: colors.textMuted }]}>{t('budget.limit')}</Text>
                       <Text style={[styles.limitText, { color: colors.textMuted }]}>{formattedLimit}</Text>
                     </View>
                   </View>
@@ -219,7 +259,7 @@ export const SmartBudgetScreen: React.FC = () => {
                       <Text style={[styles.statusText, { color: statusColor }]}>{statusLabel}</Text>
                     </View>
                     <Text style={[styles.remainingText, { color: colors.textMuted }]}>
-                      {formattedRem} remaining
+                      {formattedRem} {t('budget.remaining')}
                     </Text>
                   </View>
                 </View>
@@ -233,21 +273,68 @@ export const SmartBudgetScreen: React.FC = () => {
       <Modal visible={isModalOpen} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContainer, { backgroundColor: colors.bgSurface }]}>
-            <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>New Budget</Text>
+            <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>{t('budget.new')}</Text>
             
-            <Text style={[styles.inputLabel, { color: colors.textMuted }]}>Name</Text>
+            <Text style={[styles.inputLabel, { color: colors.textMuted }]}>{t('budget.name')}</Text>
             <TextInput
+              key={isModalOpen ? 'budget-name-open' : 'budget-name-closed'}
               style={[
                 styles.textInput,
                 { color: colors.textPrimary, borderColor: colors.borderDefault, backgroundColor: colors.bgElevated },
               ]}
               placeholder="e.g. Monthly Grocery"
               placeholderTextColor={colors.textMuted}
-              value={name}
-              onChangeText={setName}
+              defaultValue=""
+              onChangeText={(val) => { nameRef.current = val }}
+              autoCorrect={false}
+              spellCheck={false}
             />
 
-            <Text style={[styles.inputLabel, { color: colors.textMuted }]}>Amount (Limit)</Text>
+            <Text style={[styles.inputLabel, { color: colors.textMuted }]}>Linked Category (Optional)</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pillContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.pill,
+                  { 
+                    backgroundColor: !selectedCategoryId ? colors.accentPrimary : colors.bgBase,
+                    borderColor: !selectedCategoryId ? colors.accentPrimary : colors.borderDefault
+                  }
+                ]}
+                onPress={() => setSelectedCategoryId(undefined)}
+              >
+                <Tag size={14} color={!selectedCategoryId ? '#FFF' : colors.textMuted} />
+                <Text style={[
+                  styles.pillText,
+                  { color: !selectedCategoryId ? '#FFF' : colors.textMuted }
+                ]}>
+                  All Expenses
+                </Text>
+              </TouchableOpacity>
+              
+              {categories.map(cat => (
+                <TouchableOpacity
+                  key={cat.id}
+                  style={[
+                    styles.pill,
+                    { 
+                      backgroundColor: selectedCategoryId === cat.id ? cat.color : colors.bgBase,
+                      borderColor: selectedCategoryId === cat.id ? cat.color : colors.borderDefault
+                    }
+                  ]}
+                  onPress={() => setSelectedCategoryId(cat.id)}
+                >
+                  <Tag size={14} color={selectedCategoryId === cat.id ? '#FFF' : cat.color} />
+                  <Text style={[
+                    styles.pillText,
+                    { color: selectedCategoryId === cat.id ? '#FFF' : colors.textMuted }
+                  ]}>
+                    {cat.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+
+            <Text style={[styles.inputLabel, { color: colors.textMuted }]}>{t('budget.amount')}</Text>
             <TextInput
               style={[
                 styles.textInput,
@@ -257,10 +344,12 @@ export const SmartBudgetScreen: React.FC = () => {
               keyboardType="numeric"
               placeholderTextColor={colors.textMuted}
               value={amountStr}
-              onChangeText={setAmountStr}
+              onChangeText={(val) => setAmountStr(val.replace(/[^0-9.]/g, ''))}
+              autoCorrect={false}
+              spellCheck={false}
             />
 
-            <Text style={[styles.inputLabel, { color: colors.textMuted }]}>Timeframe</Text>
+            <Text style={[styles.inputLabel, { color: colors.textMuted }]}>{t('budget.timeframe')}</Text>
             <View style={styles.segmentedControl}>
               <TouchableOpacity
                 style={[
@@ -278,7 +367,7 @@ export const SmartBudgetScreen: React.FC = () => {
                     { color: timeframe === BudgetTimeframe.WEEKLY ? '#FFFFFF' : colors.textPrimary },
                   ]}
                 >
-                  Weekly
+                  {t('budget.weekly')}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -297,15 +386,15 @@ export const SmartBudgetScreen: React.FC = () => {
                     { color: timeframe === BudgetTimeframe.MONTHLY ? '#FFFFFF' : colors.textPrimary },
                   ]}
                 >
-                  Monthly
+                  {t('budget.monthly')}
                 </Text>
               </TouchableOpacity>
             </View>
 
             <Text style={[styles.inputLabel, { color: colors.textMuted }]}>
               {timeframe === BudgetTimeframe.WEEKLY
-                ? 'Anchor Day (1 = Mon, 7 = Sun)'
-                : 'Anchor Day of Month (1 - 31)'}
+                ? t('budget.anchor_week')
+                : t('budget.anchor_month')}
             </Text>
             <TextInput
               style={[
@@ -316,7 +405,9 @@ export const SmartBudgetScreen: React.FC = () => {
               keyboardType="numeric"
               placeholderTextColor={colors.textMuted}
               value={anchorDayStr}
-              onChangeText={setAnchorDayStr}
+              onChangeText={(val) => setAnchorDayStr(val.replace(/[^0-9]/g, ''))}
+              autoCorrect={false}
+              spellCheck={false}
             />
 
             <View style={styles.modalActions}>
@@ -324,19 +415,27 @@ export const SmartBudgetScreen: React.FC = () => {
                 style={[styles.cancelBtn, { borderColor: colors.borderDefault }]}
                 onPress={() => setIsModalOpen(false)}
               >
-                <Text style={[styles.cancelBtnText, { color: colors.textPrimary }]}>Cancel</Text>
+                <Text style={[styles.cancelBtnText, { color: colors.textPrimary }]}>{t('modal.cancel')}</Text>
               </TouchableOpacity>
               
               <TouchableOpacity
                 style={[styles.submitBtn, { backgroundColor: colors.accentPrimary }]}
                 onPress={handleCreateBudget}
               >
-                <Text style={styles.submitBtnText}>Create</Text>
+                <Text style={styles.submitBtnText}>{t('budget.create')}</Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
       </Modal>
+
+      <CategoryManagerModal 
+        visible={isCategoryManagerVisible} 
+        onClose={() => {
+          setIsCategoryManagerVisible(false)
+          loadCategories()
+        }} 
+      />
     </SafeAreaView>
   )
 }
@@ -361,6 +460,14 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '800',
     letterSpacing: -0.5,
+  },
+  iconButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   addButton: {
     flexDirection: 'row',
@@ -577,5 +684,24 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '600',
     fontSize: 14,
+  },
+  pillContainer: {
+    flexDirection: 'row',
+    marginTop: 8,
+    marginBottom: 8,
+  },
+  pill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    marginRight: 8,
+    gap: 6,
+  },
+  pillText: {
+    fontSize: 13,
+    fontWeight: '600',
   },
 })
