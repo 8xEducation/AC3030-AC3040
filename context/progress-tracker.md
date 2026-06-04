@@ -133,6 +133,15 @@ This document tracks the configuration adjustments, build compilation errors, an
 
 ---
 
+### Issue 5: Unimplemented component `<RNCSafeAreaProvider>`
+- **Symptom**: App crashed on load with `Unimplemented component: <RNCSafeAreaProvider>`.
+- **Root Cause**: `react-native-safe-area-context` was installed to fix the `SafeAreaView` deprecation warning, but because the project uses a custom development client (bare workflow with `ios` directory), the new native module wasn't compiled into the running binary. Hot-reloading Metro or clearing cache only updated the JS side, which then tried to mount a native view that didn't exist in the old app binary.
+- **Resolution**:
+  1. Ran `cd ios && pod install` to properly link the new native module via CocoaPods.
+  2. Executed `npm run ios` (i.e., `npx expo run:ios`) to trigger a full Xcode recompilation, successfully embedding the new native code into the Simulator binary.
+
+---
+
 ## 3. Current Verification Status
 - **Unit Tests**: All 13 Jest unit tests (`npm test`) compile and pass successfully.
 - **TypeScript Type Checks**: Standard compilation check (`npx tsc --noEmit`) passes with zero errors.

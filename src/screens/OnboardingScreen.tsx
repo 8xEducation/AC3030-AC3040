@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, SafeAreaView } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, TextInput } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { useThemeColors } from '../utils/theme'
 import { useAppStore } from '../store/appStore'
 import { Wallet, Compass, ShieldCheck, Moon, Sun, Laptop } from 'lucide-react-native'

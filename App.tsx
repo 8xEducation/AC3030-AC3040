@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { StatusBar } from 'expo-status-bar'
-import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView } from 'react-native'
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { DashboardScreen } from './src/screens/DashboardScreen'
 import { SmartBudgetScreen } from './src/screens/SmartBudgetScreen'
 import { DebtLedgerScreen } from './src/screens/DebtLedgerScreen'
