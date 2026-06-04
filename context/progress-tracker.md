@@ -50,6 +50,11 @@ change.
 - [x] Integrated TimeService across Budget strategies, Dashboard greetings, and Report data aggregations
 - [x] Displayed Network Timezone syncing status in Settings with multi-language i18n support
 - [x] Refactored Dashboard greeting to be dynamic and time-based (Morning/Afternoon/Evening/Night) to improve personalization without requiring user name
+- [x] Restructured project layout by moving loose tests into `tests/` directory
+- [x] Added developer credit line to Settings Screen footer
+- [x] Implemented `TransactionHistoryModal` using `@shopify/flash-list` for high-performance viewing of full transaction history via Dashboard
+- [x] Implemented `TransactionDetailsModal` to display full un-truncated transaction descriptions, amounts, linked categories, and linked accounts on tap
+
 
 ## In Progress
 
@@ -179,3 +184,10 @@ This document tracks the configuration adjustments, build compilation errors, an
   2. \`TransactionFactory\` aggregates all prepared models and fires a single, atomic \`database.batch(...models)\`. This enforces strict synchronization and circumvents the React Native ActionQueue locking bug.
   3. Replaced all \`@date\` decorators with \`@field\` for logical timestamps in \`Budget.ts\` and \`Transaction.ts\` to enforce pure integer compliance with \`Q.where\` queries. (Kept \`@date\` exclusively for \`created_at\`/\`updated_at\`).
   4. Converted \`TransactionSubject\` static properties to lazily-initialized getters to survive React Native Fast Refresh reloading.
+
+### Issue 8: iOS Multi-Modal Presentation Conflict (Screen Freeze)
+- **Symptom**: When tapping a transaction inside the `TransactionHistoryModal` (See All), the screen would freeze or the details modal would fail to present. Closing the history modal left the app in an unresponsive state requiring a tab switch to recover.
+- **Root Cause**: `TransactionHistoryModal` (`pageSheet` style) was currently presented over the root view. When a transaction was selected, the event bubbled back up to `DashboardScreen`, which attempted to render `TransactionDetailsModal` (transparent) natively over the root view. iOS rejected stacking a new modal at the root level while another modal was actively covering it, leading to a silent UI lock.
+- **Resolution**:
+  1. Decoupled the selection state from `DashboardScreen` and moved the `TransactionDetailsModal` rendering directly inside `TransactionHistoryModal`'s view hierarchy.
+  2. This allows the Details Modal to correctly present *on top* of the History Modal, maintaining the proper UI stack without conflicts. `DashboardScreen` retains its own separate `TransactionDetailsModal` solely for its internal Recent Transactions list.

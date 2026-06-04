@@ -20,6 +20,8 @@ import { DebtController } from '../controllers/DebtController'
 import { seedDefaultCategories } from '../utils/seedCategories'
 import { AddAccountModal } from '../components/AddAccountModal'
 import { AddTransactionModal } from '../components/AddTransactionModal'
+import { TransactionHistoryModal } from '../components/TransactionHistoryModal'
+import { TransactionDetailsModal } from '../components/TransactionDetailsModal'
 import { ReportFacade, CategoryExpenseReportItem, DailyExpenseReportItem } from '../patterns/ReportFacade'
 import { database } from '../database'
 import Account from '../database/models/Account'
@@ -62,9 +64,10 @@ export const DashboardScreen: React.FC = () => {
   const [dailyTrend, setDailyTrend] = useState<DailyExpenseReportItem[]>([])
   const [categoryExpenses, setCategoryExpenses] = useState<CategoryExpenseReportItem[]>([])
 
-  // Modal States
   const [isAddAccountVisible, setAddAccountVisible] = useState(false)
   const [isAddTransactionVisible, setAddTransactionVisible] = useState(false)
+  const [isTxHistoryVisible, setTxHistoryVisible] = useState(false)
+  const [selectedTx, setSelectedTx] = useState<Transaction | null>(null)
   // Calculate Net Worth Totals
   const totalAssets = accounts
     .filter((acc) => acc.accountType === AccountType.ASSET)
@@ -524,6 +527,13 @@ export const DashboardScreen: React.FC = () => {
         {/* Recent Transactions List */}
         <View style={styles.sectionHeaderContainer}>
           <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>{t('dashboard.recent_tx')}</Text>
+          {transactions.length > 0 && (
+            <TouchableOpacity onPress={() => setTxHistoryVisible(true)}>
+              <Text style={{ fontSize: 13, fontWeight: '600', color: colors.accentPrimary }}>
+                {t('tx.see_all')}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {transactions.length === 0 ? (
@@ -540,12 +550,13 @@ export const DashboardScreen: React.FC = () => {
               const formattedAmt = formatCurrency(tx.amount, currencySymbol, currencyPosition)
               
               return (
-                <View
+                <TouchableOpacity
                   key={tx.id}
                   style={[
                     styles.txCard,
                     { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault },
                   ]}
+                  onPress={() => setSelectedTx(tx)}
                 >
                   <View style={styles.txCardLeft}>
                     <View
@@ -562,7 +573,7 @@ export const DashboardScreen: React.FC = () => {
                     </View>
                     <View style={styles.txTextContainer}>
                       <Text style={[styles.txDescription, { color: colors.textPrimary }]} numberOfLines={1}>
-                        {tx.description}
+                        {tx.description || t('tx.no_description')}
                       </Text>
                       <Text style={[styles.txDate, { color: colors.textMuted }]}>
                         {new Date(tx.date * 1000).toLocaleDateString()}
@@ -577,7 +588,7 @@ export const DashboardScreen: React.FC = () => {
                   >
                     {isIncome ? '+' : '-'}{formattedAmt}
                   </Text>
-                </View>
+                </TouchableOpacity>
               )
             })}
           </View>
@@ -594,6 +605,15 @@ export const DashboardScreen: React.FC = () => {
         visible={isAddTransactionVisible}
         onClose={() => setAddTransactionVisible(false)}
         onSuccess={loadData}
+      />
+      <TransactionHistoryModal
+        visible={isTxHistoryVisible}
+        onClose={() => setTxHistoryVisible(false)}
+      />
+      <TransactionDetailsModal
+        visible={!!selectedTx}
+        transaction={selectedTx}
+        onClose={() => setSelectedTx(null)}
       />
     </SafeAreaView>
   )

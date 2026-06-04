@@ -372,7 +372,11 @@ export const SettingsScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.footerSpacing} />
+        <View style={styles.creditContainer}>
+          <Text style={[styles.creditText, { color: colors.textMuted }]}>
+            {t('settings.credit')}
+          </Text>
+        </View>
       </ScrollView>
 
 
@@ -550,5 +554,16 @@ const styles = StyleSheet.create({
   },
   footerSpacing: {
     height: 32,
+  },
+  creditContainer: {
+    marginTop: 32,
+    marginBottom: 16,
+    alignItems: 'center',
+  },
+  creditText: {
+    fontSize: 12,
+    fontWeight: '500',
+    opacity: 0.6,
+    textAlign: 'center',
   },
 })
