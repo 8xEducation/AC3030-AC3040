@@ -41,7 +41,7 @@ const vi = {
   'settings.biometric_desc': 'Yêu cầu FaceID/TouchID khi mở ứng dụng',
   'settings.categories': 'Quản lý danh mục',
   'settings.categories_edit': 'Chỉnh sửa',
-  'settings.danger': 'Khu vực nguy hiểm',
+  'settings.danger': 'Khu vực nguy hiểm, chơi ngu tự chịu',
   'settings.reset': 'Xoá toàn bộ dữ liệu',
   'settings.credit': '© 2026 @tadcouq._ and @cyra.23.05 . Sản phẩm chung dưới 8xEducation.',
   'settings.time_date': 'Thời gian & Ngày tháng',

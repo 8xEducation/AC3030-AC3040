@@ -60,9 +60,7 @@ export const SettingsScreen: React.FC = () => {
           style: 'destructive',
           onPress: async () => {
             try {
-              await database.write(async () => {
-                await database.unsafeResetDatabase()
-              })
+              await database.unsafeResetDatabase()
               Alert.alert('Success', 'Database has been reset. Please restart the app.')
             } catch (err: any) {
               Alert.alert('Error', err?.message || 'Failed to reset database')

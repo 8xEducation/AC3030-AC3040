@@ -49,38 +49,6 @@ npm run android
 
 ---
 
-## 2. Build ứng dụng để Phát hành hoặc Cài đặt thật (Build Release / IPA / APK)
-
-Để tạo ra file ứng dụng có thể cài đặt độc lập (không cần cắm cáp vào máy tính), cách dễ nhất cho dự án Expo là sử dụng dịch vụ **EAS Build** (Cloud Build của Expo) thay vì phải vật lộn với cấu hình Xcode/Android Studio phức tạp.
-
-**Bước chuẩn bị chung:**
-Cài đặt EAS CLI toàn cục và đăng nhập tài khoản Expo (tạo miễn phí tại expo.dev):
-```bash
-npm install -g eas-cli
-eas login
-```
-
-### A. Build cho Android (.apk)
-Nếu bạn chỉ muốn tạo file `.apk` để gửi cho bạn bè cài trực tiếp:
-1. Đảm bảo file `eas.json` của dự án có profile cấu hình xuất file APK (thường gọi là preview).
-2. Chạy lệnh:
-```bash
-eas build --platform android --profile preview
-```
-Hệ thống sẽ đẩy code lên Cloud, build xong sẽ trả về cho bạn một đường link tải file `.apk`.
-
-### B. Build cho iOS (.ipa)
-Việc build file `.ipa` để cài đặt trực tiếp lên iPhone khắt khe hơn rất nhiều vì Apple yêu cầu **chữ ký điện tử**. Bạn **bắt buộc** phải mua gói Apple Developer Program ($99/năm).
-```bash
-eas build --platform ios
-```
-Khi chạy lệnh này:
-- EAS sẽ yêu cầu bạn đăng nhập tài khoản Apple.
-- Hệ thống sẽ tự động tạo Certificates và Provisioning Profiles phù hợp.
-- Sau khi build xong trên Cloud, bạn sẽ nhận được file `.ipa` để đẩy lên TestFlight thông qua Transporter hoặc OTA cài đặt qua web.
-
----
-
 **Tóm lại chu trình hàng ngày của Dev:**
 Code `->` Mở máy ảo `->` Gõ `npm run ios` hoặc `npm run android` `->` Ứng dụng tự reload khi sửa code `.ts/.tsx`.
 

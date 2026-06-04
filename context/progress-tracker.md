@@ -191,3 +191,25 @@ This document tracks the configuration adjustments, build compilation errors, an
 - **Resolution**:
   1. Decoupled the selection state from `DashboardScreen` and moved the `TransactionDetailsModal` rendering directly inside `TransactionHistoryModal`'s view hierarchy.
   2. This allows the Details Modal to correctly present *on top* of the History Modal, maintaining the proper UI stack without conflicts. `DashboardScreen` retains its own separate `TransactionDetailsModal` solely for its internal Recent Transactions list.
+
+---
+
+### Issue 9: Expo Prebuild Crash (`files.map is not a function`) & CocoaPods Conflict
+- **Symptom**: Running `npx expo prebuild` crashed during the `copyTemplateFiles` phase with `files.map is not a function`. Once this was bypassed, `pod install` failed due to multiple sources for `simdjson`.
+- **Root Cause**:
+  1. **NPM Hoisting Bug**: NPM hoisted an extremely old version of `glob` (`v7.2.3`) over the required `v13.0.0` for `@expo/cli`. In v7, `glob` uses a callback API instead of returning a Promise (array), causing the awaited return value to be undefined, crashing `files.map`.
+  2. **Podfile Duplication**: The `@morrowdigital/watermelondb-expo-plugin` forcefully injected a manual pod installation line for `simdjson`, while modern React Native autolinking already handles it, causing CocoaPods to abort due to conflicting sources.
+- **Resolution**:
+  1. Purged `node_modules` and `package-lock.json`, running `npm install` from scratch to enforce correct dependency resolution and hoisted versions.
+  2. Used a regex/string replacement (or manual edit) to remove the hardcoded `pod 'simdjson'` line from `ios/Podfile` before successfully executing `pod install`.
+
+---
+
+### Issue 10: SettingsScreen IDE Errors & Database Reset Crash
+- **Symptom**: The developer IDE flagged a persistent TS error: `Cannot use JSX unless the '--jsx' flag is provided`. Additionally, invoking the `Reset Everything` button crashed the app instantly.
+- **Root Cause**:
+  1. **TSConfig Configuration**: VS Code's TypeScript Language Server occasionally fails to infer JSX settings from inherited `expo/tsconfig.base` configurations if not explicitly declared in the host `tsconfig.json`.
+  2. **WatermelonDB Lock Violation**: The `database.unsafeResetDatabase()` method was incorrectly wrapped inside a `database.write()` action. WatermelonDB explicitly forbids destroying the database while a writer lock is active.
+- **Resolution**:
+  1. Explicitly appended `"jsx": "react-native"` to the `compilerOptions` array in `tsconfig.json` to force IDE compliance.
+  2. Removed the `database.write()` wrapper around `unsafeResetDatabase()` in `SettingsScreen.tsx`, allowing the asynchronous reset to execute cleanly without deadlock.
