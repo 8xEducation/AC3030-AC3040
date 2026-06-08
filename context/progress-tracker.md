@@ -213,3 +213,31 @@ This document tracks the configuration adjustments, build compilation errors, an
 - **Resolution**:
   1. Explicitly appended `"jsx": "react-native"` to the `compilerOptions` array in `tsconfig.json` to force IDE compliance.
   2. Removed the `database.write()` wrapper around `unsafeResetDatabase()` in `SettingsScreen.tsx`, allowing the asynchronous reset to execute cleanly without deadlock.
+
+---
+
+### Issue 11: Unsupported class file major version 69
+- **Symptom**: Android build fails with `BUG! exception in phase 'semantic analysis' in source unit '_BuildScript_' Unsupported class file major version 69`
+- **Root Cause**: The system was using Java 25 (version 69), which is not supported by Gradle 8.14.3 (supports up to Java 24).
+- **Resolution**: Set `JAVA_HOME` to point to a Java 21 installation (which is installed on the machine) before running the build: `export JAVA_HOME=$(/usr/libexec/java_home -v 21)`.
+
+---
+
+### Issue 12: Android SDK location not found
+- **Symptom**: Android build fails with `SDK location not found. Define a valid SDK location with an ANDROID_HOME environment variable or by setting the sdk.dir path in your project's local properties file...`
+- **Root Cause**: The project lacked an `android/local.properties` file specifying where the Android SDK was installed.
+- **Resolution**: Created `android/local.properties` and added the standard macOS Android SDK path: `sdk.dir=/Users/mac/Library/Android/sdk`.
+
+---
+
+### Issue 13: Unresolved reference 'OptimizedRecord'
+- **Symptom**: `:expo-dev-menu:compileDebugKotlin FAILED` with `Unresolved reference 'OptimizedRecord'`
+- **Root Cause**: Version mismatch between `expo` (SDK 54) and `expo-dev-client`. The project had `expo-dev-client` version `^56.0.18`, which expects classes from Expo 56 that don't exist in Expo 54's `expo-modules-core`.
+- **Resolution**: Downgraded `expo-dev-client` to the version compatible with SDK 54 by running `bunx expo install expo-dev-client` (which installed `~6.0.21`).
+
+---
+
+### Issue 14: Unresolved reference 'JSIModulePackage'
+- **Symptom**: `:app:compileDebugKotlin FAILED` with `Unresolved reference 'JSIModulePackage'` in `MainApplication.kt`
+- **Root Cause**: `JSIModulePackage` was deprecated and completely removed in React Native 0.74+. However, the `@morrowdigital/watermelondb-expo-plugin` still injected an unused import for it (`import com.facebook.react.bridge.JSIModulePackage;`) into `MainApplication.kt`, causing a compilation error.
+- **Resolution**: Manually removed the invalid import from `android/app/src/main/java/com/anonymous/cashflowwave/MainApplication.kt`.
