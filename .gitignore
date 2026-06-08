@@ -40,6 +40,9 @@ yarn-error.*
 /ios
 /android
 
+# not done yet
+/graphify-out
+
 # core "trợ lý super power" files
 # /.claude
 # /context
