@@ -24,6 +24,7 @@ const vi = {
   'dashboard.recent_tx': 'Giao dịch gần đây',
   'dashboard.no_tx': 'Chưa có giao dịch. Nhấn nút bên trên để tạo mới!',
   'dashboard.no_chart': 'Chưa có dữ liệu để hiển thị.',
+  'dashboard.no_accounts': 'Chưa có ví nào hoạt động. Nhấn \'Thêm ví đầu tiên\' để bắt đầu ngay!',
   
   // Settings
   'settings.title': 'Cài đặt',
@@ -154,6 +155,7 @@ const en = {
   'dashboard.recent_tx': 'Recent Transactions',
   'dashboard.no_tx': 'No transactions recorded yet. Tap an action above to log one!',
   'dashboard.no_chart': 'No data to display.',
+  'dashboard.no_accounts': 'No active accounts. Tap \'Add First Account\' to start!',
   
   'settings.title': 'Settings',
   'settings.pref': 'Preferences & System',

@@ -474,7 +474,7 @@ export const DashboardScreen: React.FC = () => {
           <View style={[styles.emptyCard, { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault }]}>
             <Wallet size={32} color={colors.textMuted} />
             <Text style={[styles.emptyText, { color: colors.textMuted }]}>
-              No active accounts. Use "Seed Demo Accounts" to start instantly!
+              {t('dashboard.no_accounts')}
             </Text>
           </View>
         ) : (
