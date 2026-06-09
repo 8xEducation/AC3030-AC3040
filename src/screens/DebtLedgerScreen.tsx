@@ -151,7 +151,7 @@ export const DebtLedgerScreen: React.FC = () => {
       {/* Header */}
       <View style={styles.header}>
         <View>
-          <Text style={[styles.headerSubtitle, { color: colors.textMuted }]}>{t('debt.title')}</Text>
+          <Text style={[styles.headerSubtitle, { color: colors.textMuted }]}>{t('debt.manage')}</Text>
           <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>{t('debt.title')}</Text>
         </View>
         <TouchableOpacity

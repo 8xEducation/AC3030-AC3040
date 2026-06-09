@@ -4,6 +4,7 @@ import Svg, { Defs, LinearGradient, Stop, Rect } from 'react-native-svg'
 import { useThemeColors } from '../utils/theme'
 import { formatCurrency } from '../utils/currencyFormatter'
 import { useAppStore } from '../store/appStore'
+import { useTranslation } from '../utils/i18n'
 import { TrendingUp, ArrowUpRight, ArrowDownRight } from 'lucide-react-native'
 
 interface NetWorthCardProps {
@@ -19,6 +20,7 @@ export const NetWorthCard: React.FC<NetWorthCardProps> = ({
 }) => {
   const colors = useThemeColors()
   const { currencySymbol, currencyPosition } = useAppStore()
+  const { t } = useTranslation()
 
   const netWorth = totalAssets - totalLiabilities
   const formattedNetWorth = formatCurrency(netWorth, currencySymbol, currencyPosition)
@@ -43,10 +45,10 @@ export const NetWorthCard: React.FC<NetWorthCardProps> = ({
       {/* Card Content */}
       <View style={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.label}>Net Worth</Text>
+          <Text style={styles.label}>{t('networth.title')}</Text>
           <View style={styles.badge}>
             <TrendingUp size={12} color="#FFFFFF" />
-            <Text style={styles.badgeText}>Live Balance</Text>
+            <Text style={styles.badgeText}>{t('networth.live_balance')}</Text>
           </View>
         </View>
 
@@ -62,7 +64,7 @@ export const NetWorthCard: React.FC<NetWorthCardProps> = ({
               <ArrowUpRight size={14} color="#10B981" />
             </View>
             <View>
-              <Text style={styles.flowLabel}>Total Assets</Text>
+              <Text style={styles.flowLabel}>{t('networth.total_assets')}</Text>
               <Text style={styles.flowAmount}>{formattedAssets}</Text>
             </View>
           </View>
@@ -72,7 +74,7 @@ export const NetWorthCard: React.FC<NetWorthCardProps> = ({
               <ArrowDownRight size={14} color="#EF4444" />
             </View>
             <View>
-              <Text style={styles.flowLabel}>Liabilities</Text>
+              <Text style={styles.flowLabel}>{t('networth.liabilities')}</Text>
               <Text style={styles.flowAmount}>{formattedLiabilities}</Text>
             </View>
           </View>

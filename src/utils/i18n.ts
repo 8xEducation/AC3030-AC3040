@@ -84,6 +84,7 @@ const vi = {
   
   // Debt Ledger
   'debt.title': 'Sổ nợ',
+  'debt.manage': 'Quản lý & Theo dõi',
   'debt.active': 'Đang mở',
   'debt.settled': 'Đã trả',
   'debt.no_debts': 'Chưa có khoản nợ nào.',
@@ -128,9 +129,18 @@ const vi = {
   'budget.create': 'Tạo mới',
 
   // Misc
+  'networth.title': 'Tài sản ròng',
+  'networth.live_balance': 'Số dư thực tế',
+  'networth.total_assets': 'Tổng tài sản',
   'networth.total': 'Tổng tài sản ròng',
   'networth.assets': 'Tài sản',
-  'networth.liabilities': 'Khoản nợ',
+  // Biometric Lock Screen
+  'biometric.app_locked': 'Ứng dụng đã khoá',
+  'biometric.description': 'Cash Flow Wave đã được bảo mật. Vui lòng xác thực để truy cập quản lý tài chính cá nhân của bạn.',
+  'biometric.unlock_app': 'Mở khoá ứng dụng',
+  'biometric.prompt': 'Mở khoá Cash Flow Wave',
+  'biometric.error_title': 'Lỗi xác thực',
+  'biometric.error_desc': 'Không thể xác thực. Vui lòng thử lại.',
 }
 
 const en = {
@@ -210,6 +220,7 @@ const en = {
   'acc.balance': 'Starting Balance',
   
   'debt.title': 'Debt Ledger',
+  'debt.manage': 'Manage & Track',
   'debt.active': 'Active Debts',
   'debt.settled': 'Settled',
   'debt.no_debts': 'No debts found.',
@@ -252,9 +263,19 @@ const en = {
   'budget.anchor_month': 'Anchor Day of Month (1 - 31)',
   'budget.create': 'Create',
 
+  'networth.title': 'Net Worth',
+  'networth.live_balance': 'Live Balance',
+  'networth.total_assets': 'Total Assets',
   'networth.total': 'Total Net Worth',
   'networth.assets': 'Assets',
   'networth.liabilities': 'Liabilities',
+
+  'biometric.app_locked': 'App Locked',
+  'biometric.description': 'Cash Flow Wave is secured. Please authenticate to access your personal finance manager.',
+  'biometric.unlock_app': 'Unlock App',
+  'biometric.prompt': 'Unlock Cash Flow Wave',
+  'biometric.error_title': 'Authentication Error',
+  'biometric.error_desc': 'Failed to authenticate. Please try again.',
 }
 
 const dictionaries = {
