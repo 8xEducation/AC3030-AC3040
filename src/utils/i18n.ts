@@ -79,8 +79,10 @@ const vi = {
   'acc.name': 'Tên tài khoản',
   'acc.type': 'Loại',
   'acc.wallet': 'Ví / Ngân hàng',
-  'acc.credit': 'Thẻ tín dụng / Khoản vay',
+  'acc.credit': 'Thẻ T.dụng / Ví trả sau',
   'acc.balance': 'Số dư ban đầu',
+  'acc.balance_desc_asset': 'Nhập số dư dương hiện tại của bạn.',
+  'acc.balance_desc_liability': 'Nhập dư nợ hiện tại bằng một số dương.',
   
   // Debt Ledger
   'debt.title': 'Sổ nợ',
@@ -134,6 +136,7 @@ const vi = {
   'networth.total_assets': 'Tổng tài sản',
   'networth.total': 'Tổng tài sản ròng',
   'networth.assets': 'Tài sản',
+  'networth.liabilities': 'Tài sản nợ',
   // Biometric Lock Screen
   'biometric.app_locked': 'Ứng dụng đã khoá',
   'biometric.description': 'Cash Flow Wave đã được bảo mật. Vui lòng xác thực để truy cập quản lý tài chính cá nhân của bạn.',
@@ -218,6 +221,8 @@ const en = {
   'acc.wallet': 'Wallet / Bank',
   'acc.credit': 'Credit Card / Loan',
   'acc.balance': 'Starting Balance',
+  'acc.balance_desc_asset': 'Enter your current positive balance.',
+  'acc.balance_desc_liability': 'Enter your current outstanding debt as a positive number.',
   
   'debt.title': 'Debt Ledger',
   'debt.manage': 'Manage & Track',

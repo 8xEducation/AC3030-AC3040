@@ -136,8 +136,8 @@ export const AddAccountModal: React.FC<AddAccountModalProps> = ({ visible, onClo
                 
                 <Text style={[styles.helpText, { color: colors.textMuted }]}>
                   {type === AccountType.ASSET 
-                    ? "Enter your current positive balance." 
-                    : "Enter your current outstanding debt as a positive number."}
+                    ? t('acc.balance_desc_asset') 
+                    : t('acc.balance_desc_liability')}
                 </Text>
 
                 {/* Action Buttons */}
