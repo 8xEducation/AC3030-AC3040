@@ -14,3 +14,4 @@ Nhóm sinh viên thực hiện:
 Những hướng dẫn (có thể) sẽ triển khai và có thể có tác dụng xin mời tele map qua [MANUAL-IF-YOU-NEED.md](MANUAL-IF-YOU-NEED.md)
 
 (c) 2026 @tadcouq._ and @cyra.23.05 . This software is released on behalf of 8xEducation under the terms of the BEER-GPL License.
+

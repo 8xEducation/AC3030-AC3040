@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { StyleSheet, Text, View, TouchableOpacity, Alert, ActivityIndicator } from 'react-native'
 import * as LocalAuthentication from 'expo-local-authentication'
 import { useThemeColors } from '../utils/theme'
+import { useTranslation } from '../utils/i18n'
 import { Lock } from 'lucide-react-native'
 
 interface BiometricLockScreenProps {
@@ -10,6 +11,7 @@ interface BiometricLockScreenProps {
 
 export const BiometricLockScreen: React.FC<BiometricLockScreenProps> = ({ onUnlock }) => {
   const colors = useThemeColors()
+  const { t } = useTranslation()
   const [authenticating, setAuthenticating] = useState(false)
 
   const authenticate = async () => {
@@ -25,7 +27,7 @@ export const BiometricLockScreen: React.FC<BiometricLockScreenProps> = ({ onUnlo
       }
 
       const result = await LocalAuthentication.authenticateAsync({
-        promptMessage: 'Unlock Cash Flow Wave',
+        promptMessage: t('biometric.prompt'),
         disableDeviceFallback: false,
       })
 
@@ -33,7 +35,7 @@ export const BiometricLockScreen: React.FC<BiometricLockScreenProps> = ({ onUnlo
         onUnlock()
       }
     } catch (error) {
-      Alert.alert('Authentication Error', 'Failed to authenticate. Please try again.')
+      Alert.alert(t('biometric.error_title'), t('biometric.error_desc'))
     } finally {
       setAuthenticating(false)
     }
@@ -49,9 +51,9 @@ export const BiometricLockScreen: React.FC<BiometricLockScreenProps> = ({ onUnlo
         <View style={[styles.iconContainer, { backgroundColor: 'rgba(79, 70, 229, 0.1)' }]}>
           <Lock size={48} color={colors.accentPrimary} />
         </View>
-        <Text style={[styles.title, { color: colors.textPrimary }]}>App Locked</Text>
+        <Text style={[styles.title, { color: colors.textPrimary }]}>{t('biometric.app_locked')}</Text>
         <Text style={[styles.description, { color: colors.textMuted }]}>
-          Cash Flow Wave is secured. Please authenticate to access your personal finance manager.
+          {t('biometric.description')}
         </Text>
 
         <TouchableOpacity
@@ -62,7 +64,7 @@ export const BiometricLockScreen: React.FC<BiometricLockScreenProps> = ({ onUnlo
           {authenticating ? (
             <ActivityIndicator color="#FFFFFF" size="small" />
           ) : (
-            <Text style={styles.buttonText}>Unlock App</Text>
+            <Text style={styles.buttonText}>{t('biometric.unlock_app')}</Text>
           )}
         </TouchableOpacity>
       </View>
