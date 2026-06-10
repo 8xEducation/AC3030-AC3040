@@ -1,0 +1,27 @@
+flowchart TD
+    classDef init fill:#d4edda,stroke:#28a745,stroke-width:2px,color:#155724
+    classDef cond fill:#fff3cd,stroke:#ffc107,stroke-width:2px,color:#856404
+    classDef action fill:#cce5ff,stroke:#007bff,stroke-width:2px,color:#004085
+    classDef ui fill:#e2e3e5,stroke:#6c757d,stroke-width:2px,color:#383d41
+
+    Start(["Nhận Props: visible, onClose"]):::init --> UseEffect["Chạy useEffect() để Load Data"]:::action
+    UseEffect --> FetchTx["Gọi TransactionController.getTransactions()"]:::action
+    
+    FetchTx --> CheckData{"Có dữ liệu không?"}:::cond
+    CheckData -- Không --> RenderEmpty["Hiển thị 'No transactions found'"]:::ui
+    CheckData -- Có --> RenderList["Render danh sách giao dịch qua FlashList"]:::ui
+    
+    subgraph ItemInteraction [Tương tác Giao dịch]
+        RenderList --> UserClick["Người dùng bấm vào 1 giao dịch"]:::ui
+        UserClick --> SetSelectedTx["Cập nhật state selectedTx = giao dịch vừa chọn"]:::action
+        SetSelectedTx --> RenderDetails["Hiển thị TransactionDetailsModal (truyền selectedTx)"]:::ui
+    end
+    
+    subgraph CloseInteraction [Đóng Modal]
+        RenderDetails --> UserCloseDetails["Người dùng đóng chi tiết giao dịch"]:::ui
+        UserCloseDetails --> ResetSelectedTx["Cập nhật state selectedTx = null"]:::action
+        
+        RenderEmpty --> UserCloseModal["Người dùng bấm đóng History Modal"]:::ui
+        RenderList --> UserCloseModal
+        UserCloseModal --> TriggerOnClose["Gọi hàm onClose() từ Props"]:::action
+    end

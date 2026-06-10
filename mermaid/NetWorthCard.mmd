@@ -1,0 +1,16 @@
+flowchart TD
+    classDef init fill:#d4edda,stroke:#28a745,stroke-width:2px,color:#155724
+    classDef action fill:#cce5ff,stroke:#007bff,stroke-width:2px,color:#004085
+    classDef ui fill:#e2e3e5,stroke:#6c757d,stroke-width:2px,color:#383d41
+
+    Start(["Nhận Props: totalAssets, totalLiabilities"]):::init --> CalculateNetWorth["Tính toán netWorth = totalAssets - totalLiabilities"]:::action
+
+    CalculateNetWorth --> FormatCurrency["Định dạng tiền tệ cho netWorth, assets, liabilities"]:::action
+    
+    FormatCurrency --> RenderUI["Hiển thị Component NetWorthCard"]:::ui
+    
+    subgraph UI_Layout [Cấu trúc hiển thị]
+        RenderUI --> SvgBackground["Render Hình nền SVG Gradient"]:::ui
+        RenderUI --> MainBalance["Hiển thị Tổng Tài Sản ròng (Net Worth)"]:::ui
+        RenderUI --> FooterStats["Hiển thị Tổng Assets & Tổng Liabilities"]:::ui
+    end
