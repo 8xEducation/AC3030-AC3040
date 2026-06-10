@@ -45,7 +45,7 @@
 
 ## File Organization
 
-- `src/components/` — Dumb, reusable UI components (e.g., `Numpad`, `Button`, `NetWorthCard`) that rely solely on props and have no direct database awareness.
+- `src/components/` — Reusable UI components (e.g., `NetWorthCard`, `AddTransactionModal`, `TransactionDetailsModal`) that rely solely on props or handle specific view slices without complex routing logic.
 - `src/screens/` — Smart components (Views) representing full application pages, responsible for layout and calling Controllers.
 - `src/database/` — WatermelonDB setup, including `schema.ts`, database initialization, and Model classes (`Account.ts`, `Transaction.ts`, etc.).
 - `src/patterns/` — The core business logic encapsulating the 4 key design patterns: `TransactionFactory`, `AccountObserver`, `TimeframeStrategy`, and `ReportFacade`.

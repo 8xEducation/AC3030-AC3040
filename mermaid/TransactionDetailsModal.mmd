@@ -1,0 +1,38 @@
+flowchart TD
+    %% Component Initialization
+    Start([Component Nhận Props: visible, transaction]) --> CheckCondition{visible == true & transaction != null?}
+    
+    %% Null Return
+    CheckCondition -- False --> ReturnNull[Return null (Không hiển thị gì)]
+    
+    %% Effect triggered
+    CheckCondition -- True --> UseEffect[Chạy useEffect()]
+    UseEffect --> LoadDetails[Gọi hàm async loadDetails()]
+    
+    %% Fetching Data
+    subgraph Data Loading [Tải dữ liệu quan hệ từ WatermelonDB]
+        LoadDetails --> FetchAccount[Truy vấn Account theo transaction.accountId]
+        FetchAccount --> SetAccount[Cập nhật State: setAccount]
+        
+        SetAccount --> HasCategory{transaction.categoryId có tồn tại?}
+        HasCategory -- Có --> FetchCategory[Truy vấn Category theo transaction.categoryId]
+        FetchCategory --> SetCategory[Cập nhật State: setCategory]
+        
+        HasCategory -- Không --> ClearCategory[Cập nhật State: setCategory(null)]
+    end
+    
+    %% Render UI preparation
+    SetCategory --> PrepareUI[Định dạng tiền tệ & Xác định isIncome]
+    ClearCategory --> PrepareUI
+    
+    %% Render UI
+    subgraph UI Rendering [Hiển thị Giao diện Modal]
+        PrepareUI --> RenderModal[Hiển thị Modal - Slide animation]
+        RenderModal --> RenderBanner[Hiển thị Banner: Màu Đỏ Expense / Màu Xanh Income]
+        RenderModal --> RenderDetails[Hiển thị Danh sách chi tiết: Ghi chú, Ngày, Tài khoản, Danh mục]
+    end
+    
+    %% Actions
+    RenderModal --> UserAction([Người dùng tương tác])
+    UserAction --> ClickClose[Nhấn nút 'X' hoặc nút 'Đóng']
+    ClickClose --> CallOnClose[Kích hoạt hàm onClose() gửi về Parent]
