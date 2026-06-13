@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   TextInput,
   RefreshControl,
-  SafeAreaView,
   Alert,
   Modal,
 } from 'react-native'
@@ -125,7 +124,7 @@ export const SmartBudgetScreen: React.FC = () => {
   }
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.bgBase }]}>
+    <View style={[styles.safeArea, { backgroundColor: colors.bgBase }]}>
       {/* Header */}
       <View style={styles.header}>
         <View>
@@ -436,7 +435,7 @@ export const SmartBudgetScreen: React.FC = () => {
           loadCategories()
         }} 
       />
-    </SafeAreaView>
+    </View>
   )
 }
 

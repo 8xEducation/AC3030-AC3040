@@ -1,0 +1,66 @@
+flowchart LR
+    %% Actor
+    User([Người dùng])
+
+    %% System Boundary
+    subgraph System ["Ứng dụng Cash Flow Wave"]
+        
+        subgraph Security ["Bảo mật & Khởi tạo"]
+            direction TB
+            UC1([Hoàn thành Onboarding])
+            UC2([Xác thực Sinh trắc học])
+        end
+
+        subgraph Dashboard ["Quản lý Giao dịch & Báo cáo"]
+            direction TB
+            UC3([Xem báo cáo tài chính tổng quan])
+            UC4([Quản lý Tài khoản/Ví])
+            UC5([Thêm/Sửa/Xóa Giao dịch])
+            UC6([Quản lý Danh mục chi tiêu/thu nhập])
+        end
+
+        subgraph Budget ["Ngân sách thông minh"]
+            direction TB
+            UC7([Thiết lập Ngân sách mục tiêu])
+            UC8([Theo dõi tiến độ chi tiêu])
+        end
+
+        subgraph Debt ["Sổ Nợ"]
+            direction TB
+            UC9([Ghi chép Khoản đi vay / Cho vay])
+            UC10([Cập nhật trạng thái Trả nợ])
+        end
+
+        subgraph Settings ["Cài đặt"]
+            direction TB
+            UC11([Đổi Giao diện Sáng/Tối])
+            UC12([Đổi Ngôn ngữ])
+            UC13([Bật/Tắt Sinh trắc học])
+        end
+    end
+
+    %% Relationships
+    User --> UC1
+    User --> UC2
+    
+    User --> UC3
+    User --> UC4
+    User --> UC5
+    User --> UC6
+    
+    User --> UC7
+    User --> UC8
+    
+    User --> UC9
+    User --> UC10
+    
+    User --> UC11
+    User --> UC12
+    User --> UC13
+
+    %% Styling
+    classDef actorStyle fill:#f9f9f9,stroke:#333,stroke-width:2px,color:#000,shape:circle;
+    classDef usecaseStyle fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,color:#000;
+    
+    class User actorStyle;
+    class UC1,UC2,UC3,UC4,UC5,UC6,UC7,UC8,UC9,UC10,UC11,UC12,UC13 usecaseStyle;

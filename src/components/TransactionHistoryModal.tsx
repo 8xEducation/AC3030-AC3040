@@ -5,8 +5,8 @@ import {
   Text,
   View,
   TouchableOpacity,
-  SafeAreaView,
 } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { FlashList } from '@shopify/flash-list'
 import { X, ArrowDownLeft, ArrowUpRight } from 'lucide-react-native'
 import { useThemeColors } from '../utils/theme'
