@@ -172,9 +172,9 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ visibl
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <Pressable style={{ flex: 1 }} onPress={Keyboard.dismiss}>
-        <View style={styles.overlay}>
-          <KeyboardAvoidingView
+      <View style={styles.overlay}>
+        <Pressable style={StyleSheet.absoluteFill} onPress={Keyboard.dismiss} />
+        <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.keyboardView}
           >
@@ -296,7 +296,6 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ visibl
             </View>
           </KeyboardAvoidingView>
         </View>
-      </Pressable>
     </Modal>
   )
 }

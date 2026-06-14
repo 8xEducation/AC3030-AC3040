@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useReducer } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Modal, View, Text, TextInput, Pressable, StyleSheet, KeyboardAvoidingView, Platform, Keyboard, ScrollView, Alert } from 'react-native'
 import { useThemeColors } from '../utils/theme'
 import { useTranslation } from '../utils/i18n'
@@ -17,21 +17,16 @@ const PREDEFINED_COLORS = ['#EF4444', '#F97316', '#F59E0B', '#10B981', '#06B6D4'
 export const CategoryManagerModal: React.FC<CategoryManagerModalProps> = ({ visible, onClose }) => {
   const colors = useThemeColors()
   const { t } = useTranslation()
-
+  
   const [categories, setCategories] = useState<Category[]>([])
-
+  
   // New Category State
-  const [state, setState] = useReducer(
-    (s: any, a: any) => ({ ...s, ...(typeof a === 'function' ? a(s) : a) }),
-    {
-      newCatType: CategoryType.EXPENSE,
-      newCatColor: PREDEFINED_COLORS[3],
-      loading: false,
-      resetKey: 0
-    }
-  )
-
   const newCatNameRef = useRef('')
+  const [newCatType, setNewCatType] = useState<CategoryType>(CategoryType.EXPENSE)
+  const [newCatColor, setNewCatColor] = useState(PREDEFINED_COLORS[3])
+  const [loading, setLoading] = useState(false)
+  const [resetKey, setResetKey] = useState(0)
+
 
   const loadCategories = async () => {
     try {
@@ -48,16 +43,16 @@ export const CategoryManagerModal: React.FC<CategoryManagerModalProps> = ({ visi
       return
     }
 
-    setState({ loading: true })
+    setLoading(true)
     try {
-      await CategoryController.createCategory(newCatNameRef.current.trim(), state.newCatType, state.newCatColor, 'Tag')
+      await CategoryController.createCategory(newCatNameRef.current.trim(), newCatType, newCatColor, 'Tag')
       newCatNameRef.current = ''
-      setState((s: any) => ({ resetKey: s.resetKey + 1 }))
+      setResetKey(k => k + 1)
       await loadCategories()
     } catch (err: any) {
       Alert.alert('Error', err?.message || 'Failed to add category')
     } finally {
-      setState({ loading: false })
+      setLoading(false)
     }
   }
 
@@ -88,10 +83,10 @@ export const CategoryManagerModal: React.FC<CategoryManagerModalProps> = ({ visi
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} onShow={loadCategories}>
-      <Pressable style={{ flex: 1 }} onPress={Keyboard.dismiss}>
-        <View style={styles.overlay}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      <View style={styles.overlay}>
+        <Pressable style={StyleSheet.absoluteFill} onPress={Keyboard.dismiss} />
+        <KeyboardAvoidingView 
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
             style={styles.keyboardView}
           >
             <View style={[styles.modalContainer, { backgroundColor: colors.bgSurface }]}>
@@ -106,39 +101,39 @@ export const CategoryManagerModal: React.FC<CategoryManagerModalProps> = ({ visi
               <ScrollView style={styles.content} keyboardShouldPersistTaps="handled">
                 {/* Add New Category Section */}
                 <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Add New Category</Text>
-
+                
                 <View style={styles.typeSelector}>
-                  <Pressable
+                  <Pressable 
                     style={[
-                      styles.typeBtn,
-                      {
-                        backgroundColor: state.newCatType === CategoryType.EXPENSE ? 'rgba(239, 68, 68, 0.1)' : colors.bgBase,
-                        borderColor: state.newCatType === CategoryType.EXPENSE ? '#EF4444' : colors.borderDefault
+                      styles.typeBtn, 
+                      { 
+                        backgroundColor: newCatType === CategoryType.EXPENSE ? 'rgba(239, 68, 68, 0.1)' : colors.bgBase,
+                        borderColor: newCatType === CategoryType.EXPENSE ? '#EF4444' : colors.borderDefault 
                       }
                     ]}
-                    onPress={() => setState({ newCatType: CategoryType.EXPENSE })}
+                    onPress={() => setNewCatType(CategoryType.EXPENSE)}
                   >
-                    <TrendingDown size={16} color={state.newCatType === CategoryType.EXPENSE ? '#EF4444' : colors.textMuted} />
-                    <Text style={[styles.typeBtnText, { color: state.newCatType === CategoryType.EXPENSE ? '#EF4444' : colors.textMuted }]}>{t('tx.expense')}</Text>
+                    <TrendingDown size={16} color={newCatType === CategoryType.EXPENSE ? '#EF4444' : colors.textMuted} />
+                    <Text style={[styles.typeBtnText, { color: newCatType === CategoryType.EXPENSE ? '#EF4444' : colors.textMuted }]}>{t('tx.expense')}</Text>
                   </Pressable>
-
-                  <Pressable
+                  
+                  <Pressable 
                     style={[
-                      styles.typeBtn,
-                      {
-                        backgroundColor: state.newCatType === CategoryType.INCOME ? 'rgba(16, 185, 129, 0.1)' : colors.bgBase,
-                        borderColor: state.newCatType === CategoryType.INCOME ? '#10B981' : colors.borderDefault
+                      styles.typeBtn, 
+                      { 
+                        backgroundColor: newCatType === CategoryType.INCOME ? 'rgba(16, 185, 129, 0.1)' : colors.bgBase,
+                        borderColor: newCatType === CategoryType.INCOME ? '#10B981' : colors.borderDefault 
                       }
                     ]}
-                    onPress={() => setState({ newCatType: CategoryType.INCOME })}
+                    onPress={() => setNewCatType(CategoryType.INCOME)}
                   >
-                    <TrendingUp size={16} color={state.newCatType === CategoryType.INCOME ? '#10B981' : colors.textMuted} />
-                    <Text style={[styles.typeBtnText, { color: state.newCatType === CategoryType.INCOME ? '#10B981' : colors.textMuted }]}>{t('tx.income')}</Text>
+                    <TrendingUp size={16} color={newCatType === CategoryType.INCOME ? '#10B981' : colors.textMuted} />
+                    <Text style={[styles.typeBtnText, { color: newCatType === CategoryType.INCOME ? '#10B981' : colors.textMuted }]}>{t('tx.income')}</Text>
                   </Pressable>
                 </View>
 
                 <TextInput
-                  key={`new-cat-name-${state.resetKey}`}
+                  key={`cat-input-${visible ? 'open' : 'closed'}-${resetKey}`}
                   style={[styles.input, { backgroundColor: colors.bgBase, color: colors.textPrimary, borderColor: colors.borderDefault }]}
                   placeholder="Category Name"
                   placeholderTextColor={colors.textMuted}
@@ -155,19 +150,19 @@ export const CategoryManagerModal: React.FC<CategoryManagerModalProps> = ({ visi
                       style={[
                         styles.colorCircle,
                         { backgroundColor: color },
-                        state.newCatColor === color && { borderWidth: 3, borderColor: colors.textPrimary }
+                        newCatColor === color && { borderWidth: 3, borderColor: colors.textPrimary }
                       ]}
-                      onPress={() => setState({ newCatColor: color })}
+                      onPress={() => setNewCatColor(color)}
                     />
                   ))}
                 </View>
 
-                <Pressable
-                  style={[styles.saveBtn, { backgroundColor: colors.accentPrimary, opacity: state.loading ? 0.7 : 1 }]}
+                <Pressable 
+                  style={[styles.saveBtn, { backgroundColor: colors.accentPrimary, opacity: loading ? 0.7 : 1 }]} 
                   onPress={handleAddCategory}
-                  disabled={state.loading}
+                  disabled={loading}
                 >
-                  <Text style={styles.saveBtnText}>{state.loading ? 'Adding...' : 'Add Category'}</Text>
+                  <Text style={styles.saveBtnText}>{loading ? 'Adding...' : 'Add Category'}</Text>
                 </Pressable>
 
                 <View style={styles.divider} />
@@ -212,7 +207,6 @@ export const CategoryManagerModal: React.FC<CategoryManagerModalProps> = ({ visi
             </View>
           </KeyboardAvoidingView>
         </View>
-      </Pressable>
     </Modal>
   )
 }
