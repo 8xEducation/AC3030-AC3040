@@ -5,9 +5,9 @@ import {
   Text,
   View,
   TouchableOpacity,
-  SafeAreaView,
   ScrollView,
 } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { X, ArrowDownLeft, ArrowUpRight, Wallet, Tag } from 'lucide-react-native'
 import { useThemeColors } from '../utils/theme'
 import { useTranslation } from '../utils/i18n'

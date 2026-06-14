@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   RefreshControl,
-  SafeAreaView,
   Alert,
   Dimensions,
 } from 'react-native'
@@ -167,7 +166,7 @@ export const DashboardScreen: React.FC = () => {
   const totalPieExpense = categoryExpenses.reduce((sum, item) => sum + fromCents(item.value), 0)
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.bgBase }]}>
+    <View style={[styles.safeArea, { backgroundColor: colors.bgBase }]}>
       {/* Header */}
       <View style={styles.header}>
         <View>
@@ -483,7 +482,7 @@ export const DashboardScreen: React.FC = () => {
         transaction={selectedTx}
         onClose={() => setSelectedTx(null)}
       />
-    </SafeAreaView>
+    </View>
   )
 }
 

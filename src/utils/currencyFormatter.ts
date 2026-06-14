@@ -13,9 +13,8 @@ export function formatCurrency(
 ): string {
   const isNegative = cents < 0
   const value = fromCents(Math.abs(cents))
-  const isInteger = Number.isInteger(value)
   const formatted = value.toLocaleString('en-US', {
-    minimumFractionDigits: isInteger ? 0 : 2,
+    minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })
   const sign = isNegative ? '-' : ''

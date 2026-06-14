@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { StyleSheet, Text, View, TouchableOpacity, TextInput } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
 import { useThemeColors } from '../utils/theme'
 import { useAppStore } from '../store/appStore'
 import { Wallet, Compass, ShieldCheck, Moon, Sun, Laptop } from 'lucide-react-native'
@@ -38,7 +37,7 @@ export const OnboardingScreen: React.FC = () => {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.bgBase }]}>
+    <View style={[styles.container, { backgroundColor: colors.bgBase }]}>
       {/* ProgressBar/Indicator */}
       <View style={styles.indicatorContainer}>
         {[0, 1, 2].map((idx) => (
@@ -236,7 +235,7 @@ export const OnboardingScreen: React.FC = () => {
           </Text>
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </View>
   )
 }
 

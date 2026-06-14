@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   TextInput,
   RefreshControl,
-  SafeAreaView,
   Alert,
   Modal,
 } from 'react-native'
@@ -147,7 +146,7 @@ export const DebtLedgerScreen: React.FC = () => {
   const filteredDebts = debts.filter((d) => d.status === activeSegment)
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.bgBase }]}>
+    <View style={[styles.safeArea, { backgroundColor: colors.bgBase }]}>
       {/* Header */}
       <View style={styles.header}>
         <View>
@@ -521,7 +520,7 @@ export const DebtLedgerScreen: React.FC = () => {
           </View>
         </View>
       </Modal>
-    </SafeAreaView>
+    </View>
   )
 }
 

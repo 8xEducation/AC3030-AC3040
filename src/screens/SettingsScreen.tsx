@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  SafeAreaView,
   Alert,
 } from 'react-native'
 import { useThemeColors } from '../utils/theme'
@@ -118,7 +117,7 @@ export const SettingsScreen: React.FC = () => {
   }
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.bgBase }]}>
+    <View style={[styles.safeArea, { backgroundColor: colors.bgBase }]}>
       {/* Header */}
       <View style={styles.header}>
         <View>
@@ -380,7 +379,7 @@ export const SettingsScreen: React.FC = () => {
       </ScrollView>
 
 
-    </SafeAreaView>
+    </View>
   )
 }
 
