@@ -4,7 +4,7 @@ import {
   StyleSheet,
   Text,
   View,
-  TouchableOpacity,
+  Pressable,
   ScrollView,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -37,11 +37,7 @@ export const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = (
   const [account, setAccount] = useState<Account | null>(null)
   const [category, setCategory] = useState<Category | null>(null)
 
-  useEffect(() => {
-    if (visible && transaction) {
-      loadDetails()
-    }
-  }, [visible, transaction])
+
 
   const loadDetails = async () => {
     if (!transaction) return
@@ -51,7 +47,7 @@ export const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = (
     } catch (e) {
       console.warn('Account not found')
     }
-    
+
     if (transaction.categoryId) {
       try {
         const cat = await database.get<Category>('categories').find(transaction.categoryId)
@@ -75,6 +71,7 @@ export const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = (
       animationType="slide"
       transparent={true}
       onRequestClose={onClose}
+      onShow={loadDetails}
     >
       <View style={styles.overlay}>
         <View style={[styles.modalContent, { backgroundColor: colors.bgBase }]}>
@@ -84,9 +81,9 @@ export const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = (
               <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
                 {t('tx.details')}
               </Text>
-              <TouchableOpacity onPress={onClose} style={[styles.closeButton, { backgroundColor: colors.bgSurface }]}>
+              <Pressable onPress={onClose} style={[styles.closeButton, { backgroundColor: colors.bgSurface }]}>
                 <X size={20} color={colors.textPrimary} />
-              </TouchableOpacity>
+              </Pressable>
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -107,7 +104,7 @@ export const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = (
 
               {/* Details List */}
               <View style={[styles.detailsGroup, { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault }]}>
-                
+
                 <View style={styles.detailRow}>
                   <Text style={[styles.detailLabel, { color: colors.textMuted }]}>{t('modal.desc')}</Text>
                   <Text style={[styles.detailValue, { color: colors.textPrimary }]}>
@@ -153,12 +150,12 @@ export const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = (
 
               </View>
 
-              <TouchableOpacity
+              <Pressable
                 style={[styles.actionBtn, { backgroundColor: colors.accentPrimary }]}
                 onPress={onClose}
               >
                 <Text style={styles.actionBtnText}>{t('tx.close')}</Text>
-              </TouchableOpacity>
+              </Pressable>
             </ScrollView>
           </SafeAreaView>
         </View>

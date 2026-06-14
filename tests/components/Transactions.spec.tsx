@@ -28,6 +28,11 @@ jest.mock('react-native/Libraries/Modal/Modal', () => {
   const React = require('react')
   const { View } = require('react-native')
   function MockModal(props: any) {
+    React.useEffect(() => {
+      if (props.visible && props.onShow) {
+        props.onShow()
+      }
+    }, [props.visible])
     return <View testID="mock-modal">{props.visible ? props.children : null}</View>
   }
   return { default: MockModal }
@@ -88,7 +93,7 @@ describe('Transactions Components', () => {
 
     it('cho phép thêm giao dịch chi tiêu (Expense)', async () => {
       render(
-        <AddTransactionModal visible={true} onClose={jest.fn()} />
+        <AddTransactionModal visible={true} onClose={jest.fn()} onSuccess={jest.fn()} />
       )
 
       await waitFor(() => {
@@ -119,7 +124,7 @@ describe('Transactions Components', () => {
 
     it('cho phép thêm giao dịch thu nhập (Income)', async () => {
       render(
-        <AddTransactionModal visible={true} onClose={jest.fn()} />
+        <AddTransactionModal visible={true} onClose={jest.fn()} onSuccess={jest.fn()} />
       )
 
       await waitFor(() => {

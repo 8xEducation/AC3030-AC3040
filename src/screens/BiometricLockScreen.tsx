@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, Text, View, TouchableOpacity, Alert, ActivityIndicator } from 'react-native'
+import { StyleSheet, Text, View, Pressable, Alert, ActivityIndicator } from 'react-native'
 import * as LocalAuthentication from 'expo-local-authentication'
 import { useThemeColors } from '../utils/theme'
 import { useTranslation } from '../utils/i18n'
@@ -41,9 +41,6 @@ export const BiometricLockScreen: React.FC<BiometricLockScreenProps> = ({ onUnlo
     }
   }
 
-  useEffect(() => {
-    authenticate()
-  }, [])
 
   return (
     <View style={[styles.container, { backgroundColor: colors.bgBase }]}>
@@ -56,7 +53,7 @@ export const BiometricLockScreen: React.FC<BiometricLockScreenProps> = ({ onUnlo
           {t('biometric.description')}
         </Text>
 
-        <TouchableOpacity
+        <Pressable
           style={[styles.button, { backgroundColor: colors.accentPrimary }]}
           onPress={authenticate}
           disabled={authenticating}
@@ -66,7 +63,7 @@ export const BiometricLockScreen: React.FC<BiometricLockScreenProps> = ({ onUnlo
           ) : (
             <Text style={styles.buttonText}>{t('biometric.unlock_app')}</Text>
           )}
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </View>
   )
@@ -86,11 +83,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 32,
     alignItems: 'center',
-    elevation: 4,
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 12,
+    boxShadow: '0px 4px 12px rgba(15, 23, 42, 0.05)',
   },
   iconContainer: {
     width: 80,

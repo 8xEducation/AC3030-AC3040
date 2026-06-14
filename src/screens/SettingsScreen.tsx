@@ -4,7 +4,7 @@ import {
   Text,
   View,
   ScrollView,
-  TouchableOpacity,
+  Pressable,
   TextInput,
   Alert,
 } from 'react-native'
@@ -16,27 +16,66 @@ import { TimeService } from '../services/TimeService'
 import * as LocalAuthentication from 'expo-local-authentication'
 import { useTranslation } from '../utils/i18n'
 
-export const SettingsScreen: React.FC = () => {
+const ThemeSection = () => {
   const colors = useThemeColors()
-  const {
-    theme,
-    setTheme,
-    currencySymbol,
-    setCurrencySymbol,
-    currencyPosition,
-    setCurrencyPosition,
-    language,
-    setLanguage,
-    isBiometricEnabled,
-    setIsBiometricEnabled,
-    firstDayOfWeek,
-    setFirstDayOfWeek,
-    timeSyncMode,
-    setTimeSyncMode,
-    networkTimezone,
-  } = useAppStore()
+  const { theme, setTheme } = useAppStore()
   const { t } = useTranslation()
+  return (
+    <>
+      <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('settings.theme')}</Text>
+      <View style={[styles.settingsGroup, { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault }]}>
+        <View style={styles.themeRow}>
+          <Pressable
+            style={[
+              styles.themeButton,
+              { borderColor: colors.borderDefault },
+              theme === 'light' && { backgroundColor: colors.accentPrimary, borderColor: 'transparent' },
+            ]}
+            onPress={() => setTheme('light')}
+          >
+            <Sun size={18} color={theme === 'light' ? '#FFFFFF' : colors.textPrimary} />
+            <Text style={[styles.themeBtnText, { color: theme === 'light' ? '#FFFFFF' : colors.textPrimary }]}>
+              {t('settings.light')}
+            </Text>
+          </Pressable>
 
+          <Pressable
+            style={[
+              styles.themeButton,
+              { borderColor: colors.borderDefault },
+              theme === 'dark' && { backgroundColor: colors.accentPrimary, borderColor: 'transparent' },
+            ]}
+            onPress={() => setTheme('dark')}
+          >
+            <Moon size={18} color={theme === 'dark' ? '#FFFFFF' : colors.textPrimary} />
+            <Text style={[styles.themeBtnText, { color: theme === 'dark' ? '#FFFFFF' : colors.textPrimary }]}>
+              {t('settings.dark')}
+            </Text>
+          </Pressable>
+
+          <Pressable
+            style={[
+              styles.themeButton,
+              { borderColor: colors.borderDefault },
+              theme === 'system' && { backgroundColor: colors.accentPrimary, borderColor: 'transparent' },
+            ]}
+            onPress={() => setTheme('system')}
+          >
+            <Laptop size={18} color={theme === 'system' ? '#FFFFFF' : colors.textPrimary} />
+            <Text style={[styles.themeBtnText, { color: theme === 'system' ? '#FFFFFF' : colors.textPrimary }]}>
+              {t('settings.system')}
+            </Text>
+          </Pressable>
+        </View>
+      </View>
+    </>
+  )
+}
+
+const CurrencySection = () => {
+  const colors = useThemeColors()
+  const { currencySymbol, setCurrencySymbol, currencyPosition, setCurrencyPosition } = useAppStore()
+  const { t } = useTranslation()
   const [symbolInput, setSymbolInput] = useState(currencySymbol)
 
   const handleUpdateSymbol = () => {
@@ -48,29 +87,146 @@ export const SettingsScreen: React.FC = () => {
     Alert.alert('Success', `Currency symbol updated to ${symbolInput.trim()}`)
   }
 
-  const handleClearDatabase = () => {
-    Alert.alert(
-      'Reset All Data',
-      'This will permanently delete all transactions, accounts, debts, and budgets. Are you absolutely sure?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Reset Everything',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await database.write(async () => {
-                await database.unsafeResetDatabase()
-              })
-              Alert.alert('Success', 'Database has been reset. Please restart the app.')
-            } catch (err: any) {
-              Alert.alert('Error', err?.message || 'Failed to reset database')
-            }
-          },
-        },
-      ]
-    )
-  }
+  return (
+    <>
+      <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('settings.currency')}</Text>
+      <View style={[styles.settingsGroup, { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault }]}>
+        <Text style={[styles.settingLabel, { color: colors.textPrimary }]}>{t('settings.currency_symbol')}</Text>
+        <View style={styles.inputRow}>
+          <TextInput
+            style={[
+              styles.symbolInput,
+              { color: colors.textPrimary, borderColor: colors.borderDefault, backgroundColor: colors.bgElevated },
+            ]}
+            value={symbolInput}
+            onChangeText={setSymbolInput}
+            maxLength={6}
+          />
+          <Pressable
+            style={[styles.saveBtn, { backgroundColor: colors.accentPrimary }]}
+            onPress={handleUpdateSymbol}
+          >
+            <Text style={styles.saveBtnText}>{t('modal.save')}</Text>
+          </Pressable>
+        </View>
+
+        <View style={styles.divider} />
+
+        <Text style={[styles.settingLabel, { color: colors.textPrimary }]}>{t('settings.symbol_pos')}</Text>
+        <View style={styles.positionRow}>
+          <Pressable
+            style={[
+              styles.positionBtn,
+              { borderColor: colors.borderDefault },
+              currencyPosition === 'prefix' && { backgroundColor: colors.accentPrimary, borderColor: 'transparent' },
+            ]}
+            onPress={() => setCurrencyPosition('prefix')}
+          >
+            <Text style={{ color: currencyPosition === 'prefix' ? '#FFFFFF' : colors.textPrimary, fontWeight: '600' }}>
+              Prefix ({currencySymbol}100)
+            </Text>
+          </Pressable>
+
+          <Pressable
+            style={[
+              styles.positionBtn,
+              { borderColor: colors.borderDefault },
+              currencyPosition === 'suffix' && { backgroundColor: colors.accentPrimary, borderColor: 'transparent' },
+            ]}
+            onPress={() => setCurrencyPosition('suffix')}
+          >
+            <Text style={{ color: currencyPosition === 'suffix' ? '#FFFFFF' : colors.textPrimary, fontWeight: '600' }}>
+              Suffix (100 {currencySymbol})
+            </Text>
+          </Pressable>
+        </View>
+      </View>
+    </>
+  )
+}
+
+const LocalizationSection = () => {
+  const colors = useThemeColors()
+  const { language, setLanguage } = useAppStore()
+  const { t } = useTranslation()
+  return (
+    <>
+      <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('settings.lang')}</Text>
+      <View style={[styles.settingsGroup, { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault }]}>
+        <View style={styles.languageRow}>
+          <View style={styles.settingItemLeft}>
+            <Globe size={18} color={colors.textMuted} />
+            <Text style={[styles.settingLabel, { color: colors.textPrimary, marginBottom: 0 }]}>{t('settings.lang')}</Text>
+          </View>
+          <View style={styles.languageSelectors}>
+            <Pressable
+              style={[styles.langBadge, language === 'en' && { backgroundColor: colors.accentPrimary }]}
+              onPress={() => setLanguage('en')}
+            >
+              <Text style={{ color: language === 'en' ? '#FFFFFF' : colors.textPrimary, fontWeight: '700', fontSize: 12 }}>
+                EN
+              </Text>
+            </Pressable>
+            <Pressable
+              style={[styles.langBadge, language === 'vi' && { backgroundColor: colors.accentPrimary }]}
+              onPress={() => setLanguage('vi')}
+            >
+              <Text style={{ color: language === 'vi' ? '#FFFFFF' : colors.textPrimary, fontWeight: '700', fontSize: 12 }}>
+                VI
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      </View>
+    </>
+  )
+}
+
+const TimeDateSection = () => {
+  const colors = useThemeColors()
+  const { firstDayOfWeek, setFirstDayOfWeek } = useAppStore()
+  const { t } = useTranslation()
+
+  return (
+    <>
+      <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('settings.time_date')}</Text>
+      <View style={[styles.settingsGroup, { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault }]}>
+        <View style={styles.languageRow}>
+          <View style={styles.settingItemLeft}>
+            <Calendar size={18} color={colors.textMuted} />
+            <View>
+              <Text style={[styles.settingLabel, { color: colors.textPrimary, marginBottom: 0 }]}>{t('settings.first_day')}</Text>
+              <Text style={{ color: colors.textMuted, fontSize: 12, marginTop: 2 }}>{t('settings.first_day_desc')}</Text>
+            </View>
+          </View>
+          <View style={styles.languageSelectors}>
+            <Pressable
+              style={[styles.langBadge, firstDayOfWeek === 0 && { backgroundColor: colors.accentPrimary }]}
+              onPress={() => setFirstDayOfWeek(0)}
+            >
+              <Text style={{ color: firstDayOfWeek === 0 ? '#FFFFFF' : colors.textPrimary, fontWeight: '700', fontSize: 12 }}>
+                {t('settings.sun')}
+              </Text>
+            </Pressable>
+            <Pressable
+              style={[styles.langBadge, firstDayOfWeek === 1 && { backgroundColor: colors.accentPrimary }]}
+              onPress={() => setFirstDayOfWeek(1)}
+            >
+              <Text style={{ color: firstDayOfWeek === 1 ? '#FFFFFF' : colors.textPrimary, fontWeight: '700', fontSize: 12 }}>
+                {t('settings.mon')}
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      </View>
+    </>
+  )
+}
+
+const SecuritySection = () => {
+  const colors = useThemeColors()
+  const { isBiometricEnabled, setIsBiometricEnabled } = useAppStore()
+  const { t } = useTranslation()
 
   const handleToggleBiometrics = async () => {
     if (isBiometricEnabled) {
@@ -110,11 +266,87 @@ export const SettingsScreen: React.FC = () => {
     }
   }
 
-  const handleToggleTimeSync = () => {
-    const newMode = timeSyncMode === 'device' ? 'network' : 'device'
-    setTimeSyncMode(newMode)
-    TimeService.init() // Re-init time service
-  }
+  return (
+    <>
+      <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('settings.security')}</Text>
+      <View style={[styles.settingsGroup, { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault }]}>
+        <View style={styles.securityRow}>
+          <View style={styles.settingItemLeft}>
+            <Shield size={18} color={colors.textMuted} />
+            <View>
+              <Text style={[styles.settingLabel, { color: colors.textPrimary, marginBottom: 0 }]}>
+                {t('settings.biometric')}
+              </Text>
+              <Text style={{ color: colors.textMuted, fontSize: 12, marginTop: 2 }}>
+                {t('settings.biometric_desc')}
+              </Text>
+            </View>
+          </View>
+          <Pressable
+            style={[
+              styles.mockToggle,
+              {
+                backgroundColor: isBiometricEnabled ? colors.accentPrimary : colors.borderDefault,
+                alignItems: isBiometricEnabled ? 'flex-end' : 'flex-start',
+              },
+            ]}
+            onPress={handleToggleBiometrics}
+          >
+            <View style={[styles.mockToggleKnob, { backgroundColor: colors.bgSurface }]} />
+          </Pressable>
+        </View>
+      </View>
+    </>
+  )
+}
+
+const handleClearDatabase = () => {
+  Alert.alert(
+    'Reset All Data',
+    'This will permanently delete all transactions, accounts, debts, and budgets. Are you absolutely sure?',
+    [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Reset Everything',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await database.write(async () => {
+              await database.unsafeResetDatabase()
+            })
+            Alert.alert('Success', 'Database has been reset. Please restart the app.')
+          } catch (err: any) {
+            Alert.alert('Error', err?.message || 'Failed to reset database')
+          }
+        },
+      },
+    ]
+  )
+}
+
+const DangerZone = () => {
+  const colors = useThemeColors()
+  const { t } = useTranslation()
+
+  return (
+    <>
+      <Text style={[styles.sectionTitle, { color: colors.stateError }]}>{t('settings.danger')}</Text>
+      <View style={[styles.settingsGroup, { backgroundColor: colors.bgSurface, borderColor: colors.stateError }]}>
+        <Pressable
+          style={[styles.resetButton, { backgroundColor: 'rgba(239, 68, 68, 0.08)' }]}
+          onPress={handleClearDatabase}
+        >
+          <Landmark size={18} color={colors.stateError} />
+          <Text style={[styles.resetBtnText, { color: colors.stateError }]}>{t('settings.reset')}</Text>
+        </Pressable>
+      </View>
+    </>
+  )
+}
+
+export const SettingsScreen: React.FC = () => {
+  const colors = useThemeColors()
+  const { t } = useTranslation()
 
   return (
     <View style={[styles.safeArea, { backgroundColor: colors.bgBase }]}>
@@ -130,246 +362,12 @@ export const SettingsScreen: React.FC = () => {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Theme Settings */}
-        <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('settings.theme')}</Text>
-        <View style={[styles.settingsGroup, { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault }]}>
-          <View style={styles.themeRow}>
-            <TouchableOpacity
-              style={[
-                styles.themeButton,
-                { borderColor: colors.borderDefault },
-                theme === 'light' && { backgroundColor: colors.accentPrimary, borderColor: 'transparent' },
-              ]}
-              onPress={() => setTheme('light')}
-            >
-              <Sun size={18} color={theme === 'light' ? '#FFFFFF' : colors.textPrimary} />
-              <Text style={[styles.themeBtnText, { color: theme === 'light' ? '#FFFFFF' : colors.textPrimary }]}>
-                {t('settings.light')}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.themeButton,
-                { borderColor: colors.borderDefault },
-                theme === 'dark' && { backgroundColor: colors.accentPrimary, borderColor: 'transparent' },
-              ]}
-              onPress={() => setTheme('dark')}
-            >
-              <Moon size={18} color={theme === 'dark' ? '#FFFFFF' : colors.textPrimary} />
-              <Text style={[styles.themeBtnText, { color: theme === 'dark' ? '#FFFFFF' : colors.textPrimary }]}>
-                {t('settings.dark')}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.themeButton,
-                { borderColor: colors.borderDefault },
-                theme === 'system' && { backgroundColor: colors.accentPrimary, borderColor: 'transparent' },
-              ]}
-              onPress={() => setTheme('system')}
-            >
-              <Laptop size={18} color={theme === 'system' ? '#FFFFFF' : colors.textPrimary} />
-              <Text style={[styles.themeBtnText, { color: theme === 'system' ? '#FFFFFF' : colors.textPrimary }]}>
-                {t('settings.system')}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Currency Settings */}
-        <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('settings.currency')}</Text>
-        <View style={[styles.settingsGroup, { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault }]}>
-          <Text style={[styles.settingLabel, { color: colors.textPrimary }]}>{t('settings.currency_symbol')}</Text>
-          <View style={styles.inputRow}>
-            <TextInput
-              style={[
-                styles.symbolInput,
-                { color: colors.textPrimary, borderColor: colors.borderDefault, backgroundColor: colors.bgElevated },
-              ]}
-              value={symbolInput}
-              onChangeText={setSymbolInput}
-              maxLength={6}
-            />
-            <TouchableOpacity
-              style={[styles.saveBtn, { backgroundColor: colors.accentPrimary }]}
-              onPress={handleUpdateSymbol}
-            >
-              <Text style={styles.saveBtnText}>{t('modal.save')}</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.divider} />
-
-          <Text style={[styles.settingLabel, { color: colors.textPrimary }]}>{t('settings.symbol_pos')}</Text>
-          <View style={styles.positionRow}>
-            <TouchableOpacity
-              style={[
-                styles.positionBtn,
-                { borderColor: colors.borderDefault },
-                currencyPosition === 'prefix' && { backgroundColor: colors.accentPrimary, borderColor: 'transparent' },
-              ]}
-              onPress={() => setCurrencyPosition('prefix')}
-            >
-              <Text style={{ color: currencyPosition === 'prefix' ? '#FFFFFF' : colors.textPrimary, fontWeight: '600' }}>
-                Prefix ({currencySymbol}100)
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.positionBtn,
-                { borderColor: colors.borderDefault },
-                currencyPosition === 'suffix' && { backgroundColor: colors.accentPrimary, borderColor: 'transparent' },
-              ]}
-              onPress={() => setCurrencyPosition('suffix')}
-            >
-              <Text style={{ color: currencyPosition === 'suffix' ? '#FFFFFF' : colors.textPrimary, fontWeight: '600' }}>
-                Suffix (100 {currencySymbol})
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-
-
-        {/* Localization & Info */}
-        <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('settings.lang')}</Text>
-        <View style={[styles.settingsGroup, { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault }]}>
-          <View style={styles.languageRow}>
-            <View style={styles.settingItemLeft}>
-              <Globe size={18} color={colors.textMuted} />
-              <Text style={[styles.settingLabel, { color: colors.textPrimary, marginBottom: 0 }]}>{t('settings.lang')}</Text>
-            </View>
-            <View style={styles.languageSelectors}>
-              <TouchableOpacity
-                style={[styles.langBadge, language === 'en' && { backgroundColor: colors.accentPrimary }]}
-                onPress={() => setLanguage('en')}
-              >
-                <Text style={{ color: language === 'en' ? '#FFFFFF' : colors.textPrimary, fontWeight: '700', fontSize: 11 }}>
-                  EN
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.langBadge, language === 'vi' && { backgroundColor: colors.accentPrimary }]}
-                onPress={() => setLanguage('vi')}
-              >
-                <Text style={{ color: language === 'vi' ? '#FFFFFF' : colors.textPrimary, fontWeight: '700', fontSize: 11 }}>
-                  VI
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-
-        {/* Time & Date Settings */}
-        <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('settings.time_date')}</Text>
-        <View style={[styles.settingsGroup, { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault }]}>
-          
-          <View style={styles.languageRow}>
-            <View style={styles.settingItemLeft}>
-              <Calendar size={18} color={colors.textMuted} />
-              <View>
-                <Text style={[styles.settingLabel, { color: colors.textPrimary, marginBottom: 0 }]}>{t('settings.first_day')}</Text>
-                <Text style={{ color: colors.textMuted, fontSize: 11, marginTop: 2 }}>{t('settings.first_day_desc')}</Text>
-              </View>
-            </View>
-            <View style={styles.languageSelectors}>
-              <TouchableOpacity
-                style={[styles.langBadge, firstDayOfWeek === 0 && { backgroundColor: colors.accentPrimary }]}
-                onPress={() => setFirstDayOfWeek(0)}
-              >
-                <Text style={{ color: firstDayOfWeek === 0 ? '#FFFFFF' : colors.textPrimary, fontWeight: '700', fontSize: 11 }}>
-                  {t('settings.sun')}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.langBadge, firstDayOfWeek === 1 && { backgroundColor: colors.accentPrimary }]}
-                onPress={() => setFirstDayOfWeek(1)}
-              >
-                <Text style={{ color: firstDayOfWeek === 1 ? '#FFFFFF' : colors.textPrimary, fontWeight: '700', fontSize: 11 }}>
-                  {t('settings.mon')}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          <View style={styles.divider} />
-
-          <View style={styles.securityRow}>
-            <View style={styles.settingItemLeft}>
-              <Clock size={18} color={colors.textMuted} />
-              <View>
-                <Text style={[styles.settingLabel, { color: colors.textPrimary, marginBottom: 0 }]}>
-                  {t('settings.sync_network')}
-                </Text>
-                <Text style={{ color: colors.textMuted, fontSize: 11, marginTop: 2 }}>
-                  {timeSyncMode === 'network' && networkTimezone 
-                    ? `${t('settings.sync_network_desc')} (${networkTimezone})` 
-                    : t('settings.sync_network_desc')}
-                </Text>
-              </View>
-            </View>
-            <TouchableOpacity
-              style={[
-                styles.mockToggle,
-                {
-                  backgroundColor: timeSyncMode === 'network' ? colors.accentPrimary : colors.borderDefault,
-                  alignItems: timeSyncMode === 'network' ? 'flex-end' : 'flex-start',
-                },
-              ]}
-              onPress={handleToggleTimeSync}
-              activeOpacity={0.8}
-            >
-              <View style={[styles.mockToggleKnob, { backgroundColor: colors.bgSurface }]} />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Security / Biometrics */}
-        <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('settings.security')}</Text>
-        <View style={[styles.settingsGroup, { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault }]}>
-          <View style={styles.securityRow}>
-            <View style={styles.settingItemLeft}>
-              <Shield size={18} color={colors.textMuted} />
-              <View>
-                <Text style={[styles.settingLabel, { color: colors.textPrimary, marginBottom: 0 }]}>
-                  {t('settings.biometric')}
-                </Text>
-                <Text style={{ color: colors.textMuted, fontSize: 11, marginTop: 2 }}>
-                  {t('settings.biometric_desc')}
-                </Text>
-              </View>
-            </View>
-            <TouchableOpacity
-              style={[
-                styles.mockToggle,
-                {
-                  backgroundColor: isBiometricEnabled ? colors.accentPrimary : colors.borderDefault,
-                  alignItems: isBiometricEnabled ? 'flex-end' : 'flex-start',
-                },
-              ]}
-              onPress={handleToggleBiometrics}
-              activeOpacity={0.8}
-            >
-              <View style={[styles.mockToggleKnob, { backgroundColor: colors.bgSurface }]} />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Danger Zone */}
-        <Text style={[styles.sectionTitle, { color: colors.stateError }]}>{t('settings.danger')}</Text>
-        <View style={[styles.settingsGroup, { backgroundColor: colors.bgSurface, borderColor: colors.stateError }]}>
-          <TouchableOpacity
-            style={[styles.resetButton, { backgroundColor: 'rgba(239, 68, 68, 0.08)' }]}
-            onPress={handleClearDatabase}
-            activeOpacity={0.7}
-          >
-            <Landmark size={18} color={colors.stateError} />
-            <Text style={[styles.resetBtnText, { color: colors.stateError }]}>{t('settings.reset')}</Text>
-          </TouchableOpacity>
-        </View>
+        <ThemeSection />
+        <CurrencySection />
+        <LocalizationSection />
+        <TimeDateSection />
+        <SecuritySection />
+        <DangerZone />
 
         <View style={styles.creditContainer}>
           <Text style={[styles.creditText, { color: colors.textMuted }]}>
@@ -377,8 +375,6 @@ export const SettingsScreen: React.FC = () => {
           </Text>
         </View>
       </ScrollView>
-
-
     </View>
   )
 }
@@ -417,7 +413,7 @@ const styles = StyleSheet.create({
     paddingBottom: 48,
   },
   sectionTitle: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: 0.8,
@@ -534,10 +530,7 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 1,
+    boxShadow: '0 1px 1px rgba(0, 0, 0, 0.1)',
   },
   resetButton: {
     flexDirection: 'row',

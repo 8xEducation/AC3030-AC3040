@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard, ScrollView, Alert } from 'react-native'
+import React, { useState, useEffect, useRef, useReducer } from 'react'
+import { Modal, View, Text, TextInput, Pressable, StyleSheet, KeyboardAvoidingView, Platform, Keyboard, ScrollView, Alert } from 'react-native'
 import { useThemeColors } from '../utils/theme'
 import { useTranslation } from '../utils/i18n'
 import { CategoryController } from '../controllers/CategoryController'
@@ -17,21 +17,21 @@ const PREDEFINED_COLORS = ['#EF4444', '#F97316', '#F59E0B', '#10B981', '#06B6D4'
 export const CategoryManagerModal: React.FC<CategoryManagerModalProps> = ({ visible, onClose }) => {
   const colors = useThemeColors()
   const { t } = useTranslation()
-  
-  const [categories, setCategories] = useState<Category[]>([])
-  
-  // New Category State
-  const newCatNameRef = useRef('')
-  const [newCatType, setNewCatType] = useState<CategoryType>(CategoryType.EXPENSE)
-  const [newCatColor, setNewCatColor] = useState(PREDEFINED_COLORS[3])
-  const [loading, setLoading] = useState(false)
-  const [resetKey, setResetKey] = useState(0)
 
-  useEffect(() => {
-    if (visible) {
-      loadCategories()
+  const [categories, setCategories] = useState<Category[]>([])
+
+  // New Category State
+  const [state, setState] = useReducer(
+    (s: any, a: any) => ({ ...s, ...(typeof a === 'function' ? a(s) : a) }),
+    {
+      newCatType: CategoryType.EXPENSE,
+      newCatColor: PREDEFINED_COLORS[3],
+      loading: false,
+      resetKey: 0
     }
-  }, [visible])
+  )
+
+  const newCatNameRef = useRef('')
 
   const loadCategories = async () => {
     try {
@@ -48,16 +48,16 @@ export const CategoryManagerModal: React.FC<CategoryManagerModalProps> = ({ visi
       return
     }
 
-    setLoading(true)
+    setState({ loading: true })
     try {
-      await CategoryController.createCategory(newCatNameRef.current.trim(), newCatType, newCatColor, 'Tag')
+      await CategoryController.createCategory(newCatNameRef.current.trim(), state.newCatType, state.newCatColor, 'Tag')
       newCatNameRef.current = ''
-      setResetKey(k => k + 1)
+      setState((s: any) => ({ resetKey: s.resetKey + 1 }))
       await loadCategories()
     } catch (err: any) {
       Alert.alert('Error', err?.message || 'Failed to add category')
     } finally {
-      setLoading(false)
+      setState({ loading: false })
     }
   }
 
@@ -87,58 +87,58 @@ export const CategoryManagerModal: React.FC<CategoryManagerModalProps> = ({ visi
   const incomes = categories.filter(c => c.type === CategoryType.INCOME)
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} onShow={loadCategories}>
+      <Pressable style={{ flex: 1 }} onPress={Keyboard.dismiss}>
         <View style={styles.overlay}>
-          <KeyboardAvoidingView 
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.keyboardView}
           >
             <View style={[styles.modalContainer, { backgroundColor: colors.bgSurface }]}>
               {/* Header */}
               <View style={[styles.header, { borderBottomColor: colors.borderDefault }]}>
                 <Text style={[styles.title, { color: colors.textPrimary }]}>Manage Categories</Text>
-                <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
+                <Pressable onPress={onClose} style={styles.closeBtn}>
                   <X size={24} color={colors.textMuted} />
-                </TouchableOpacity>
+                </Pressable>
               </View>
 
               <ScrollView style={styles.content} keyboardShouldPersistTaps="handled">
                 {/* Add New Category Section */}
                 <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Add New Category</Text>
-                
+
                 <View style={styles.typeSelector}>
-                  <TouchableOpacity 
+                  <Pressable
                     style={[
-                      styles.typeBtn, 
-                      { 
-                        backgroundColor: newCatType === CategoryType.EXPENSE ? 'rgba(239, 68, 68, 0.1)' : colors.bgBase,
-                        borderColor: newCatType === CategoryType.EXPENSE ? '#EF4444' : colors.borderDefault 
+                      styles.typeBtn,
+                      {
+                        backgroundColor: state.newCatType === CategoryType.EXPENSE ? 'rgba(239, 68, 68, 0.1)' : colors.bgBase,
+                        borderColor: state.newCatType === CategoryType.EXPENSE ? '#EF4444' : colors.borderDefault
                       }
                     ]}
-                    onPress={() => setNewCatType(CategoryType.EXPENSE)}
+                    onPress={() => setState({ newCatType: CategoryType.EXPENSE })}
                   >
-                    <TrendingDown size={16} color={newCatType === CategoryType.EXPENSE ? '#EF4444' : colors.textMuted} />
-                    <Text style={[styles.typeBtnText, { color: newCatType === CategoryType.EXPENSE ? '#EF4444' : colors.textMuted }]}>{t('tx.expense')}</Text>
-                  </TouchableOpacity>
-                  
-                  <TouchableOpacity 
+                    <TrendingDown size={16} color={state.newCatType === CategoryType.EXPENSE ? '#EF4444' : colors.textMuted} />
+                    <Text style={[styles.typeBtnText, { color: state.newCatType === CategoryType.EXPENSE ? '#EF4444' : colors.textMuted }]}>{t('tx.expense')}</Text>
+                  </Pressable>
+
+                  <Pressable
                     style={[
-                      styles.typeBtn, 
-                      { 
-                        backgroundColor: newCatType === CategoryType.INCOME ? 'rgba(16, 185, 129, 0.1)' : colors.bgBase,
-                        borderColor: newCatType === CategoryType.INCOME ? '#10B981' : colors.borderDefault 
+                      styles.typeBtn,
+                      {
+                        backgroundColor: state.newCatType === CategoryType.INCOME ? 'rgba(16, 185, 129, 0.1)' : colors.bgBase,
+                        borderColor: state.newCatType === CategoryType.INCOME ? '#10B981' : colors.borderDefault
                       }
                     ]}
-                    onPress={() => setNewCatType(CategoryType.INCOME)}
+                    onPress={() => setState({ newCatType: CategoryType.INCOME })}
                   >
-                    <TrendingUp size={16} color={newCatType === CategoryType.INCOME ? '#10B981' : colors.textMuted} />
-                    <Text style={[styles.typeBtnText, { color: newCatType === CategoryType.INCOME ? '#10B981' : colors.textMuted }]}>{t('tx.income')}</Text>
-                  </TouchableOpacity>
+                    <TrendingUp size={16} color={state.newCatType === CategoryType.INCOME ? '#10B981' : colors.textMuted} />
+                    <Text style={[styles.typeBtnText, { color: state.newCatType === CategoryType.INCOME ? '#10B981' : colors.textMuted }]}>{t('tx.income')}</Text>
+                  </Pressable>
                 </View>
 
                 <TextInput
-                  key={`cat-input-${visible ? 'open' : 'closed'}-${resetKey}`}
+                  key={`new-cat-name-${state.resetKey}`}
                   style={[styles.input, { backgroundColor: colors.bgBase, color: colors.textPrimary, borderColor: colors.borderDefault }]}
                   placeholder="Category Name"
                   placeholderTextColor={colors.textMuted}
@@ -150,25 +150,25 @@ export const CategoryManagerModal: React.FC<CategoryManagerModalProps> = ({ visi
 
                 <View style={styles.colorPicker}>
                   {PREDEFINED_COLORS.map(color => (
-                    <TouchableOpacity
+                    <Pressable
                       key={color}
                       style={[
                         styles.colorCircle,
                         { backgroundColor: color },
-                        newCatColor === color && { borderWidth: 3, borderColor: colors.textPrimary }
+                        state.newCatColor === color && { borderWidth: 3, borderColor: colors.textPrimary }
                       ]}
-                      onPress={() => setNewCatColor(color)}
+                      onPress={() => setState({ newCatColor: color })}
                     />
                   ))}
                 </View>
 
-                <TouchableOpacity 
-                  style={[styles.saveBtn, { backgroundColor: colors.accentPrimary, opacity: loading ? 0.7 : 1 }]} 
+                <Pressable
+                  style={[styles.saveBtn, { backgroundColor: colors.accentPrimary, opacity: state.loading ? 0.7 : 1 }]}
                   onPress={handleAddCategory}
-                  disabled={loading}
+                  disabled={state.loading}
                 >
-                  <Text style={styles.saveBtnText}>{loading ? 'Adding...' : 'Add Category'}</Text>
-                </TouchableOpacity>
+                  <Text style={styles.saveBtnText}>{state.loading ? 'Adding...' : 'Add Category'}</Text>
+                </Pressable>
 
                 <View style={styles.divider} />
 
@@ -183,9 +183,9 @@ export const CategoryManagerModal: React.FC<CategoryManagerModalProps> = ({ visi
                         </View>
                         <Text style={[styles.catName, { color: colors.textPrimary }]}>{cat.name}</Text>
                       </View>
-                      <TouchableOpacity onPress={() => handleDeleteCategory(cat)} style={styles.deleteBtn}>
+                      <Pressable onPress={() => handleDeleteCategory(cat)} style={styles.deleteBtn}>
                         <Trash2 size={18} color={colors.stateError} />
-                      </TouchableOpacity>
+                      </Pressable>
                     </View>
                   ))}
                 </View>
@@ -200,9 +200,9 @@ export const CategoryManagerModal: React.FC<CategoryManagerModalProps> = ({ visi
                         </View>
                         <Text style={[styles.catName, { color: colors.textPrimary }]}>{cat.name}</Text>
                       </View>
-                      <TouchableOpacity onPress={() => handleDeleteCategory(cat)} style={styles.deleteBtn}>
+                      <Pressable onPress={() => handleDeleteCategory(cat)} style={styles.deleteBtn}>
                         <Trash2 size={18} color={colors.stateError} />
-                      </TouchableOpacity>
+                      </Pressable>
                     </View>
                   ))}
                 </View>
@@ -212,7 +212,7 @@ export const CategoryManagerModal: React.FC<CategoryManagerModalProps> = ({ visi
             </View>
           </KeyboardAvoidingView>
         </View>
-      </TouchableWithoutFeedback>
+      </Pressable>
     </Modal>
   )
 }

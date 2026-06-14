@@ -10,3 +10,21 @@ console.error = (...args) => {
   }
   originalConsoleError(...args);
 };
+
+jest.mock('@shopify/flash-list', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  return {
+    FlashList: (props) => {
+      return (
+        <View>
+          {props.data && props.data.map((item, index) => (
+            <React.Fragment key={index}>
+              {props.renderItem({ item, index })}
+            </React.Fragment>
+          ))}
+        </View>
+      );
+    },
+  };
+});

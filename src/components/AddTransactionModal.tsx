@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard, ScrollView } from 'react-native'
+import React, { useState, useEffect, useRef, useCallback, useMemo, useReducer } from 'react'
+import { Modal, View, Text, TextInput, Pressable, StyleSheet, KeyboardAvoidingView, Platform, Keyboard, ScrollView, FlatList } from 'react-native'
 import { useThemeColors } from '../utils/theme'
 import { useTranslation } from '../utils/i18n'
 import { TransactionController } from '../controllers/TransactionController'
@@ -17,143 +17,207 @@ interface AddTransactionModalProps {
   onSuccess: () => void
 }
 
+const AccountPill = React.memo(({ acc, isSelected, onPress, colors }: any) => {
+  const dynamicStyle = useMemo(() => ({
+    backgroundColor: isSelected ? colors.accentPrimary : colors.bgBase,
+    borderColor: isSelected ? colors.accentPrimary : colors.borderDefault
+  }), [isSelected, colors])
+
+  const textStyle = useMemo(() => ({
+    color: isSelected ? '#FFF' : colors.textMuted
+  }), [isSelected, colors])
+
+  return (
+    <Pressable style={[styles.pill, dynamicStyle]} onPress={() => onPress(acc.id)}>
+      <Wallet size={14} color={isSelected ? '#FFF' : colors.textMuted} />
+      <Text style={[styles.pillText, textStyle]}>{acc.name}</Text>
+    </Pressable>
+  )
+})
+
+const CategoryPill = React.memo(({ cat, isSelected, onPress, colors }: any) => {
+  const dynamicStyle = useMemo(() => ({
+    backgroundColor: isSelected ? cat.color : colors.bgBase,
+    borderColor: isSelected ? cat.color : colors.borderDefault
+  }), [isSelected, cat.color, colors])
+
+  const textStyle = useMemo(() => ({
+    color: isSelected ? '#FFF' : colors.textMuted
+  }), [isSelected, colors])
+
+  return (
+    <Pressable style={[styles.pill, dynamicStyle]} onPress={() => onPress(cat.id)}>
+      <Tag size={14} color={isSelected ? '#FFF' : cat.color} />
+      <Text style={[styles.pillText, textStyle]}>{cat.name}</Text>
+    </Pressable>
+  )
+})
+
 export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ visible, onClose, onSuccess }) => {
   const colors = useThemeColors()
   const { currencySymbol, currencyPosition } = useAppStore()
   const { t } = useTranslation()
-  
-  const [type, setType] = useState<TransactionType>(TransactionType.EXPENSE)
-  const [amount, setAmount] = useState('')
+
+  const [state, setState] = useReducer(
+    (s: any, a: any) => ({ ...s, ...(typeof a === 'function' ? a(s) : a) }),
+    {
+      type: TransactionType.EXPENSE,
+      amount: '',
+      selectedAccountId: '',
+      selectedCategoryId: '',
+      accounts: [] as Account[],
+      categories: [] as Category[],
+      loading: false,
+      error: ''
+    }
+  )
+
   const descRef = useRef('')
-  const [selectedAccountId, setSelectedAccountId] = useState('')
-  const [selectedCategoryId, setSelectedCategoryId] = useState('')
-  
-  const [accounts, setAccounts] = useState<Account[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
 
   useEffect(() => {
-    if (visible) {
-      loadDependencies()
-    }
-  }, [visible, type])
+    const loadDependencies = async () => {
+      try {
+        const accs = await database.get<Account>('accounts').query().fetch()
+        const activeAccs = accs.filter(a => a.isActive)
 
-  const loadDependencies = async () => {
-    try {
-      const accs = await database.get<Account>('accounts').query().fetch()
-      setAccounts(accs.filter(a => a.isActive))
-      
-      if (accs.length > 0 && !selectedAccountId) {
-        setSelectedAccountId(accs[0].id)
-      }
-
-      if (type !== TransactionType.TRANSFER) {
-        const cats = await database.get<Category>('categories').query().fetch()
-        const targetType = type === TransactionType.EXPENSE ? CategoryType.EXPENSE : CategoryType.INCOME
-        const filteredCats = cats.filter(c => c.type === targetType && c.isActive)
-        setCategories(filteredCats)
-        
-        if (filteredCats.length > 0) {
-          setSelectedCategoryId(filteredCats[0].id)
-        } else {
-          setSelectedCategoryId('')
+        let newSelectedAccountId = state.selectedAccountId
+        if (activeAccs.length > 0 && !newSelectedAccountId) {
+          newSelectedAccountId = activeAccs[0].id
         }
+
+        let filteredCats: Category[] = []
+        let newSelectedCategoryId = state.selectedCategoryId
+        if (state.type !== TransactionType.TRANSFER) {
+          const cats = await database.get<Category>('categories').query().fetch()
+          const targetType = state.type === TransactionType.EXPENSE ? CategoryType.EXPENSE : CategoryType.INCOME
+          filteredCats = cats.filter(c => c.type === targetType && c.isActive)
+
+          if (filteredCats.length > 0 && (!newSelectedCategoryId || !filteredCats.find(c => c.id === newSelectedCategoryId))) {
+            newSelectedCategoryId = filteredCats[0].id
+          } else if (filteredCats.length === 0) {
+            newSelectedCategoryId = ''
+          }
+        }
+
+        setState({
+          accounts: activeAccs,
+          selectedAccountId: newSelectedAccountId,
+          categories: filteredCats,
+          selectedCategoryId: newSelectedCategoryId
+        })
+      } catch (err) {
+        console.error(err)
       }
-    } catch (err) {
-      console.error(err)
     }
-  }
+
+    loadDependencies()
+  }, [state.type])
 
   const handleSave = async () => {
-    if (!amount.trim() || isNaN(parseFloat(amount.replace(/,/g, '')))) {
-      setError('Please enter a valid amount')
+    if (!state.amount.trim() || isNaN(parseFloat(state.amount.replace(/,/g, '')))) {
+      setState({ error: 'Please enter a valid amount' })
       return
     }
-    if (!selectedAccountId) {
-      setError('Please select an account')
+    if (!state.selectedAccountId) {
+      setState({ error: 'Please select an account' })
       return
     }
-    if (type !== TransactionType.TRANSFER && !selectedCategoryId) {
-      setError('Please select a category')
+    if (state.type !== TransactionType.TRANSFER && !state.selectedCategoryId) {
+      setState({ error: 'Please select a category' })
       return
     }
 
-    setLoading(true)
-    setError('')
-    
-    const amountInCents = toCents(parseFloat(amount.replace(/,/g, '')))
-    
+    setState({ loading: true, error: '' })
+
+    const amountInCents = toCents(parseFloat(state.amount.replace(/,/g, '')))
+
     const res = await TransactionController.createTransaction({
-      accountId: selectedAccountId,
-      type,
+      accountId: state.selectedAccountId,
+      type: state.type,
       amount: amountInCents,
-      description: descRef.current.trim() || (type === TransactionType.EXPENSE ? 'Expense' : 'Income'),
+      description: descRef.current.trim() || (state.type === TransactionType.EXPENSE ? 'Expense' : 'Income'),
       date: Math.floor(Date.now() / 1000),
-      categoryId: type !== TransactionType.TRANSFER ? selectedCategoryId : undefined,
+      categoryId: state.type !== TransactionType.TRANSFER ? state.selectedCategoryId : undefined,
     })
-    
-    setLoading(false)
-    
+
+    setState({ loading: false })
+
     if (res.success) {
-      setAmount('')
+      setState({ amount: '' })
       descRef.current = ''
       onSuccess()
       onClose()
     } else {
-      setError(res.error || 'Failed to save transaction')
+      setState({ error: res.error || 'Failed to save transaction' })
     }
   }
 
+  const renderAccountItem = useCallback(({ item: acc }: any) => (
+    <AccountPill
+      acc={acc}
+      isSelected={state.selectedAccountId === acc.id}
+      onPress={(id: string) => setState({ selectedAccountId: id })}
+      colors={colors}
+    />
+  ), [state.selectedAccountId, colors])
+
+  const renderCategoryItem = useCallback(({ item: cat }: any) => (
+    <CategoryPill
+      cat={cat}
+      isSelected={state.selectedCategoryId === cat.id}
+      onPress={(id: string) => setState({ selectedCategoryId: id })}
+      colors={colors}
+    />
+  ), [state.selectedCategoryId, colors])
+
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <Pressable style={{ flex: 1 }} onPress={Keyboard.dismiss}>
         <View style={styles.overlay}>
-          <KeyboardAvoidingView 
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.keyboardView}
           >
             <View style={[styles.modalContainer, { backgroundColor: colors.bgSurface }]}>
               {/* Header */}
               <View style={[styles.header, { borderBottomColor: colors.borderDefault }]}>
                 <Text style={[styles.title, { color: colors.textPrimary }]}>{t('tx.add')}</Text>
-                <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
+                <Pressable onPress={onClose} style={styles.closeBtn}>
                   <X size={24} color={colors.textMuted} />
-                </TouchableOpacity>
+                </Pressable>
               </View>
 
               <ScrollView style={styles.content} keyboardShouldPersistTaps="handled">
-                {error ? <Text style={[styles.errorText, { color: colors.stateError }]}>{error}</Text> : null}
 
-                {/* Type Selector */}
+                {state.error ? (
+                  <View style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', padding: 12, borderRadius: 8, marginBottom: 16 }}>
+                    <Text style={{ color: '#EF4444', fontSize: 13 }}>{state.error}</Text>
+                  </View>
+                ) : null}
+
+                {/* Transaction Type Selection */}
                 <View style={styles.typeSelector}>
-                  <TouchableOpacity 
+                  <Pressable
                     style={[
-                      styles.typeBtn, 
-                      { 
-                        backgroundColor: type === TransactionType.EXPENSE ? 'rgba(239, 68, 68, 0.1)' : colors.bgBase,
-                        borderColor: type === TransactionType.EXPENSE ? '#EF4444' : colors.borderDefault 
-                      }
+                      styles.typeBtn,
+                      state.type === TransactionType.EXPENSE && { backgroundColor: colors.bgSurface, borderColor: '#EF4444', borderWidth: 1 }
                     ]}
-                    onPress={() => setType(TransactionType.EXPENSE)}
+                    onPress={() => setState({ type: TransactionType.EXPENSE })}
                   >
-                    <TrendingDown size={16} color={type === TransactionType.EXPENSE ? '#EF4444' : colors.textMuted} />
-                    <Text style={[styles.typeBtnText, { color: type === TransactionType.EXPENSE ? '#EF4444' : colors.textMuted }]}>{t('tx.expense')}</Text>
-                  </TouchableOpacity>
-                  
-                  <TouchableOpacity 
+                    <TrendingDown size={16} color={state.type === TransactionType.EXPENSE ? '#EF4444' : colors.textMuted} />
+                    <Text style={[styles.typeBtnText, { color: state.type === TransactionType.EXPENSE ? '#EF4444' : colors.textMuted }]}>{t('tx.expense')}</Text>
+                  </Pressable>
+
+                  <Pressable
                     style={[
-                      styles.typeBtn, 
-                      { 
-                        backgroundColor: type === TransactionType.INCOME ? 'rgba(16, 185, 129, 0.1)' : colors.bgBase,
-                        borderColor: type === TransactionType.INCOME ? '#10B981' : colors.borderDefault 
-                      }
+                      styles.typeBtn,
+                      state.type === TransactionType.INCOME && { backgroundColor: colors.bgSurface, borderColor: '#10B981', borderWidth: 1 }
                     ]}
-                    onPress={() => setType(TransactionType.INCOME)}
+                    onPress={() => setState({ type: TransactionType.INCOME })}
                   >
-                    <TrendingUp size={16} color={type === TransactionType.INCOME ? '#10B981' : colors.textMuted} />
-                    <Text style={[styles.typeBtnText, { color: type === TransactionType.INCOME ? '#10B981' : colors.textMuted }]}>{t('tx.income')}</Text>
-                  </TouchableOpacity>
+                    <TrendingUp size={16} color={state.type === TransactionType.INCOME ? '#10B981' : colors.textMuted} />
+                    <Text style={[styles.typeBtnText, { color: state.type === TransactionType.INCOME ? '#10B981' : colors.textMuted }]}>{t('tx.income')}</Text>
+                  </Pressable>
                 </View>
 
                 {/* Input Fields */}
@@ -163,8 +227,8 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ visibl
                   placeholder={t('tx.placeholder.amount')}
                   placeholderTextColor={colors.textMuted}
                   keyboardType="decimal-pad"
-                  value={amount}
-                  onChangeText={(val) => setAmount(val.replace(/[^0-9.]/g, ''))}
+                  value={state.amount}
+                  onChangeText={(val) => setState({ amount: val.replace(/[^0-9.]/g, '') })}
                 />
 
                 <Text style={[styles.label, { color: colors.textPrimary, marginTop: 16 }]}>{t('modal.desc')}</Text>
@@ -181,91 +245,58 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({ visibl
 
                 {/* Account Selection */}
                 <Text style={[styles.label, { color: colors.textPrimary, marginTop: 16 }]}>{t('tx.account')}</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pillContainer}>
-                  {accounts.map(acc => (
-                    <TouchableOpacity
-                      key={acc.id}
-                      style={[
-                        styles.pill,
-                        { 
-                          backgroundColor: selectedAccountId === acc.id ? colors.accentPrimary : colors.bgBase,
-                          borderColor: selectedAccountId === acc.id ? colors.accentPrimary : colors.borderDefault
-                        }
-                      ]}
-                      onPress={() => setSelectedAccountId(acc.id)}
-                    >
-                      <Wallet size={14} color={selectedAccountId === acc.id ? '#FFF' : colors.textMuted} />
-                      <Text style={[
-                        styles.pillText,
-                        { color: selectedAccountId === acc.id ? '#FFF' : colors.textMuted }
-                      ]}>
-                        {acc.name}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                  {accounts.length === 0 && (
-                    <Text style={{ color: colors.textMuted, fontSize: 13, paddingVertical: 8 }}>No accounts available. Create one first.</Text>
-                  )}
-                </ScrollView>
+                <FlatList
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.pillContainer}
+                  data={state.accounts}
+                  keyExtractor={acc => acc.id}
+                  ListEmptyComponent={<Text style={{ color: colors.textMuted, fontSize: 13, paddingVertical: 8 }}>No accounts available. Create one first.</Text>}
+                  renderItem={renderAccountItem}
+                />
 
                 {/* Category Selection */}
-                {type !== TransactionType.TRANSFER && (
+                {state.type !== TransactionType.TRANSFER && (
                   <>
                     <Text style={[styles.label, { color: colors.textPrimary, marginTop: 16 }]}>{t('tx.category')}</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pillContainer}>
-                      {categories.map(cat => (
-                        <TouchableOpacity
-                          key={cat.id}
-                          style={[
-                            styles.pill,
-                            { 
-                              backgroundColor: selectedCategoryId === cat.id ? cat.color : colors.bgBase,
-                              borderColor: selectedCategoryId === cat.id ? cat.color : colors.borderDefault
-                            }
-                          ]}
-                          onPress={() => setSelectedCategoryId(cat.id)}
-                        >
-                          <Tag size={14} color={selectedCategoryId === cat.id ? '#FFF' : cat.color} />
-                          <Text style={[
-                            styles.pillText,
-                            { color: selectedCategoryId === cat.id ? '#FFF' : colors.textMuted }
-                          ]}>
-                            {cat.name}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                      {categories.length === 0 && (
-                        <Text style={{ color: colors.textMuted, fontSize: 13, paddingVertical: 8 }}>No categories configured yet.</Text>
-                      )}
-                    </ScrollView>
+                    <FlatList
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      style={styles.pillContainer}
+                      data={state.categories}
+                      keyExtractor={cat => cat.id}
+                      ListEmptyComponent={<Text style={{ color: colors.textMuted, fontSize: 13, paddingVertical: 8 }}>No categories configured yet.</Text>}
+                      renderItem={renderCategoryItem}
+                    />
                   </>
                 )}
 
                 <View style={{ height: 40 }} />
-                
+
                 {/* Action Buttons */}
                 <View style={styles.actionRow}>
-                  <TouchableOpacity 
-                    style={[styles.cancelBtn, { borderColor: colors.borderDefault }]} 
+                  <Pressable
+                    style={[styles.cancelBtn, { borderColor: colors.borderDefault }]}
                     onPress={onClose}
-                    disabled={loading}
+                    disabled={state.loading}
                   >
                     <Text style={[styles.cancelBtnText, { color: colors.textPrimary }]}>{t('modal.cancel')}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity 
-                    style={[styles.saveBtn, { backgroundColor: colors.accentPrimary, opacity: loading ? 0.7 : 1 }]} 
+                  </Pressable>
+
+                  <Pressable
+                    style={[styles.saveBtn, { backgroundColor: colors.accentPrimary, opacity: state.loading ? 0.7 : 1 }]}
                     onPress={handleSave}
-                    disabled={loading}
+                    disabled={state.loading}
                   >
-                    <Text style={styles.saveBtnText}>{loading ? t('modal.saving') : t('modal.save')}</Text>
-                  </TouchableOpacity>
+                    <Text style={styles.saveBtnText}>{state.loading ? 'Saving...' : t('modal.save')}</Text>
+                  </Pressable>
                 </View>
                 <View style={{ height: 20 }} />
               </ScrollView>
             </View>
           </KeyboardAvoidingView>
         </View>
-      </TouchableWithoutFeedback>
+      </Pressable>
     </Modal>
   )
 }

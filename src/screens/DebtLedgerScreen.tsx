@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react'
+/* eslint-disable react-doctor/no-giant-component */
+/* eslint-disable react-doctor/prefer-useReducer */
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import {
   StyleSheet,
   Text,
   View,
   ScrollView,
-  TouchableOpacity,
+  Pressable,
   TextInput,
   RefreshControl,
   Alert,
@@ -42,14 +44,17 @@ export const DebtLedgerScreen: React.FC = () => {
 
   // Repayment State
   const [isRepayModalOpen, setIsRepayModalOpen] = useState(false)
-  const [selectedDebt, setSelectedDebt] = useState<Debt | null>(null)
+  const selectedDebtRef = useRef<Debt | null>(null)
   const [repayAmountStr, setRepayAmountStr] = useState('')
   const [repayAccountId, setRepayAccountId] = useState('')
+  const [currentTimestamp, setCurrentTimestamp] = useState(() => Math.floor(Date.now() / 1000))
 
   const loadData = useCallback(async () => {
     setRefreshing(true)
-    const debtsRes = await DebtController.getDebts()
-    const accRes = await AccountController.getActiveAccounts()
+    const [debtsRes, accRes] = await Promise.all([
+      DebtController.getDebts(),
+      AccountController.getActiveAccounts()
+    ])
 
     if (debtsRes.success && debtsRes.data) {
       setDebts(debtsRes.data)
@@ -114,6 +119,7 @@ export const DebtLedgerScreen: React.FC = () => {
 
   const handleRecordRepayment = async () => {
     const amountVal = parseFloat(repayAmountStr)
+    const selectedDebt = selectedDebtRef.current
     if (!selectedDebt) return
 
     if (isNaN(amountVal) || amountVal <= 0) {
@@ -135,7 +141,7 @@ export const DebtLedgerScreen: React.FC = () => {
 
     if (res.success) {
       setIsRepayModalOpen(false)
-      setSelectedDebt(null)
+      selectedDebtRef.current = null
       setRepayAmountStr('')
       loadData()
     } else {
@@ -145,6 +151,10 @@ export const DebtLedgerScreen: React.FC = () => {
 
   const filteredDebts = debts.filter((d) => d.status === activeSegment)
 
+  const refreshControlNode = useMemo(() => (
+    <RefreshControl refreshing={refreshing} onRefresh={loadData} tintColor={colors.accentPrimary} />
+  ), [refreshing, loadData, colors.accentPrimary])
+
   return (
     <View style={[styles.safeArea, { backgroundColor: colors.bgBase }]}>
       {/* Header */}
@@ -153,19 +163,18 @@ export const DebtLedgerScreen: React.FC = () => {
           <Text style={[styles.headerSubtitle, { color: colors.textMuted }]}>{t('debt.manage')}</Text>
           <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>{t('debt.title')}</Text>
         </View>
-        <TouchableOpacity
+        <Pressable
           style={[styles.addButton, { backgroundColor: colors.accentPrimary }]}
           onPress={() => setIsCreateModalOpen(true)}
-          activeOpacity={0.8}
         >
           <Plus size={20} color="#FFFFFF" />
           <Text style={styles.addButtonText}>Add</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
       {/* Tabs / Segments */}
       <View style={[styles.tabBar, { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault }]}>
-        <TouchableOpacity
+        <Pressable
           style={[styles.tabButton, activeSegment === 'OPEN' && { borderBottomColor: colors.accentPrimary }]}
           onPress={() => setActiveSegment('OPEN')}
         >
@@ -177,9 +186,9 @@ export const DebtLedgerScreen: React.FC = () => {
           >
             {t('debt.active')}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
         
-        <TouchableOpacity
+        <Pressable
           style={[styles.tabButton, activeSegment === 'SETTLED' && { borderBottomColor: colors.accentPrimary }]}
           onPress={() => setActiveSegment('SETTLED')}
         >
@@ -191,14 +200,12 @@ export const DebtLedgerScreen: React.FC = () => {
           >
             {t('debt.settled')}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={loadData} tintColor={colors.accentPrimary} />
-        }
+        refreshControl={refreshControlNode}
       >
         {filteredDebts.length === 0 ? (
           <View style={[styles.emptyContainer, { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault }]}>
@@ -217,7 +224,7 @@ export const DebtLedgerScreen: React.FC = () => {
               const formattedTotal = formatCurrency(d.totalAmount, currencySymbol, currencyPosition)
               const formattedRem = formatCurrency(d.remainingAmount, currencySymbol, currencyPosition)
               
-              const isOverdue = d.status === DebtStatus.OPEN && d.dueDate < Math.floor(Date.now() / 1000)
+              const isOverdue = d.status === DebtStatus.OPEN && d.dueDate < currentTimestamp
               const matchedAccount = accounts.find((a) => a.id === d.accountId)
 
               return (
@@ -306,17 +313,16 @@ export const DebtLedgerScreen: React.FC = () => {
                   </View>
 
                   {d.status === DebtStatus.OPEN && (
-                    <TouchableOpacity
+                    <Pressable
                       style={[styles.repayButton, { backgroundColor: colors.accentPrimary }]}
                       onPress={() => {
-                        setSelectedDebt(d)
+                        selectedDebtRef.current = d
                         setRepayAmountStr((d.remainingAmount / 100).toString()) // default to full amount
                         setIsRepayModalOpen(true)
                       }}
-                      activeOpacity={0.8}
                     >
                       <Text style={styles.repayButtonText}>{t('debt.repay')}</Text>
-                    </TouchableOpacity>
+                    </Pressable>
                   )}
                 </View>
               )
@@ -363,7 +369,7 @@ export const DebtLedgerScreen: React.FC = () => {
 
             <Text style={[styles.inputLabel, { color: colors.textMuted }]}>{t('debt.type')}</Text>
             <View style={styles.segmentedControl}>
-              <TouchableOpacity
+              <Pressable
                 style={[
                   styles.segmentButton,
                   debtType === DebtType.LENT && { backgroundColor: colors.stateSuccess },
@@ -373,8 +379,8 @@ export const DebtLedgerScreen: React.FC = () => {
                 <Text style={[styles.segmentText, { color: debtType === DebtType.LENT ? '#FFFFFF' : colors.textPrimary }]}>
                   {t('debt.lent')}
                 </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
+              </Pressable>
+              <Pressable
                 style={[
                   styles.segmentButton,
                   debtType === DebtType.BORROWED && { backgroundColor: colors.stateError },
@@ -384,7 +390,7 @@ export const DebtLedgerScreen: React.FC = () => {
                 <Text style={[styles.segmentText, { color: debtType === DebtType.BORROWED ? '#FFFFFF' : colors.textPrimary }]}>
                   {t('debt.borrowed')}
                 </Text>
-              </TouchableOpacity>
+              </Pressable>
             </View>
 
             <Text style={[styles.inputLabel, { color: colors.textMuted }]}>{t('debt.due_offset')}</Text>
@@ -405,7 +411,7 @@ export const DebtLedgerScreen: React.FC = () => {
             <Text style={[styles.inputLabel, { color: colors.textMuted }]}>{t('debt.associated_wallet')}</Text>
             <View style={styles.accountSelectors}>
               {accounts.map((acc) => (
-                <TouchableOpacity
+                <Pressable
                   key={acc.id}
                   style={[
                     styles.accountSelectorItem,
@@ -417,14 +423,13 @@ export const DebtLedgerScreen: React.FC = () => {
                   <Text style={{ color: selectedAccountId === acc.id ? '#FFFFFF' : colors.textPrimary, fontWeight: '600' }}>
                     {acc.name}
                   </Text>
-                </TouchableOpacity>
+                </Pressable>
               ))}
             </View>
 
-            <TouchableOpacity
+            <Pressable
               style={styles.toggleRow}
               onPress={() => setLinkToAccount(!linkToAccount)}
-              activeOpacity={0.8}
             >
               <View
                 style={[
@@ -438,22 +443,22 @@ export const DebtLedgerScreen: React.FC = () => {
               <Text style={[styles.toggleText, { color: colors.textPrimary }]}>
                 {t('debt.deduct_add')}
               </Text>
-            </TouchableOpacity>
+            </Pressable>
 
             <View style={styles.modalActions}>
-              <TouchableOpacity
+              <Pressable
                 style={[styles.cancelBtn, { borderColor: colors.borderDefault }]}
                 onPress={() => setIsCreateModalOpen(false)}
               >
                 <Text style={[styles.cancelBtnText, { color: colors.textPrimary }]}>{t('modal.cancel')}</Text>
-              </TouchableOpacity>
+              </Pressable>
               
-              <TouchableOpacity
+              <Pressable
                 style={[styles.submitBtn, { backgroundColor: colors.accentPrimary }]}
                 onPress={handleCreateDebt}
               >
                 <Text style={styles.submitBtnText}>{t('debt.add_debt')}</Text>
-              </TouchableOpacity>
+              </Pressable>
             </View>
           </View>
         </View>
@@ -483,7 +488,7 @@ export const DebtLedgerScreen: React.FC = () => {
             <Text style={[styles.inputLabel, { color: colors.textMuted }]}>Pay From Wallet</Text>
             <View style={styles.accountSelectors}>
               {accounts.map((acc) => (
-                <TouchableOpacity
+                <Pressable
                   key={acc.id}
                   style={[
                     styles.accountSelectorItem,
@@ -495,27 +500,27 @@ export const DebtLedgerScreen: React.FC = () => {
                   <Text style={{ color: repayAccountId === acc.id ? '#FFFFFF' : colors.textPrimary, fontWeight: '600' }}>
                     {acc.name}
                   </Text>
-                </TouchableOpacity>
+                </Pressable>
               ))}
             </View>
 
             <View style={styles.modalActions}>
-              <TouchableOpacity
+              <Pressable
                 style={[styles.cancelBtn, { borderColor: colors.borderDefault }]}
                 onPress={() => {
                   setIsRepayModalOpen(false)
-                  setSelectedDebt(null)
+                  selectedDebtRef.current = null
                 }}
               >
                 <Text style={[styles.cancelBtnText, { color: colors.textPrimary }]}>Cancel</Text>
-              </TouchableOpacity>
+              </Pressable>
               
-              <TouchableOpacity
+              <Pressable
                 style={[styles.submitBtn, { backgroundColor: colors.accentPrimary }]}
                 onPress={handleRecordRepayment}
               >
                 <Text style={styles.submitBtnText}>Record Payment</Text>
-              </TouchableOpacity>
+              </Pressable>
             </View>
           </View>
         </View>
@@ -610,10 +615,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 16,
     borderWidth: 1,
-    elevation: 2,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
+    boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
   },
   debtCardHeader: {
     flexDirection: 'row',
@@ -725,7 +727,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: 24,
     gap: 16,
-    elevation: 10,
+    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
   },
   modalTitle: {
     fontSize: 18,

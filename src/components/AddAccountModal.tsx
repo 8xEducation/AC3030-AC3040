@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react'
-import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native'
+import { Modal, View, Text, TextInput, Pressable, StyleSheet, KeyboardAvoidingView, Platform, Keyboard } from 'react-native'
 import { useThemeColors } from '../utils/theme'
 import { AccountController } from '../controllers/AccountController'
 import { AccountType } from '../types'
@@ -16,7 +16,7 @@ interface AddAccountModalProps {
 export const AddAccountModal: React.FC<AddAccountModalProps> = ({ visible, onClose, onSuccess }) => {
   const colors = useThemeColors()
   const { t } = useTranslation()
-  
+
   const nameRef = useRef('')
   const [type, setType] = useState<AccountType>(AccountType.ASSET)
   const [balance, setBalance] = useState('')
@@ -28,7 +28,7 @@ export const AddAccountModal: React.FC<AddAccountModalProps> = ({ visible, onClo
       setError('Account name is required')
       return
     }
-    
+
     let balanceInCents = 0
     if (balance.trim()) {
       const parsed = parseFloat(balance.replace(/,/g, ''))
@@ -41,10 +41,10 @@ export const AddAccountModal: React.FC<AddAccountModalProps> = ({ visible, onClo
 
     setLoading(true)
     setError('')
-    
+
     const res = await AccountController.createAccount(nameRef.current.trim(), type, balanceInCents)
     setLoading(false)
-    
+
     if (res.success) {
       nameRef.current = ''
       setBalance('')
@@ -58,19 +58,19 @@ export const AddAccountModal: React.FC<AddAccountModalProps> = ({ visible, onClo
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <Pressable style={{ flex: 1 }} onPress={Keyboard.dismiss}>
         <View style={styles.overlay}>
-          <KeyboardAvoidingView 
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.keyboardView}
           >
             <View style={[styles.modalContainer, { backgroundColor: colors.bgSurface }]}>
               {/* Header */}
               <View style={[styles.header, { borderBottomColor: colors.borderDefault }]}>
                 <Text style={[styles.title, { color: colors.textPrimary }]}>{t('acc.add')}</Text>
-                <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
+                <Pressable onPress={onClose} style={styles.closeBtn}>
                   <X size={24} color={colors.textMuted} />
-                </TouchableOpacity>
+                </Pressable>
               </View>
 
               <View style={styles.content}>
@@ -78,12 +78,12 @@ export const AddAccountModal: React.FC<AddAccountModalProps> = ({ visible, onClo
 
                 {/* Account Type Selector */}
                 <View style={styles.typeSelector}>
-                  <TouchableOpacity 
+                  <Pressable
                     style={[
-                      styles.typeBtn, 
-                      { 
+                      styles.typeBtn,
+                      {
                         backgroundColor: type === AccountType.ASSET ? 'rgba(16, 185, 129, 0.1)' : colors.bgBase,
-                        borderColor: type === AccountType.ASSET ? '#10B981' : colors.borderDefault 
+                        borderColor: type === AccountType.ASSET ? '#10B981' : colors.borderDefault
                       }
                     ]}
                     onPress={() => setType(AccountType.ASSET)}
@@ -92,14 +92,14 @@ export const AddAccountModal: React.FC<AddAccountModalProps> = ({ visible, onClo
                     <Text style={[styles.typeBtnText, { color: type === AccountType.ASSET ? '#10B981' : colors.textMuted }]}>
                       {t('acc.wallet')}
                     </Text>
-                  </TouchableOpacity>
-                  
-                  <TouchableOpacity 
+                  </Pressable>
+
+                  <Pressable
                     style={[
-                      styles.typeBtn, 
-                      { 
+                      styles.typeBtn,
+                      {
                         backgroundColor: type === AccountType.LIABILITY ? 'rgba(239, 68, 68, 0.1)' : colors.bgBase,
-                        borderColor: type === AccountType.LIABILITY ? '#EF4444' : colors.borderDefault 
+                        borderColor: type === AccountType.LIABILITY ? '#EF4444' : colors.borderDefault
                       }
                     ]}
                     onPress={() => setType(AccountType.LIABILITY)}
@@ -108,7 +108,7 @@ export const AddAccountModal: React.FC<AddAccountModalProps> = ({ visible, onClo
                     <Text style={[styles.typeBtnText, { color: type === AccountType.LIABILITY ? '#EF4444' : colors.textMuted }]}>
                       {t('acc.credit')}
                     </Text>
-                  </TouchableOpacity>
+                  </Pressable>
                 </View>
 
                 {/* Input Fields */}
@@ -133,35 +133,35 @@ export const AddAccountModal: React.FC<AddAccountModalProps> = ({ visible, onClo
                   value={balance}
                   onChangeText={(val) => setBalance(val.replace(/[^0-9.]/g, ''))}
                 />
-                
+
                 <Text style={[styles.helpText, { color: colors.textMuted }]}>
-                  {type === AccountType.ASSET 
-                    ? t('acc.balance_desc_asset') 
+                  {type === AccountType.ASSET
+                    ? t('acc.balance_desc_asset')
                     : t('acc.balance_desc_liability')}
                 </Text>
 
                 {/* Action Buttons */}
                 <View style={styles.actionRow}>
-                  <TouchableOpacity 
-                    style={[styles.cancelBtn, { borderColor: colors.borderDefault }]} 
+                  <Pressable
+                    style={[styles.cancelBtn, { borderColor: colors.borderDefault }]}
                     onPress={onClose}
                     disabled={loading}
                   >
                     <Text style={[styles.cancelBtnText, { color: colors.textPrimary }]}>{t('modal.cancel')}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity 
-                    style={[styles.saveBtn, { backgroundColor: colors.accentPrimary, opacity: loading ? 0.7 : 1 }]} 
+                  </Pressable>
+                  <Pressable
+                    style={[styles.saveBtn, { backgroundColor: colors.accentPrimary, opacity: loading ? 0.7 : 1 }]}
                     onPress={handleSave}
                     disabled={loading}
                   >
                     <Text style={styles.saveBtnText}>{loading ? t('modal.saving') : t('modal.save')}</Text>
-                  </TouchableOpacity>
+                  </Pressable>
                 </View>
               </View>
             </View>
           </KeyboardAvoidingView>
         </View>
-      </TouchableWithoutFeedback>
+      </Pressable>
     </Modal>
   )
 }
@@ -174,12 +174,13 @@ const styles = StyleSheet.create({
   },
   keyboardView: {
     width: '100%',
+    maxHeight: '90%',
   },
   modalContainer: {
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingBottom: Platform.OS === 'ios' ? 40 : 20,
-    maxHeight: '90%',
+    flexShrink: 1,
   },
   header: {
     flexDirection: 'row',

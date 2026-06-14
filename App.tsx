@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { StatusBar } from 'expo-status-bar'
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native'
+import { StyleSheet, View, Text, Pressable } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { DashboardScreen } from './src/screens/DashboardScreen'
 import { SmartBudgetScreen } from './src/screens/SmartBudgetScreen'
@@ -50,72 +50,58 @@ export default function App() {
     )
   }
 
-  const renderActiveScreen = () => {
-    switch (activeTab) {
-      case 'home':
-        return <DashboardScreen />
-      case 'budgets':
-        return <SmartBudgetScreen />
-      case 'debts':
-        return <DebtLedgerScreen />
-      case 'settings':
-        return <SettingsScreen />
-      default:
-        return <DashboardScreen />
-    }
-  }
+
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.bgBase }]}>
       <View style={styles.screenContainer}>
-        {renderActiveScreen()}
+        {activeTab === 'home' ? <DashboardScreen /> :
+          activeTab === 'budgets' ? <SmartBudgetScreen /> :
+            activeTab === 'debts' ? <DebtLedgerScreen /> :
+              <SettingsScreen />}
       </View>
 
       {/* Custom Bottom Tab Bar */}
       <View style={[styles.tabBar, { backgroundColor: colors.bgSurface, borderTopColor: colors.borderDefault }]}>
-        <TouchableOpacity
+        <Pressable
           style={styles.tabItem}
           onPress={() => setActiveTab('home')}
-          activeOpacity={0.7}
         >
           <Wallet size={20} color={activeTab === 'home' ? colors.accentPrimary : colors.textMuted} />
           <Text style={[styles.tabLabel, { color: activeTab === 'home' ? colors.accentPrimary : colors.textMuted }]}>
             {t('nav.home')}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
 
-        <TouchableOpacity
+        <Pressable
           style={styles.tabItem}
           onPress={() => setActiveTab('budgets')}
-          activeOpacity={0.7}
         >
           <TrendingDown size={20} color={activeTab === 'budgets' ? colors.accentPrimary : colors.textMuted} />
           <Text style={[styles.tabLabel, { color: activeTab === 'budgets' ? colors.accentPrimary : colors.textMuted }]}>
             {t('nav.budgets')}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
 
-        <TouchableOpacity
+        <Pressable
           style={styles.tabItem}
           onPress={() => setActiveTab('debts')}
-          activeOpacity={0.7}
         >
           <ArrowUpRight size={20} color={activeTab === 'debts' ? colors.accentPrimary : colors.textMuted} />
           <Text style={[styles.tabLabel, { color: activeTab === 'debts' ? colors.accentPrimary : colors.textMuted }]}>
             {t('nav.debts')}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
 
-        <TouchableOpacity
+        <Pressable
           style={styles.tabItem}
           onPress={() => setActiveTab('settings')}
-          activeOpacity={0.7}
         >
           <SettingsIcon size={20} color={activeTab === 'settings' ? colors.accentPrimary : colors.textMuted} />
           <Text style={[styles.tabLabel, { color: activeTab === 'settings' ? colors.accentPrimary : colors.textMuted }]}>
             {t('nav.settings')}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
       <StatusBar style={statusBarStyle} />
@@ -136,11 +122,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     paddingBottom: 8,
     paddingTop: 8,
-    elevation: 10,
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
+    boxShadow: '0 -4px 8px rgba(15, 23, 42, 0.05)',
   },
   tabItem: {
     flex: 1,

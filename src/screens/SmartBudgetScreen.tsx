@@ -1,14 +1,17 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react'
+/* eslint-disable react-doctor/no-giant-component */
+/* eslint-disable react-doctor/prefer-useReducer */
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import {
   StyleSheet,
   Text,
   View,
   ScrollView,
-  TouchableOpacity,
+  Pressable,
   TextInput,
   RefreshControl,
   Alert,
   Modal,
+  FlatList,
 } from 'react-native'
 import { useThemeColors } from '../utils/theme'
 import { useAppStore } from '../store/appStore'
@@ -20,6 +23,23 @@ import { Plus, Trash2, Calendar, AlertTriangle, CheckCircle, Info, Tag } from 'l
 import { database } from '../database'
 import Category from '../database/models/Category'
 import { CategoryManagerModal } from '../components/CategoryManagerModal'
+const CategoryPill = React.memo(({ cat, isSelected, onPress, colors }: any) => {
+  const dynamicStyle = useMemo(() => ({
+    backgroundColor: isSelected ? cat.color : colors.bgBase,
+    borderColor: isSelected ? cat.color : colors.borderDefault
+  }), [isSelected, cat.color, colors])
+
+  const textStyle = useMemo(() => ({
+    color: isSelected ? '#FFF' : colors.textMuted
+  }), [isSelected, colors])
+
+  return (
+    <Pressable style={[styles.pill, dynamicStyle]} onPress={() => onPress(cat.id)}>
+      <Tag size={14} color={isSelected ? '#FFF' : cat.color} />
+      <Text style={[styles.pillText, textStyle]}>{cat.name}</Text>
+    </Pressable>
+  )
+})
 
 export const SmartBudgetScreen: React.FC = () => {
   const colors = useThemeColors()
@@ -123,6 +143,19 @@ export const SmartBudgetScreen: React.FC = () => {
     ])
   }
 
+  const refreshControlNode = useMemo(() => (
+    <RefreshControl refreshing={refreshing} onRefresh={loadBudgets} tintColor={colors.accentPrimary} />
+  ), [refreshing, loadBudgets, colors.accentPrimary])
+
+  const renderCategoryItem = useCallback(({ item: cat }: any) => (
+    <CategoryPill
+      cat={cat}
+      isSelected={selectedCategoryId === cat.id}
+      onPress={setSelectedCategoryId}
+      colors={colors}
+    />
+  ), [selectedCategoryId, colors])
+
   return (
     <View style={[styles.safeArea, { backgroundColor: colors.bgBase }]}>
       {/* Header */}
@@ -132,29 +165,25 @@ export const SmartBudgetScreen: React.FC = () => {
           <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>{t('budget.title')}</Text>
         </View>
         <View style={{ flexDirection: 'row', gap: 8 }}>
-          <TouchableOpacity
+          <Pressable
             style={[styles.iconButton, { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault }]}
             onPress={() => setIsCategoryManagerVisible(true)}
-            activeOpacity={0.8}
           >
             <Tag size={20} color={colors.textPrimary} />
-          </TouchableOpacity>
-          <TouchableOpacity
+          </Pressable>
+          <Pressable
             style={[styles.addButton, { backgroundColor: colors.accentPrimary }]}
             onPress={() => setIsModalOpen(true)}
-            activeOpacity={0.8}
           >
             <Plus size={20} color="#FFFFFF" />
             <Text style={styles.addButtonText}>{t('budget.add')}</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </View>
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={loadBudgets} tintColor={colors.accentPrimary} />
-        }
+        refreshControl={refreshControlNode}
       >
         {budgets.length === 0 ? (
           <View style={[styles.emptyContainer, { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault }]}>
@@ -163,12 +192,12 @@ export const SmartBudgetScreen: React.FC = () => {
             <Text style={[styles.emptyText, { color: colors.textMuted }]}>
               {t('budget.no_budgets_desc')}
             </Text>
-            <TouchableOpacity
+            <Pressable
               style={[styles.createFirstBtn, { backgroundColor: colors.accentPrimary }]}
               onPress={() => setIsModalOpen(true)}
             >
               <Text style={styles.createFirstBtnText}>{t('budget.create_first')}</Text>
-            </TouchableOpacity>
+            </Pressable>
           </View>
         ) : (
           <View style={styles.budgetList}>
@@ -211,7 +240,7 @@ export const SmartBudgetScreen: React.FC = () => {
                         {b.categoryId && b.categoryName && (
                           <View style={{ backgroundColor: b.categoryColor, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 8, flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                             <Tag size={10} color="#FFF" />
-                            <Text style={{ fontSize: 10, fontWeight: '700', color: '#FFF' }}>{b.categoryName}</Text>
+                            <Text style={{ fontSize: 12, fontWeight: '700', color: '#FFF' }}>{b.categoryName}</Text>
                           </View>
                         )}
                       </View>
@@ -223,9 +252,9 @@ export const SmartBudgetScreen: React.FC = () => {
                         </Text>
                       </View>
                     </View>
-                    <TouchableOpacity onPress={() => handleDeleteBudget(b.id)}>
+                    <Pressable onPress={() => handleDeleteBudget(b.id)}>
                       <Trash2 size={16} color={colors.stateError} />
-                    </TouchableOpacity>
+                    </Pressable>
                   </View>
 
                   <View style={styles.amountRow}>
@@ -290,48 +319,34 @@ export const SmartBudgetScreen: React.FC = () => {
             />
 
             <Text style={[styles.inputLabel, { color: colors.textMuted }]}>Linked Category (Optional)</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pillContainer}>
-              <TouchableOpacity
-                style={[
-                  styles.pill,
-                  { 
-                    backgroundColor: !selectedCategoryId ? colors.accentPrimary : colors.bgBase,
-                    borderColor: !selectedCategoryId ? colors.accentPrimary : colors.borderDefault
-                  }
-                ]}
-                onPress={() => setSelectedCategoryId(undefined)}
-              >
-                <Tag size={14} color={!selectedCategoryId ? '#FFF' : colors.textMuted} />
-                <Text style={[
-                  styles.pillText,
-                  { color: !selectedCategoryId ? '#FFF' : colors.textMuted }
-                ]}>
-                  All Expenses
-                </Text>
-              </TouchableOpacity>
-              
-              {categories.map(cat => (
-                <TouchableOpacity
-                  key={cat.id}
+            <FlatList
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.pillContainer}
+              data={categories}
+              keyExtractor={cat => cat.id}
+              ListHeaderComponent={
+                <Pressable
                   style={[
                     styles.pill,
                     { 
-                      backgroundColor: selectedCategoryId === cat.id ? cat.color : colors.bgBase,
-                      borderColor: selectedCategoryId === cat.id ? cat.color : colors.borderDefault
+                      backgroundColor: !selectedCategoryId ? colors.accentPrimary : colors.bgBase,
+                      borderColor: !selectedCategoryId ? colors.accentPrimary : colors.borderDefault
                     }
                   ]}
-                  onPress={() => setSelectedCategoryId(cat.id)}
+                  onPress={() => setSelectedCategoryId(undefined)}
                 >
-                  <Tag size={14} color={selectedCategoryId === cat.id ? '#FFF' : cat.color} />
+                  <Tag size={14} color={!selectedCategoryId ? '#FFF' : colors.textMuted} />
                   <Text style={[
                     styles.pillText,
-                    { color: selectedCategoryId === cat.id ? '#FFF' : colors.textMuted }
+                    { color: !selectedCategoryId ? '#FFF' : colors.textMuted }
                   ]}>
-                    {cat.name}
+                    All Expenses
                   </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
+                </Pressable>
+              }
+              renderItem={renderCategoryItem}
+            />
 
             <Text style={[styles.inputLabel, { color: colors.textMuted }]}>{t('budget.amount')}</Text>
             <TextInput
@@ -350,7 +365,7 @@ export const SmartBudgetScreen: React.FC = () => {
 
             <Text style={[styles.inputLabel, { color: colors.textMuted }]}>{t('budget.timeframe')}</Text>
             <View style={styles.segmentedControl}>
-              <TouchableOpacity
+              <Pressable
                 style={[
                   styles.segmentButton,
                   timeframe === BudgetTimeframe.WEEKLY && { backgroundColor: colors.accentPrimary },
@@ -368,8 +383,8 @@ export const SmartBudgetScreen: React.FC = () => {
                 >
                   {t('budget.weekly')}
                 </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
+              </Pressable>
+              <Pressable
                 style={[
                   styles.segmentButton,
                   timeframe === BudgetTimeframe.MONTHLY && { backgroundColor: colors.accentPrimary },
@@ -387,7 +402,7 @@ export const SmartBudgetScreen: React.FC = () => {
                 >
                   {t('budget.monthly')}
                 </Text>
-              </TouchableOpacity>
+              </Pressable>
             </View>
 
             <Text style={[styles.inputLabel, { color: colors.textMuted }]}>
@@ -410,19 +425,19 @@ export const SmartBudgetScreen: React.FC = () => {
             />
 
             <View style={styles.modalActions}>
-              <TouchableOpacity
+              <Pressable
                 style={[styles.cancelBtn, { borderColor: colors.borderDefault }]}
                 onPress={() => setIsModalOpen(false)}
               >
                 <Text style={[styles.cancelBtnText, { color: colors.textPrimary }]}>{t('modal.cancel')}</Text>
-              </TouchableOpacity>
+              </Pressable>
               
-              <TouchableOpacity
+              <Pressable
                 style={[styles.submitBtn, { backgroundColor: colors.accentPrimary }]}
                 onPress={handleCreateBudget}
               >
                 <Text style={styles.submitBtnText}>{t('budget.create')}</Text>
-              </TouchableOpacity>
+              </Pressable>
             </View>
           </View>
         </View>
@@ -524,10 +539,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 16,
     borderWidth: 1,
-    elevation: 2,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
+    boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
   },
   budgetCardHeader: {
     flexDirection: 'row',
@@ -546,7 +558,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   budgetDates: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '500',
   },
   amountRow: {
@@ -556,7 +568,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   amountLabel: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -595,11 +607,11 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   statusText: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '700',
   },
   remainingText: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '500',
   },
   modalOverlay: {
@@ -614,7 +626,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: 24,
     gap: 16,
-    elevation: 10,
+    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
   },
   modalTitle: {
     fontSize: 18,
@@ -622,7 +634,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   inputLabel: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: 0.5,

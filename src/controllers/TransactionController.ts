@@ -48,12 +48,12 @@ export class TransactionController {
     context?: TransactionContext
   ): Promise<{ success: boolean; data?: Transaction; error?: string }> {
     try {
-      const transaction = await database.get<Transaction>('transactions').find(id)
-
       // 1. Validation of updates
       if (params.amount !== undefined && params.amount <= 0) {
         return { success: false, error: 'Amount must be greater than zero' }
       }
+
+      const transaction = await database.get<Transaction>('transactions').find(id)
 
       const finalType = params.type !== undefined ? params.type : transaction.type as TransactionType
       const finalFrom = params.accountId !== undefined ? params.accountId : transaction.accountId

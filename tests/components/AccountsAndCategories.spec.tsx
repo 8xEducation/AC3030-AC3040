@@ -42,6 +42,11 @@ jest.mock('react-native/Libraries/Modal/Modal', () => {
   const React = require('react')
   const { View } = require('react-native')
   function MockModal(props: any) {
+    React.useEffect(() => {
+      if (props.visible && props.onShow) {
+        props.onShow()
+      }
+    }, [props.visible])
     return <View testID="mock-modal">{props.visible ? props.children : null}</View>
   }
   return { default: MockModal }
@@ -228,7 +233,6 @@ describe('Accounts & Categories Components', () => {
         <NetWorthCard 
           totalAssets={1000000} 
           totalLiabilities={200000} 
-          netWorth={800000} 
         />
       )
       

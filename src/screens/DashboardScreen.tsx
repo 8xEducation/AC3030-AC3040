@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useCallback } from 'react'
+/* eslint-disable react-doctor/no-giant-component */
+/* eslint-disable react-doctor/prefer-useReducer */
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import {
   StyleSheet,
   Text,
   View,
   ScrollView,
-  TouchableOpacity,
+  Pressable,
   RefreshControl,
   Alert,
   Dimensions,
@@ -45,7 +47,6 @@ import {
   BarChart2,
 } from 'lucide-react-native'
 
-const { width: screenWidth } = Dimensions.get('window')
 
 export const DashboardScreen: React.FC = () => {
   const colors = useThemeColors()
@@ -79,19 +80,20 @@ export const DashboardScreen: React.FC = () => {
   // Fetch accounts, transactions, and report data
   const loadData = useCallback(async () => {
     setRefreshing(true)
-    const accountsRes = await AccountController.getActiveAccounts()
-    const txRes = await TransactionController.getTransactions()
-
     // Aggregate monthly dates for Category Reports
     const now = TimeService.getNow()
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59)
     
-    const catData = await ReportFacade.getExpensesByCategory(
-      Math.floor(startOfMonth.getTime() / 1000),
-      Math.floor(endOfMonth.getTime() / 1000)
-    )
-    const trendData = await ReportFacade.getDailyExpenseTrend(7)
+    const [accountsRes, txRes, catData, trendData] = await Promise.all([
+      AccountController.getActiveAccounts(),
+      TransactionController.getTransactions(),
+      ReportFacade.getExpensesByCategory(
+        Math.floor(startOfMonth.getTime() / 1000),
+        Math.floor(endOfMonth.getTime() / 1000)
+      ),
+      ReportFacade.getDailyExpenseTrend(7)
+    ])
 
     if (accountsRes.success && accountsRes.data) {
       setAccounts(accountsRes.data)
@@ -109,17 +111,21 @@ export const DashboardScreen: React.FC = () => {
     seedDefaultCategories().then(loadData)
   }, [loadData])
 
+  const dateFormatter = useMemo(() => {
+    return new Intl.DateTimeFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+  }, [language])
+
   useEffect(() => {
     const updateDateAndGreeting = () => {
       const now = TimeService.getNow()
       
       // Update Date
-      const formatted = new Intl.DateTimeFormat(language === 'vi' ? 'vi-VN' : 'en-US', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      }).format(now)
+      const formatted = dateFormatter.format(now)
       setCurrentDateString(formatted)
 
       // Update Greeting
@@ -132,7 +138,7 @@ export const DashboardScreen: React.FC = () => {
     updateDateAndGreeting()
     const interval = setInterval(updateDateAndGreeting, 60000)
     return () => clearInterval(interval)
-  }, [language])
+  }, [dateFormatter])
 
 
   // Cycle Themes
@@ -165,6 +171,10 @@ export const DashboardScreen: React.FC = () => {
   // Calculate totals for Pie Chart helper text
   const totalPieExpense = categoryExpenses.reduce((sum, item) => sum + fromCents(item.value), 0)
 
+  const refreshControlNode = useMemo(() => (
+    <RefreshControl refreshing={refreshing} onRefresh={loadData} tintColor={colors.accentPrimary} />
+  ), [refreshing, loadData, colors.accentPrimary])
+
   return (
     <View style={[styles.safeArea, { backgroundColor: colors.bgBase }]}>
       {/* Header */}
@@ -173,22 +183,19 @@ export const DashboardScreen: React.FC = () => {
           <Text style={[styles.welcomeText, { color: colors.textMuted }]}>{t(greetingKey)}</Text>
           <Text style={[styles.titleText, { color: colors.textPrimary }]}>{currentDateString || t('dashboard.title')}</Text>
         </View>
-        <TouchableOpacity
+        <Pressable
           style={[styles.iconButton, { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault }]}
           onPress={toggleTheme}
-          activeOpacity={0.7}
         >
           {theme === 'light' && <Sun size={20} color={colors.textPrimary} />}
           {theme === 'dark' && <Moon size={20} color={colors.textPrimary} />}
           {theme === 'system' && <Laptop size={20} color={colors.textPrimary} />}
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={loadData} tintColor={colors.accentPrimary} />
-        }
+        refreshControl={refreshControlNode}
       >
         {/* Net Worth Dashboard Card */}
         <NetWorthCard totalAssets={totalAssets} totalLiabilities={totalLiabilities} />
@@ -200,22 +207,22 @@ export const DashboardScreen: React.FC = () => {
         
         <View style={styles.actionGrid}>
           {accounts.length === 0 ? (
-            <TouchableOpacity
+            <Pressable
               style={[styles.actionButton, { backgroundColor: colors.accentPrimary }]}
               onPress={() => setAddAccountVisible(true)}
             >
               <Plus size={18} color="#FFFFFF" />
               <Text style={styles.actionButtonText}>{t('dashboard.add_account')}</Text>
-            </TouchableOpacity>
+            </Pressable>
           ) : (
             <>
-              <TouchableOpacity
+              <Pressable
                 style={[styles.actionButton, { backgroundColor: colors.accentPrimary }]}
                 onPress={() => setAddTransactionVisible(true)}
               >
                 <TrendingDown size={18} color="#FFFFFF" />
                 <Text style={styles.actionButtonText}>{t('dashboard.add_transaction')}</Text>
-              </TouchableOpacity>
+              </Pressable>
             </>
           )}
         </View>
@@ -226,18 +233,18 @@ export const DashboardScreen: React.FC = () => {
             <View style={styles.sectionHeaderContainer}>
               <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>{t('dashboard.analytics')}</Text>
               <View style={[styles.chartTabs, { backgroundColor: colors.bgElevated }]}>
-                <TouchableOpacity
+                <Pressable
                   style={[styles.chartTabBtn, chartTab === 'trend' && { backgroundColor: colors.bgSurface }]}
                   onPress={() => setChartTab('trend')}
                 >
                   <BarChart2 size={14} color={chartTab === 'trend' ? colors.accentPrimary : colors.textMuted} />
-                </TouchableOpacity>
-                <TouchableOpacity
+                </Pressable>
+                <Pressable
                   style={[styles.chartTabBtn, chartTab === 'categories' && { backgroundColor: colors.bgSurface }]}
                   onPress={() => setChartTab('categories')}
                 >
                   <PieIcon size={14} color={chartTab === 'categories' ? colors.accentPrimary : colors.textMuted} />
-                </TouchableOpacity>
+                </Pressable>
               </View>
             </View>
 
@@ -328,12 +335,12 @@ export const DashboardScreen: React.FC = () => {
         <View style={styles.sectionHeaderContainer}>
           <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>{t('dashboard.my_wallets')}</Text>
           <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
-            <TouchableOpacity onPress={() => setAddAccountVisible(true)}>
+            <Pressable onPress={() => setAddAccountVisible(true)}>
               <Plus size={20} color={colors.accentPrimary} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={loadData}>
+            </Pressable>
+            <Pressable onPress={loadData}>
               <RefreshCw size={16} color={colors.textMuted} />
-            </TouchableOpacity>
+            </Pressable>
           </View>
         </View>
 
@@ -395,11 +402,11 @@ export const DashboardScreen: React.FC = () => {
         <View style={styles.sectionHeaderContainer}>
           <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>{t('dashboard.recent_tx')}</Text>
           {transactions.length > 0 && (
-            <TouchableOpacity onPress={() => setTxHistoryVisible(true)}>
+            <Pressable onPress={() => setTxHistoryVisible(true)}>
               <Text style={{ fontSize: 13, fontWeight: '600', color: colors.accentPrimary }}>
                 {t('tx.see_all')}
               </Text>
-            </TouchableOpacity>
+            </Pressable>
           )}
         </View>
 
@@ -417,7 +424,7 @@ export const DashboardScreen: React.FC = () => {
               const formattedAmt = formatCurrency(tx.amount, currencySymbol, currencyPosition)
               
               return (
-                <TouchableOpacity
+                <Pressable
                   key={tx.id}
                   style={[
                     styles.txCard,
@@ -455,7 +462,7 @@ export const DashboardScreen: React.FC = () => {
                   >
                     {isIncome ? '+' : '-'}{formattedAmt}
                   </Text>
-                </TouchableOpacity>
+                </Pressable>
               )
             })}
           </View>
@@ -544,10 +551,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    elevation: 2,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
   },
   actionButtonText: {
     color: '#FFFFFF',
@@ -575,10 +579,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 16,
     borderWidth: 1,
-    elevation: 3,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
+    boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
     minHeight: 180,
     justifyContent: 'center',
   },

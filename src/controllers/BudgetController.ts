@@ -86,6 +86,11 @@ export class BudgetController {
 
       const progressResults: BudgetProgress[] = []
 
+      // Build a category Map once before the loop — O(1) lookup per budget
+      // instead of a separate database.find() call per iteration (O(n*m) → O(n+m))
+      const allCategories = await database.get<any>('categories').query().fetch()
+      const categoryMap = new Map(allCategories.map((c: any) => [c.id, c]))
+
       for (const budget of budgets) {
         let currentStartDate = budget.startDate
         let currentEndDate = budget.endDate
@@ -123,14 +128,10 @@ export class BudgetController {
 
         let categoryName, categoryColor;
         if (budget.categoryId) {
-          try {
-            const cat = await database.get<any>('categories').find(budget.categoryId);
-            if (cat) {
-              categoryName = cat.name;
-              categoryColor = cat.color;
-            }
-          } catch (e) {
-            // category might be deleted, ignore
+          const cat = categoryMap.get(budget.categoryId)
+          if (cat) {
+            categoryName = cat.name
+            categoryColor = cat.color
           }
         }
 

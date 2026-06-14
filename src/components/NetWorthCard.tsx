@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleSheet, Text, View, Dimensions } from 'react-native'
+import { StyleSheet, Text, View, useWindowDimensions } from 'react-native'
 import Svg, { Defs, LinearGradient, Stop, Rect } from 'react-native-svg'
 import { useThemeColors } from '../utils/theme'
 import { formatCurrency } from '../utils/currencyFormatter'
@@ -12,7 +12,7 @@ interface NetWorthCardProps {
   totalLiabilities: number // in cents
 }
 
-const { width: screenWidth } = Dimensions.get('window')
+
 
 export const NetWorthCard: React.FC<NetWorthCardProps> = ({
   totalAssets,
@@ -21,6 +21,7 @@ export const NetWorthCard: React.FC<NetWorthCardProps> = ({
   const colors = useThemeColors()
   const { currencySymbol, currencyPosition } = useAppStore()
   const { t } = useTranslation()
+  const { width: screenWidth } = useWindowDimensions()
 
   const netWorth = totalAssets - totalLiabilities
   const formattedNetWorth = formatCurrency(netWorth, currencySymbol, currencyPosition)
@@ -28,7 +29,7 @@ export const NetWorthCard: React.FC<NetWorthCardProps> = ({
   const formattedLiabilities = formatCurrency(totalLiabilities, currencySymbol, currencyPosition)
 
   return (
-    <View style={[styles.container, { shadowColor: colors.accentPrimary }]}>
+    <View style={[styles.container, { width: screenWidth - 32, boxShadow: `0 4px 12px ${colors.accentPrimary}4D` }]}>
       {/* SVG Gradient Background */}
       <View style={StyleSheet.absoluteFillObject}>
         <Svg height="100%" width="100%">
@@ -87,14 +88,10 @@ export const NetWorthCard: React.FC<NetWorthCardProps> = ({
 const styles = StyleSheet.create({
   container: {
     height: 180,
-    width: screenWidth - 32,
     alignSelf: 'center',
     borderRadius: 16,
     overflow: 'hidden',
-    elevation: 8,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
+    boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
     marginVertical: 16,
   },
   content: {

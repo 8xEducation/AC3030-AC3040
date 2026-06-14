@@ -28,12 +28,10 @@ export class TransactionSubject {
   }
 
   static async notifyCreated(transaction: Transaction, context?: TransactionContext): Promise<Model[]> {
-    const modelsToBatch: Model[] = []
-    for (const observer of this.getObservers()) {
-      const result = await observer.onTransactionCreated(transaction, context)
-      modelsToBatch.push(...result)
-    }
-    return modelsToBatch
+    const results = await Promise.all(
+      this.getObservers().map((observer) => observer.onTransactionCreated(transaction, context))
+    )
+    return results.flat()
   }
 
   static async notifyUpdated(
@@ -41,24 +39,20 @@ export class TransactionSubject {
     oldTransaction: Transaction,
     context?: TransactionContext
   ): Promise<Model[]> {
-    const modelsToBatch: Model[] = []
-    for (const observer of this.getObservers()) {
-      if (observer.onTransactionUpdated) {
-        const result = await observer.onTransactionUpdated(transaction, oldTransaction, context)
-        modelsToBatch.push(...result)
-      }
-    }
-    return modelsToBatch
+    const results = await Promise.all(
+      this.getObservers().map((observer) =>
+        observer.onTransactionUpdated ? observer.onTransactionUpdated(transaction, oldTransaction, context) : Promise.resolve([])
+      )
+    )
+    return results.flat()
   }
 
   static async notifyDeleted(transaction: Transaction, context?: TransactionContext): Promise<Model[]> {
-    const modelsToBatch: Model[] = []
-    for (const observer of this.getObservers()) {
-      if (observer.onTransactionDeleted) {
-        const result = await observer.onTransactionDeleted(transaction, context)
-        modelsToBatch.push(...result)
-      }
-    }
-    return modelsToBatch
+    const results = await Promise.all(
+      this.getObservers().map((observer) =>
+        observer.onTransactionDeleted ? observer.onTransactionDeleted(transaction, context) : Promise.resolve([])
+      )
+    )
+    return results.flat()
   }
 }

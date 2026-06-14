@@ -4,7 +4,7 @@ import {
   StyleSheet,
   Text,
   View,
-  TouchableOpacity,
+  Pressable,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { FlashList } from '@shopify/flash-list'
@@ -35,11 +35,6 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
   const [loading, setLoading] = useState(true)
   const [selectedTx, setSelectedTx] = useState<Transaction | null>(null)
 
-  useEffect(() => {
-    if (visible) {
-      loadTransactions()
-    }
-  }, [visible])
 
   const loadTransactions = async () => {
     setLoading(true)
@@ -55,7 +50,7 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
     const formattedAmt = formatCurrency(tx.amount, currencySymbol, currencyPosition)
     
     return (
-      <TouchableOpacity
+      <Pressable
         style={[
           styles.txCard,
           { backgroundColor: colors.bgSurface, borderColor: colors.borderDefault },
@@ -92,7 +87,7 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
         >
           {isIncome ? '+' : '-'}{formattedAmt}
         </Text>
-      </TouchableOpacity>
+      </Pressable>
     )
   }
 
@@ -102,6 +97,7 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
       animationType="slide"
       presentationStyle="pageSheet"
       onRequestClose={onClose}
+      onShow={loadTransactions}
     >
       <SafeAreaView style={[styles.container, { backgroundColor: colors.bgBase }]}>
         {/* Header */}
@@ -109,9 +105,9 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
           <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
             {t('tx.history')}
           </Text>
-          <TouchableOpacity onPress={onClose} style={[styles.closeButton, { backgroundColor: colors.bgSurface }]}>
+          <Pressable onPress={onClose} style={[styles.closeButton, { backgroundColor: colors.bgSurface }]}>
             <X size={20} color={colors.textPrimary} />
-          </TouchableOpacity>
+          </Pressable>
         </View>
 
         {/* Content */}
@@ -127,6 +123,7 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
               data={transactions}
               keyExtractor={(item) => item.id}
               renderItem={renderItem}
+              // @ts-ignore
               estimatedItemSize={60}
               contentContainerStyle={styles.listContent}
             />

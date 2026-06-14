@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { StyleSheet, Text, View, TouchableOpacity, TextInput } from 'react-native'
+import { StyleSheet, Text, View, Pressable, TextInput } from 'react-native'
 import { useThemeColors } from '../utils/theme'
 import { useAppStore } from '../store/appStore'
 import { Wallet, Compass, ShieldCheck, Moon, Sun, Laptop } from 'lucide-react-native'
@@ -23,7 +23,7 @@ export const OnboardingScreen: React.FC = () => {
 
   const handleNext = () => {
     if (currentSlide < 2) {
-      setCurrentSlide(currentSlide + 1)
+      setCurrentSlide(prev => prev + 1)
     } else {
       setCurrencySymbol(customSymbol.trim() || '$')
       setHasCompletedOnboarding(true)
@@ -32,7 +32,7 @@ export const OnboardingScreen: React.FC = () => {
 
   const handleBack = () => {
     if (currentSlide > 0) {
-      setCurrentSlide(currentSlide - 1)
+      setCurrentSlide(prev => prev - 1)
     }
   }
 
@@ -68,7 +68,7 @@ export const OnboardingScreen: React.FC = () => {
             {/* Quick Preferences */}
             <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Choose Language</Text>
             <View style={styles.buttonRow}>
-              <TouchableOpacity
+              <Pressable
                 style={[
                   styles.optionButton,
                   { borderColor: colors.borderDefault },
@@ -79,8 +79,8 @@ export const OnboardingScreen: React.FC = () => {
                 <Text style={[styles.optionText, { color: language === 'en' ? '#FFFFFF' : colors.textPrimary }]}>
                   English (EN)
                 </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
+              </Pressable>
+              <Pressable
                 style={[
                   styles.optionButton,
                   { borderColor: colors.borderDefault },
@@ -91,12 +91,12 @@ export const OnboardingScreen: React.FC = () => {
                 <Text style={[styles.optionText, { color: language === 'vi' ? '#FFFFFF' : colors.textPrimary }]}>
                   Tiếng Việt (VI)
                 </Text>
-              </TouchableOpacity>
+              </Pressable>
             </View>
 
             <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Select Theme</Text>
             <View style={styles.buttonRow}>
-              <TouchableOpacity
+              <Pressable
                 style={[
                   styles.themeOption,
                   { borderColor: colors.borderDefault },
@@ -106,8 +106,8 @@ export const OnboardingScreen: React.FC = () => {
               >
                 <Sun size={16} color={theme === 'light' ? '#FFFFFF' : colors.textPrimary} />
                 <Text style={[styles.optionText, { color: theme === 'light' ? '#FFFFFF' : colors.textPrimary }]}>Light</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
+              </Pressable>
+              <Pressable
                 style={[
                   styles.themeOption,
                   { borderColor: colors.borderDefault },
@@ -117,8 +117,8 @@ export const OnboardingScreen: React.FC = () => {
               >
                 <Moon size={16} color={theme === 'dark' ? '#FFFFFF' : colors.textPrimary} />
                 <Text style={[styles.optionText, { color: theme === 'dark' ? '#FFFFFF' : colors.textPrimary }]}>Dark</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
+              </Pressable>
+              <Pressable
                 style={[
                   styles.themeOption,
                   { borderColor: colors.borderDefault },
@@ -128,7 +128,7 @@ export const OnboardingScreen: React.FC = () => {
               >
                 <Laptop size={16} color={theme === 'system' ? '#FFFFFF' : colors.textPrimary} />
                 <Text style={[styles.optionText, { color: theme === 'system' ? '#FFFFFF' : colors.textPrimary }]}>System</Text>
-              </TouchableOpacity>
+              </Pressable>
             </View>
           </View>
         )}
@@ -160,7 +160,7 @@ export const OnboardingScreen: React.FC = () => {
 
             <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>Symbol Position</Text>
             <View style={styles.buttonRow}>
-              <TouchableOpacity
+              <Pressable
                 style={[
                   styles.optionButton,
                   { borderColor: colors.borderDefault },
@@ -171,8 +171,8 @@ export const OnboardingScreen: React.FC = () => {
                 <Text style={[styles.optionText, { color: currencyPosition === 'prefix' ? '#FFFFFF' : colors.textPrimary }]}>
                   Prefix ({customSymbol}100)
                 </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
+              </Pressable>
+              <Pressable
                 style={[
                   styles.optionButton,
                   { borderColor: colors.borderDefault },
@@ -183,7 +183,7 @@ export const OnboardingScreen: React.FC = () => {
                 <Text style={[styles.optionText, { color: currencyPosition === 'suffix' ? '#FFFFFF' : colors.textPrimary }]}>
                   Suffix (100 {customSymbol})
                 </Text>
-              </TouchableOpacity>
+              </Pressable>
             </View>
           </View>
         )}
@@ -216,24 +216,24 @@ export const OnboardingScreen: React.FC = () => {
       {/* Navigation Footer */}
       <View style={styles.footer}>
         {currentSlide > 0 ? (
-          <TouchableOpacity
+          <Pressable
             style={[styles.navButton, { borderColor: colors.borderDefault, borderWidth: 1 }]}
             onPress={handleBack}
           >
             <Text style={[styles.navButtonText, { color: colors.textPrimary }]}>Back</Text>
-          </TouchableOpacity>
+          </Pressable>
         ) : (
           <View style={{ flex: 1 }} />
         )}
 
-        <TouchableOpacity
+        <Pressable
           style={[styles.navButton, { backgroundColor: colors.accentPrimary }]}
           onPress={handleNext}
         >
           <Text style={[styles.navButtonText, { color: '#FFFFFF' }]}>
             {currentSlide === 2 ? 'Get Started' : 'Next'}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </View>
   )
