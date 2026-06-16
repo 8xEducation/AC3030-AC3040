@@ -74,7 +74,7 @@ const ThemeSection = () => {
 
 const CurrencySection = () => {
   const colors = useThemeColors()
-  const { currencySymbol, setCurrencySymbol, currencyPosition, setCurrencyPosition } = useAppStore()
+  const { currencySymbol, setCurrencySymbol, currencyPosition, setCurrencyPosition, showDecimals, setShowDecimals } = useAppStore()
   const { t } = useTranslation()
   const [symbolInput, setSymbolInput] = useState(currencySymbol)
 
@@ -137,6 +137,37 @@ const CurrencySection = () => {
           >
             <Text style={{ color: currencyPosition === 'suffix' ? '#FFFFFF' : colors.textPrimary, fontWeight: '600' }}>
               Suffix (100 {currencySymbol})
+            </Text>
+          </Pressable>
+        </View>
+
+        <View style={styles.divider} />
+
+        <Text style={[styles.settingLabel, { color: colors.textPrimary }]}>{t('settings.decimal_places')}</Text>
+        <View style={styles.positionRow}>
+          <Pressable
+            style={[
+              styles.positionBtn,
+              { borderColor: colors.borderDefault },
+              showDecimals && { backgroundColor: colors.accentPrimary, borderColor: 'transparent' },
+            ]}
+            onPress={() => setShowDecimals(true)}
+          >
+            <Text style={{ color: showDecimals ? '#FFFFFF' : colors.textPrimary, fontWeight: '600' }}>
+              {t('settings.decimal_show')}
+            </Text>
+          </Pressable>
+
+          <Pressable
+            style={[
+              styles.positionBtn,
+              { borderColor: colors.borderDefault },
+              !showDecimals && { backgroundColor: colors.accentPrimary, borderColor: 'transparent' },
+            ]}
+            onPress={() => setShowDecimals(false)}
+          >
+            <Text style={{ color: !showDecimals ? '#FFFFFF' : colors.textPrimary, fontWeight: '600' }}>
+              {t('settings.decimal_hide')}
             </Text>
           </Pressable>
         </View>

@@ -12,6 +12,7 @@ interface AppState {
   language: string
   hasCompletedOnboarding: boolean
   isBiometricEnabled: boolean
+  showDecimals: boolean
   firstDayOfWeek: number // 0 for Sunday, 1 for Monday
   setTheme: (theme: Theme) => void
   setCurrencySymbol: (symbol: string) => void
@@ -19,6 +20,7 @@ interface AppState {
   setLanguage: (lang: string) => void
   setHasCompletedOnboarding: (completed: boolean) => void
   setIsBiometricEnabled: (enabled: boolean) => void
+  setShowDecimals: (show: boolean) => void
   setFirstDayOfWeek: (day: number) => void
 }
 
@@ -31,6 +33,7 @@ export const useAppStore = create<AppState>()(
       language: 'en',
       hasCompletedOnboarding: false,
       isBiometricEnabled: false,
+      showDecimals: true,
       firstDayOfWeek: 1, // Default Monday
       setTheme: (theme) => set({ theme }),
       setCurrencySymbol: (currencySymbol) => set({ currencySymbol }),
@@ -38,6 +41,7 @@ export const useAppStore = create<AppState>()(
       setLanguage: (language) => set({ language }),
       setHasCompletedOnboarding: (hasCompletedOnboarding) => set({ hasCompletedOnboarding }),
       setIsBiometricEnabled: (isBiometricEnabled) => set({ isBiometricEnabled }),
+      setShowDecimals: (showDecimals) => set({ showDecimals }),
       setFirstDayOfWeek: (firstDayOfWeek) => set({ firstDayOfWeek }),
     }),
     {

@@ -3,9 +3,11 @@ import { StyleSheet, Text, View, Pressable, TextInput } from 'react-native'
 import { useThemeColors } from '../utils/theme'
 import { useAppStore } from '../store/appStore'
 import { Wallet, Compass, ShieldCheck, Moon, Sun, Laptop } from 'lucide-react-native'
+import { useTranslation } from '../utils/i18n'
 
 export const OnboardingScreen: React.FC = () => {
   const colors = useThemeColors()
+  const { t } = useTranslation()
   const {
     setHasCompletedOnboarding,
     currencySymbol,
@@ -16,6 +18,8 @@ export const OnboardingScreen: React.FC = () => {
     setLanguage,
     theme,
     setTheme,
+    showDecimals,
+    setShowDecimals,
   } = useAppStore()
 
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -182,6 +186,34 @@ export const OnboardingScreen: React.FC = () => {
               >
                 <Text style={[styles.optionText, { color: currencyPosition === 'suffix' ? '#FFFFFF' : colors.textPrimary }]}>
                   Suffix (100 {customSymbol})
+                </Text>
+              </Pressable>
+            </View>
+
+            <Text style={[styles.sectionTitle, { color: colors.textMuted }]}>{t('settings.decimal_places')}</Text>
+            <View style={styles.buttonRow}>
+              <Pressable
+                style={[
+                  styles.optionButton,
+                  { borderColor: colors.borderDefault },
+                  showDecimals && { backgroundColor: colors.accentPrimary, borderColor: 'transparent' },
+                ]}
+                onPress={() => setShowDecimals(true)}
+              >
+                <Text style={[styles.optionText, { color: showDecimals ? '#FFFFFF' : colors.textPrimary }]}>
+                  {t('settings.decimal_show')}
+                </Text>
+              </Pressable>
+              <Pressable
+                style={[
+                  styles.optionButton,
+                  { borderColor: colors.borderDefault },
+                  !showDecimals && { backgroundColor: colors.accentPrimary, borderColor: 'transparent' },
+                ]}
+                onPress={() => setShowDecimals(false)}
+              >
+                <Text style={[styles.optionText, { color: !showDecimals ? '#FFFFFF' : colors.textPrimary }]}>
+                  {t('settings.decimal_hide')}
                 </Text>
               </Pressable>
             </View>

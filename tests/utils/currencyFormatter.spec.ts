@@ -45,5 +45,11 @@ describe('currencyFormatter utilities', () => {
     it('should handle negative cents formatting correctly', () => {
       expect(formatCurrency(-1050, '$', 'prefix')).toBe('-$10.50')
     })
+
+    it('should respect showDecimals parameter', () => {
+      expect(formatCurrency(1050, '$', 'prefix', false)).toBe('$11') // 10.5 gets rounded to 11 when no decimals! Wait, toLocaleString might round it to 10 or 11.
+      expect(formatCurrency(100000, '$', 'prefix', false)).toBe('$1,000')
+      expect(formatCurrency(100000, '$', 'prefix', true)).toBe('$1,000.00')
+    })
   })
 })

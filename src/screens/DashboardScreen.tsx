@@ -50,7 +50,7 @@ import {
 
 export const DashboardScreen: React.FC = () => {
   const colors = useThemeColors()
-  const { theme, setTheme, currencySymbol, currencyPosition, language } = useAppStore()
+  const { theme, setTheme, currencySymbol, currencyPosition, language, showDecimals } = useAppStore()
   const { t } = useTranslation()
   const [currentDateString, setCurrentDateString] = useState('')
   const [greetingKey, setGreetingKey] = useState<any>('dashboard.hello')
@@ -301,7 +301,7 @@ export const DashboardScreen: React.FC = () => {
                       {/* Legend List */}
                       <View style={styles.pieLegendList}>
                         {categoryExpenses.map((item, idx) => {
-                          const valStr = formatCurrency(item.value, currencySymbol, currencyPosition)
+                          const valStr = formatCurrency(item.value, currencySymbol, currencyPosition, showDecimals)
                           const sharePct = totalPieExpense > 0 ? Math.round((fromCents(item.value) / totalPieExpense) * 100) : 0
                           
                           return (
@@ -355,7 +355,7 @@ export const DashboardScreen: React.FC = () => {
           <View style={styles.accountsContainer}>
             {accounts.map((acc) => {
               const isAsset = acc.accountType === AccountType.ASSET
-              const formattedBal = formatCurrency(acc.currentBalance, currencySymbol, currencyPosition)
+              const formattedBal = formatCurrency(acc.currentBalance, currencySymbol, currencyPosition, showDecimals)
               return (
                 <View
                   key={acc.id}
@@ -421,7 +421,7 @@ export const DashboardScreen: React.FC = () => {
           <View style={styles.transactionsContainer}>
             {transactions.slice(0, 5).map((tx) => {
               const isIncome = tx.type === TransactionType.INCOME
-              const formattedAmt = formatCurrency(tx.amount, currencySymbol, currencyPosition)
+              const formattedAmt = formatCurrency(tx.amount, currencySymbol, currencyPosition, showDecimals)
               
               return (
                 <Pressable

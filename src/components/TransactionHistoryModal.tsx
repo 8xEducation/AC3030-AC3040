@@ -29,7 +29,7 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
 }) => {
   const colors = useThemeColors()
   const { t } = useTranslation()
-  const { currencySymbol, currencyPosition } = useAppStore()
+  const { currencySymbol, currencyPosition, showDecimals } = useAppStore()
   
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
@@ -47,7 +47,7 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
 
   const renderItem = ({ item: tx }: { item: Transaction }) => {
     const isIncome = tx.type === TransactionType.INCOME
-    const formattedAmt = formatCurrency(tx.amount, currencySymbol, currencyPosition)
+    const formattedAmt = formatCurrency(tx.amount, currencySymbol, currencyPosition, showDecimals)
     
     return (
       <Pressable

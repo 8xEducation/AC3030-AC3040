@@ -32,7 +32,7 @@ export const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = (
 }) => {
   const colors = useThemeColors()
   const { t } = useTranslation()
-  const { currencySymbol, currencyPosition } = useAppStore()
+  const { currencySymbol, currencyPosition, showDecimals } = useAppStore()
 
   const [account, setAccount] = useState<Account | null>(null)
   const [category, setCategory] = useState<Category | null>(null)
@@ -63,7 +63,7 @@ export const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = (
   if (!transaction) return null
 
   const isIncome = transaction.type === TransactionType.INCOME
-  const formattedAmt = formatCurrency(transaction.amount, currencySymbol, currencyPosition)
+  const formattedAmt = formatCurrency(transaction.amount, currencySymbol, currencyPosition, showDecimals)
 
   return (
     <Modal

@@ -55,6 +55,7 @@ change.
 - [x] Implemented `TransactionHistoryModal` using `@shopify/flash-list` for high-performance viewing of full transaction history via Dashboard
 - [x] Implemented `TransactionDetailsModal` to display full un-truncated transaction descriptions, amounts, linked categories, and linked accounts on tap
 - [x] Cleaned up obsolete test files to maintain clean project structure
+- [x] Added user setting to toggle decimal amounts (.00) in onboarding and settings screen
 
 
 ## In Progress

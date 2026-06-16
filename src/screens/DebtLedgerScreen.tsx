@@ -25,7 +25,7 @@ import { Plus, Check, Calendar, ArrowUpRight, ArrowDownLeft, Info, Landmark } fr
 
 export const DebtLedgerScreen: React.FC = () => {
   const colors = useThemeColors()
-  const { currencySymbol, currencyPosition } = useAppStore()
+  const { currencySymbol, currencyPosition, showDecimals } = useAppStore()
   const { t } = useTranslation()
 
   const [refreshing, setRefreshing] = useState(false)
@@ -221,8 +221,8 @@ export const DebtLedgerScreen: React.FC = () => {
           <View style={styles.debtList}>
             {filteredDebts.map((d) => {
               const isLent = d.type === DebtType.LENT
-              const formattedTotal = formatCurrency(d.totalAmount, currencySymbol, currencyPosition)
-              const formattedRem = formatCurrency(d.remainingAmount, currencySymbol, currencyPosition)
+              const formattedTotal = formatCurrency(d.totalAmount, currencySymbol, currencyPosition, showDecimals)
+              const formattedRem = formatCurrency(d.remainingAmount, currencySymbol, currencyPosition, showDecimals)
               
               const isOverdue = d.status === DebtStatus.OPEN && d.dueDate < currentTimestamp
               const matchedAccount = accounts.find((a) => a.id === d.accountId)

@@ -19,14 +19,14 @@ export const NetWorthCard: React.FC<NetWorthCardProps> = ({
   totalLiabilities,
 }) => {
   const colors = useThemeColors()
-  const { currencySymbol, currencyPosition } = useAppStore()
+  const { currencySymbol, currencyPosition, showDecimals } = useAppStore()
   const { t } = useTranslation()
   const { width: screenWidth } = useWindowDimensions()
 
   const netWorth = totalAssets - totalLiabilities
-  const formattedNetWorth = formatCurrency(netWorth, currencySymbol, currencyPosition)
-  const formattedAssets = formatCurrency(totalAssets, currencySymbol, currencyPosition)
-  const formattedLiabilities = formatCurrency(totalLiabilities, currencySymbol, currencyPosition)
+  const formattedNetWorth = formatCurrency(netWorth, currencySymbol, currencyPosition, showDecimals)
+  const formattedAssets = formatCurrency(totalAssets, currencySymbol, currencyPosition, showDecimals)
+  const formattedLiabilities = formatCurrency(totalLiabilities, currencySymbol, currencyPosition, showDecimals)
 
   return (
     <View style={[styles.container, { width: screenWidth - 32, boxShadow: `0 4px 12px ${colors.accentPrimary}4D` }]}>

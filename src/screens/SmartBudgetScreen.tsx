@@ -43,7 +43,7 @@ const CategoryPill = React.memo(({ cat, isSelected, onPress, colors }: any) => {
 
 export const SmartBudgetScreen: React.FC = () => {
   const colors = useThemeColors()
-  const { currencySymbol, currencyPosition } = useAppStore()
+  const { currencySymbol, currencyPosition, showDecimals } = useAppStore()
   const { t } = useTranslation()
 
   const [refreshing, setRefreshing] = useState(false)
@@ -202,9 +202,9 @@ export const SmartBudgetScreen: React.FC = () => {
         ) : (
           <View style={styles.budgetList}>
             {budgets.map((b) => {
-              const formattedSpent = formatCurrency(b.spentAmount, currencySymbol, currencyPosition)
-              const formattedLimit = formatCurrency(b.limitAmount, currencySymbol, currencyPosition)
-              const formattedRem = formatCurrency(b.remainingAmount, currencySymbol, currencyPosition)
+              const formattedSpent = formatCurrency(b.spentAmount, currencySymbol, currencyPosition, showDecimals)
+              const formattedLimit = formatCurrency(b.limitAmount, currencySymbol, currencyPosition, showDecimals)
+              const formattedRem = formatCurrency(b.remainingAmount, currencySymbol, currencyPosition, showDecimals)
               const pct = b.progressPercent
 
               // Multi-Tier alert styling
