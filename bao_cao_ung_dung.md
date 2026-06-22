@@ -2380,4 +2380,45 @@ it('should correctly handle February leap years during clamping', () => {
 
 ---
 
+## 9. HẠN CHẾ VÀ HƯỚNG PHÁT TRIỂN
+
+### 9.1. Hạn Chế Hiện Tại
+
+| STT | Hạn chế | Nguyên nhân | Ảnh hưởng |
+|---:|---|---|---|
+| 1 | **Chưa có đồng bộ đám mây (Cloud Sync)** | Ứng dụng thiết kế theo mô hình Offline-first để bảo mật tối đa. | Rủi ro mất dữ liệu nếu người dùng mất điện thoại hoặc xóa app mà chưa tự backup. Không dùng được trên nhiều thiết bị. |
+| 2 | **Cài đặt và Build phức tạp trên môi trường Dev** | Sử dụng WatermelonDB (chứa lõi C++) nên không thể chạy qua Expo Go thông thường. | Giảng viên hoặc người mới clone source bắt buộc phải cấu hình Custom Dev Client (Android Studio/Xcode). |
+| 3 | **Thiếu tính năng tự động nhập liệu (OCR / Bank SMS)** | Ưu tiên hoàn thiện kiến trúc lõi kế toán kép trong giai đoạn MVP. | Người dùng vẫn phải nhập thủ công từng giao dịch chi tiêu, có thể gây lười biếng về dài hạn. |
+
+### 9.2. Hướng Phát Triển Trong Tương Lai
+
+| STT | Hướng phát triển | Lợi ích | Mức ưu tiên |
+|---:|---|---|---|
+| 1 | **Tính năng Export/Import dữ liệu (CSV/JSON)** | Giúp người dùng sao lưu dữ liệu thủ công, kết nối với Excel hoặc các công cụ phân tích khác mà vẫn giữ tính offline. | Cao |
+| 2 | **Quét hóa đơn thông minh (OCR)** | Cho phép chụp hóa đơn để tự động trích xuất số tiền và danh mục. | Trung bình |
+| 3 | **Đồng bộ mã hóa đầu cuối (E2EE Cloud Sync)** | Lưu trữ đám mây tự chọn với mã hóa từ thiết bị, giải quyết rủi ro mất dữ liệu mà không lộ thông tin. | Trung bình |
+| 4 | **Báo cáo tài chính nâng cao** | Thêm biểu đồ dòng tiền (Cash flow chart), phân tích xu hướng thu chi qua nhiều năm. | Thấp |
+
+---
+
+## 10. KẾT LUẬN
+
+**Tóm tắt ngắn gọn những kết quả đạt được:**
+
+- **Ứng dụng đã giải quyết được vấn đề gì?**
+  Cash Flow Wave giải quyết bài toán quản lý tài chính cá nhân một cách minh bạch, chính xác tuyệt đối và bảo mật 100%. Nhờ cơ chế ngân sách thông minh và hệ thống sổ nợ (vay/cho vay), người dùng không còn mất kiểm soát chi tiêu hay quên các khoản nợ cá nhân, đồng thời luôn biết rõ tài sản ròng thực tế của mình mà không cần chia sẻ dữ liệu cho bên thứ ba.
+
+- **Nhóm đã học được gì về phát triển ứng dụng?**
+  Nhóm đã trải nghiệm vòng đời thực tế của một ứng dụng mobile phức tạp từ ý tưởng đến MVP. Đặc biệt, nhóm làm quen với cơ sở dữ liệu nhúng offline hiệu năng cao (WatermelonDB), tích hợp thư viện Native (C++) vào môi trường Expo, cũng như cách thức quản lý Global State bằng Zustand + AsyncStorage.
+
+- **Kiến trúc/pattern/SOLID/test đã giúp dự án tốt hơn như thế nào?**
+  Việc áp dụng nghiêm ngặt kiến trúc MVC kết hợp các Design Pattern (Factory, Observer, Strategy, Facade) đã cứu dự án khỏi rủi ro phình to của React Native components. Dữ liệu kế toán luôn nhất quán nhờ Atomic Batch (Factory), code dễ mở rộng chu kỳ ngân sách nhờ Strategy, và quá trình kiểm thử không cần phụ thuộc vào database thật, giúp team phát hiện sớm các lỗi edge-case về thời gian hay lỗi làm tròn số thập phân.
+
+- **Những điểm nhóm tự đánh giá là nổi bật nhất:**
+  1. **Độ chính xác tài chính (Kế toán kép + Cents):** Mọi thao tác tiền tệ đều là giao dịch kép bằng số nguyên, không thể xảy ra sai số.
+  2. **Bảo mật Offline-first:** Đảm bảo quyền riêng tư tuyệt đối cho người dùng.
+  3. **Kiến trúc Clean & Scalable:** Một dự án sinh viên nhưng áp dụng cấu trúc Layered rõ ràng, sẵn sàng mở rộng (production-ready architecture).
+
+---
+
 *Báo cáo được tổng hợp từ toàn bộ source code, context documentation, mermaid diagrams và test files của dự án Cash Flow Wave.*
