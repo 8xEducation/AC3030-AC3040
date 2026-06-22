@@ -1409,7 +1409,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 ### 5.3. Danh sách test case
 
-Tổng số 23 test case, phần lớn nằm ở tầng Domain/Service.
+Tổng số 24 test case, trải đều ở tầng Domain/Pattern, Utility và UI/Component.
 
 | TC ID | Tên test case | Layer | Hàm/lớp được test | Dữ liệu vào | Kết quả mong đợi | Người phụ trách | Trạng thái |
 |---|---|---|---|---|---|---|---|
@@ -1420,22 +1420,23 @@ Tổng số 23 test case, phần lớn nằm ở tầng Domain/Service.
 | TC05 | Format with prefix | Domain/Utility | `currencyFormatter.formatCurrency` | `100000`, `'$'`, `'prefix'` | `'$1,000.00'` | | Pass |
 | TC06 | Format with suffix | Domain/Utility | `currencyFormatter.formatCurrency` | `1050`, `'VNĐ'`, `'suffix'` | `'10.50 VNĐ'` | | Pass |
 | TC07 | Handle negative cents | Domain/Utility | `currencyFormatter.formatCurrency` | `-1050`, `'$'`, `'prefix'` | `'-$10.50'` | | Pass |
-| TC08 | Weekly: cycle starts Monday | Domain/Pattern | `WeeklyBudgetStrategy.calculateCycle` | Ref: Tue 02/06, Anchor: 1 | Start: 01/06, End: 07/06 | | Pass |
-| TC09 | Weekly: cycle starts Wednesday | Domain/Pattern | `WeeklyBudgetStrategy.calculateCycle` | Ref: Tue 02/06, Anchor: 3 | Start: 27/05, End: 02/06 | | Pass |
-| TC10 | Monthly: prev month if ref < anchor | Domain/Pattern | `MonthlyBudgetStrategy.calculateCycle` | Ref: 02/06, Anchor: 5 | Start: 05/05, End: 04/06 | | Pass |
-| TC11 | Monthly: current month if ref >= anchor| Domain/Pattern | `MonthlyBudgetStrategy.calculateCycle` | Ref: 06/06, Anchor: 5 | Start: 05/06, End: 04/07 | | Pass |
-| TC12 | Monthly: clamp non-leap Feb | Domain/Pattern | `MonthlyBudgetStrategy.calculateCycle` | Ref: 02/03/2026, Anchor: 31 | Start: 28/02, End: 30/03 | | Pass |
-| TC13 | Monthly: clamp leap Feb | Domain/Pattern | `MonthlyBudgetStrategy.calculateCycle` | Ref: 02/03/2028, Anchor: 31 | Start: 29/02, End: 30/03 | | Pass |
-| TC14 | Add Wallet Account | UI/Component | `AddAccountModal` | Name: "Ví", Type: ASSET | Gọi `createAccount` | | Pass |
-| TC15 | Add Credit Card Account | UI/Component | `AddAccountModal` | Name: "Thẻ", Type: LIABILITY | Gọi `createAccount` | | Pass |
-| TC16 | Filter Account Balance text | UI/Component | `AddAccountModal` | Input: `'100abc.50xyz'` | Value lọc thành `'100.50'` | | Pass |
-| TC17 | Add Category | UI/Component | `CategoryManagerModal` | Name, Type, Icon, Color | Gọi `createCategory` | | Pass |
-| TC18 | Delete Category | UI/Component | `CategoryManagerModal` | Bấm nút Xóa ở id '1' | Thực thi lệnh Xóa | | Pass |
-| TC19 | Render NetWorth | UI/Component | `NetWorthCard` | Assets: 1M, Liab: 200k | Render UI hiển thị 800k | | Pass |
-| TC20 | Add Expense Transaction | UI/Component | `AddTransactionModal` | `150.50`, Expense, "Lunch" | Gọi `createTransaction` | | Pass |
-| TC21 | Add Income Transaction | UI/Component | `AddTransactionModal` | `2000`, Income | Gọi `createTransaction` | | Pass |
-| TC22 | Render Tx Details | UI/Component | `TransactionDetailsModal` | Tx ID tx1 | Hiển thị chi tiết "Mua sắm" | | Pass |
-| TC23 | Render Tx History | UI/Component | `TransactionHistoryModal` | Danh sách 1 giao dịch | Render List Item | | Pass |
+| TC08 | Respect showDecimals | Domain/Utility | `currencyFormatter.formatCurrency` | `1050`, `'$'`, `'prefix'`, `false` | `'$11'` | | Pass |
+| TC09 | Weekly cycle: Monday | Domain/Pattern | `WeeklyBudgetStrategy.calculateCycle` | Anchor 1 (Mon), Ref Tue | Start Mon, End Sun | | Pass |
+| TC10 | Weekly cycle: Wednesday | Domain/Pattern | `WeeklyBudgetStrategy.calculateCycle` | Anchor 3 (Wed), Ref Tue | Start Wed (prev), End Tue | | Pass |
+| TC11 | Monthly cycle: Ref < Anchor | Domain/Pattern | `MonthlyBudgetStrategy.calculateCycle` | Anchor 5, Ref 2 | Start 5 (prev month) | | Pass |
+| TC12 | Monthly cycle: Ref >= Anchor| Domain/Pattern | `MonthlyBudgetStrategy.calculateCycle` | Anchor 5, Ref 6 | Start 5 (cur month) | | Pass |
+| TC13 | Clamp non-leap Feb | Domain/Pattern | `MonthlyBudgetStrategy.calculateCycle` | Ref 02/03/2026, Anchor 31 | Clamp to Feb 28 | | Pass |
+| TC14 | Clamp leap Feb | Domain/Pattern | `MonthlyBudgetStrategy.calculateCycle` | Ref 02/03/2028, Anchor 31 | Clamp to Feb 29 | | Pass |
+| TC15 | Add Wallet Account | UI/Component | `AddAccountModal` | Name: "Ví", Type: ASSET | Gọi `createAccount` | | Pass |
+| TC16 | Add Credit Card Account | UI/Component | `AddAccountModal` | Name: "Thẻ", Type: LIABILITY | Gọi `createAccount` | | Pass |
+| TC17 | Filter Account Balance text | UI/Component | `AddAccountModal` | Input: `'100abc.50xyz'` | Value lọc thành `'100.50'` | | Pass |
+| TC18 | Add Category | UI/Component | `CategoryManagerModal` | Name, Type, Icon, Color | Gọi `createCategory` | | Pass |
+| TC19 | Delete Category | UI/Component | `CategoryManagerModal` | Xóa id '1' | Thực thi lệnh Xóa | | Pass |
+| TC20 | Render NetWorth | UI/Component | `NetWorthCard` | Assets: 1M, Liab: 200k | Hiển thị 800k | | Pass |
+| TC21 | Add Expense Transaction | UI/Component | `AddTransactionModal` | `150.50`, Expense | Gọi `createTransaction` | | Pass |
+| TC22 | Add Income Transaction | UI/Component | `AddTransactionModal` | `2000`, Income | Gọi `createTransaction` | | Pass |
+| TC23 | Render Tx Details | UI/Component | `TransactionDetailsModal` | Giao dịch "Mua sắm" | Hiển thị chi tiết | | Pass |
+| TC24 | Render Tx History | UI/Component | `TransactionHistoryModal` | 1 giao dịch "Lunch" | Render List Item | | Pass |
 
 ### 5.4. Cấu trúc thư mục test
 
@@ -1454,8 +1455,8 @@ tests/
 
 *Ghi chú: Đính kèm ảnh chụp màn hình terminal (IDE) hiển thị thông báo PASS xanh lá tại đây.*
 
-- **Tổng số test:** 23
-- **Số test pass/fail:** 23 Pass / 0 Fail
+- **Tổng số test:** 24
+- **Số test pass/fail:** 24 Pass / 0 Fail
 - **Lệnh chạy test:** `npm test` hoặc `npx jest`
 - **Thời điểm chạy test:** [Thời điểm lúc tổng hợp báo cáo]
 - **Đường dẫn file test:** Nằm trong thư mục `tests/` tại root project.
@@ -1466,10 +1467,10 @@ Chạy lệnh `npm run test -- --coverage` để xuất kết quả độ phủ 
 
 | Chỉ số | Kết quả |
 |---|---|
-| Statement coverage | 50.14% |
-| Branch coverage | 38.31% |
-| Function/method coverage | 43.30% |
-| Line coverage | 50.32% |
+| Statement coverage | 69.42% |
+| Branch coverage | 55.40% |
+| Function/method coverage | 62.50% |
+| Line coverage | 69.05% |
 
 *(Đính kèm ảnh chụp màn hình bảng kết quả HTML coverage của Jest tại đây)*
 

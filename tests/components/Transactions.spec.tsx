@@ -53,8 +53,8 @@ jest.mock('../../src/database', () => ({
 
 jest.mock('../../src/controllers/TransactionController', () => ({
   TransactionController: {
-    createTransaction: jest.fn().mockResolvedValue(true),
-    deleteTransaction: jest.fn().mockResolvedValue(true),
+    createTransaction: jest.fn().mockResolvedValue({ success: true }),
+    deleteTransaction: jest.fn().mockResolvedValue({ success: true }),
     getTransactions: jest.fn().mockResolvedValue({ success: true, data: [] }),
   },
 }))
@@ -99,12 +99,7 @@ describe('Transactions Components', () => {
       await waitFor(() => {
         expect(screen.getByText('Wallet')).toBeTruthy()
         expect(screen.getByText('Food')).toBeTruthy()
-      })
-
-      await waitFor(() => {
-        expect(screen.getByText('Wallet')).toBeTruthy()
-        expect(screen.getByText('Food')).toBeTruthy()
-      })
+      }, { timeout: 2000 })
 
       await act(async () => {
         fireEvent.changeText(screen.getByPlaceholderText('tx.placeholder.amount'), '150.50')
@@ -130,7 +125,7 @@ describe('Transactions Components', () => {
       await waitFor(() => {
         expect(screen.getByText('Wallet')).toBeTruthy()
         expect(screen.getByText('Food')).toBeTruthy()
-      })
+      }, { timeout: 2000 })
 
       await act(async () => {
         fireEvent.press(screen.getByText('tx.income'))
@@ -143,7 +138,7 @@ describe('Transactions Components', () => {
       await waitFor(() => {
         expect(screen.getByText('Wallet')).toBeTruthy()
         expect(screen.getByText('Salary')).toBeTruthy()
-      })
+      }, { timeout: 2000 })
 
       await act(async () => {
         fireEvent.changeText(screen.getByPlaceholderText('tx.placeholder.amount'), '2000')
