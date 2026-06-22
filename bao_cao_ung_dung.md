@@ -169,6 +169,37 @@ graph TD
 | **Luồng thay thế** | Người dùng nhấn "Back" để quay lại slide trước. |
 | **Hậu điều kiện** | Ứng dụng lưu cài đặt ban đầu vào AsyncStorage và điều hướng sang Bottom Tab Navigator. |
 
+**Sơ đồ luồng UC01:**
+
+```mermaid
+sequenceDiagram
+    actor User as 👤 Người dùng
+    participant App as App.tsx
+    participant ONB as OnboardingScreen
+    participant Store as appStore (Zustand)
+    participant AS as AsyncStorage
+
+    App->>Store: Kiểm tra hasCompletedOnboarding
+    Store-->>App: false → Hiển thị OnboardingScreen
+    App->>ONB: render()
+
+    Note over ONB: Slide 1 — Ngôn ngữ & Giao diện
+    User->>ONB: Chọn EN/VI, Light/Dark/System
+    ONB->>Store: setLanguage(), setTheme()
+
+    Note over ONB: Slide 2 — Tiền tệ
+    User->>ONB: Nhập ký hiệu tiền tệ & vị trí
+    ONB->>Store: setCurrencySymbol(), setCurrencyPosition()
+
+    Note over ONB: Slide 3 — Xác nhận
+    User->>ONB: Nhấn "Get Started"
+    ONB->>Store: setHasCompletedOnboarding(true)
+    Store->>AS: persist() → Lưu toàn bộ state
+    AS-->>Store: OK
+    Store-->>App: hasCompletedOnboarding = true
+    App->>App: Điều hướng sang Bottom Tab Navigator
+```
+
 ---
 
 #### UC02 — Xác thực Sinh trắc học
@@ -181,6 +212,34 @@ graph TD
 | **Luồng ngoại lệ** | Xác thực thất bại → Hiển thị thông báo lỗi, màn hình khóa vẫn hiển thị. |
 | **Hậu điều kiện** | Người dùng có quyền truy cập toàn bộ chức năng ứng dụng. |
 
+**Sơ đồ luồng UC02:**
+
+```mermaid
+sequenceDiagram
+    actor User as 👤 Người dùng
+    participant App as App.tsx
+    participant BLS as BiometricLockScreen
+    participant ELA as expo-local-authentication
+    participant Store as appStore
+
+    App->>Store: Kiểm tra isBiometricEnabled & isUnlocked
+    Store-->>App: isBiometricEnabled=true, isUnlocked=false
+    App->>BLS: render()
+    User->>BLS: Nhấn "Unlock"
+    BLS->>ELA: authenticateAsync()
+
+    alt Xác thực thành công
+        ELA-->>BLS: success=true
+        BLS->>Store: setIsUnlocked(true)
+        Store-->>App: isUnlocked=true
+        App->>App: Hiển thị Bottom Tab Navigator
+    else Xác thực thất bại
+        ELA-->>BLS: success=false, error message
+        BLS->>User: Hiển thị thông báo lỗi
+        BLS->>BLS: Màn hình khóa tiếp tục hiển thị
+    end
+```
+
 ---
 
 #### UC03 — Xem Báo Cáo Tài Chính Tổng Quan (Dashboard)
@@ -191,6 +250,54 @@ graph TD
 | **Điều kiện kích hoạt** | Mở tab "Home" hoặc pull-to-refresh |
 | **Luồng chính** | 1. `DashboardScreen` gọi `AccountController.getActiveAccounts()` và `TransactionController.getTransactions()`. 2. Hiển thị `NetWorthCard` với `netWorth = Σ(Assets) - Σ(Liabilities)`. 3. Gọi `ReportFacade.getDailyExpenseTrend(7)` để lấy dữ liệu Bar Chart 7 ngày gần nhất. 4. Gọi `ReportFacade.getExpensesByCategory(startOfMonth, endOfMonth)` để lấy dữ liệu Pie Chart tháng hiện tại. 5. Hiển thị danh sách 5 giao dịch gần nhất. |
 | **Hậu điều kiện** | Người dùng thấy tổng tài sản ròng và xu hướng chi tiêu được cập nhật thực thời. |
+
+**Sơ đồ luồng UC03:**
+
+```mermaid
+sequenceDiagram
+    actor User as 👤 Người dùng
+    participant DS as DashboardScreen
+    participant AC as AccountController
+    participant TC as TransactionController
+    participant DC as DebtController
+    participant RF as ReportFacade
+    participant DB as WatermelonDB
+
+    User->>DS: Mở tab Home / Pull-to-refresh
+    DS->>DS: loadData()
+
+    par Lấy dữ liệu song song
+        DS->>AC: getActiveAccounts()
+        AC->>DB: query accounts (is_active=true)
+        DB-->>AC: accounts[]
+        AC-->>DS: accounts[]
+    and
+        DS->>TC: getTransactions()
+        TC->>DB: query transactions (ORDER BY date DESC)
+        DB-->>TC: transactions[]
+        TC-->>DS: transactions[]
+    and
+        DS->>DC: getDebts()
+        DC->>DB: query debts
+        DB-->>DC: debts[]
+        DC-->>DS: debts[]
+    end
+
+    DS->>DS: Tính netWorth = Σ(Assets) - Σ(Liabilities)
+    DS->>DS: Render NetWorthCard
+
+    DS->>RF: getDailyExpenseTrend(7)
+    RF->>DB: query transactions (7 ngày gần nhất, type=EXPENSE)
+    DB-->>RF: raw data
+    RF-->>DS: DailyExpenseReportItem[] → Bar Chart
+
+    DS->>RF: getExpensesByCategory(startOfMonth, endOfMonth)
+    RF->>DB: query transactions + JOIN categories
+    DB-->>RF: grouped data
+    RF-->>DS: CategoryExpenseReportItem[] → Pie Chart
+
+    DS->>User: Render Dashboard hoàn chỉnh
+```
 
 ---
 
@@ -205,6 +312,42 @@ graph TD
 | **Luồng ngoại lệ** | Tên rỗng → Alert "Account name is required". Số dư không hợp lệ → Alert "Invalid balance amount". |
 | **Quy tắc xóa** | Tài khoản **không được xóa cứng**. Hệ thống chỉ thực hiện **Soft Delete** (`is_active = false`) để bảo toàn lịch sử giao dịch. |
 
+**Sơ đồ luồng UC04:**
+
+```mermaid
+sequenceDiagram
+    actor User as 👤 Người dùng
+    participant AAM as AddAccountModal
+    participant AC as AccountController
+    participant TF as TransactionFactory
+    participant DB as WatermelonDB
+
+    User->>AAM: Nhấn "+" → Mở modal
+    User->>AAM: Chọn loại (ASSET / LIABILITY)
+    User->>AAM: Nhập tên & số dư ban đầu
+    User->>AAM: Nhấn "Save"
+
+    AAM->>AAM: Validation (tên ≠ rỗng, số dư ≥ 0)
+
+    alt Validation thất bại
+        AAM->>User: Alert lỗi (tên rỗng / số dư không hợp lệ)
+    else Validation thành công
+        AAM->>AC: createAccount(name, type, balanceInCents)
+        AC->>DB: batch([Account.prepareCreate(...)])
+
+        alt Số dư ban đầu > 0
+            AC->>TF: create(adjustment transaction)
+            TF->>DB: batch([Transaction.prepareCreate, Account.prepareUpdate])
+            DB-->>TF: OK
+        end
+
+        DB-->>AC: OK
+        AC-->>AAM: { success: true }
+        AAM->>AAM: onSuccess() + onClose()
+        AAM->>User: Đóng modal, Dashboard reload
+    end
+```
+
 ---
 
 #### UC05 — Thêm Giao Dịch Mới
@@ -217,6 +360,48 @@ graph TD
 | **Validation** | Số tiền > 0; Phải chọn tài khoản nguồn; Phải chọn danh mục (trừ loại TRANSFER). |
 | **Hậu điều kiện** | Số dư tài khoản liên quan được cập nhật tức thì; Net Worth thay đổi tương ứng; Dashboard tự reload. |
 
+**Sơ đồ luồng UC05:**
+
+```mermaid
+sequenceDiagram
+    actor User as 👤 Người dùng
+    participant ATM as AddTransactionModal
+    participant TC as TransactionController
+    participant TF as TransactionFactory
+    participant TS as TransactionSubject
+    participant AO as AccountObserver
+    participant DB as WatermelonDB
+
+    User->>ATM: Nhấn "Add Transaction"
+    User->>ATM: Chọn loại (EXPENSE / INCOME / TRANSFER)
+    User->>ATM: Nhập số tiền, ghi chú, tài khoản, danh mục
+    User->>ATM: Nhấn "Save"
+
+    ATM->>ATM: Validation
+    alt Validation thất bại
+        ATM->>User: Hiển thị lỗi
+    else Validation thành công
+        ATM->>TC: createTransaction({ accountId, type, amount, ... })
+        TC->>TF: create(payload)
+        TF->>TF: Transaction.prepareCreate(...)
+        TF->>TS: notify(event)
+        TS->>AO: onTransactionCreated(event)
+        AO-->>TS: Account.prepareUpdate(balance ± amount)
+
+        alt Loại TRANSFER
+            AO-->>TS: toAccount.prepareUpdate(balance + amount)
+        end
+
+        TF->>DB: database.batch([tx, accountUpdate, ...])
+        Note over DB: Atomic — tất cả hoặc không gì cả
+        DB-->>TF: OK
+        TF-->>TC: success
+        TC-->>ATM: { success: true }
+        ATM->>ATM: onSuccess() + onClose()
+        ATM->>User: Dashboard reload — Net Worth cập nhật
+    end
+```
+
 ---
 
 #### UC06 — Xem Lịch Sử & Chi Tiết Giao Dịch
@@ -227,6 +412,40 @@ graph TD
 | **Điều kiện kích hoạt** | Nhấn "See All" trên Dashboard hoặc nhấn vào một giao dịch trong danh sách gần đây |
 | **Luồng chính (Lịch sử)** | 1. Mở `TransactionHistoryModal` (pageSheet style). 2. Gọi `TransactionController.getTransactions()`. 3. Render danh sách hiệu suất cao qua `@shopify/flash-list`. 4. Nhấn vào một mục → Mở `TransactionDetailsModal` (lồng bên trong, tránh xung đột iOS multi-modal). |
 | **Luồng chính (Chi tiết)** | 1. `TransactionDetailsModal` nhận prop `transaction`. 2. Truy vấn WatermelonDB để lấy thông tin `Account` và `Category` liên kết. 3. Hiển thị banner màu (Đỏ = Chi tiêu, Xanh = Thu nhập) cùng đầy đủ thông tin: Số tiền, Ghi chú, Ngày, Tài khoản, Danh mục. |
+
+**Sơ đồ luồng UC06:**
+
+```mermaid
+sequenceDiagram
+    actor User as 👤 Người dùng
+    participant DS as DashboardScreen
+    participant THM as TransactionHistoryModal
+    participant TC as TransactionController
+    participant TDM as TransactionDetailsModal
+    participant DB as WatermelonDB
+
+    User->>DS: Nhấn "See All"
+    DS->>THM: setVisible(true)
+    THM->>TC: getTransactions()
+    TC->>DB: query transactions ORDER BY date DESC
+    DB-->>TC: transactions[]
+    TC-->>THM: transactions[]
+    THM->>User: Render FlashList (hiệu suất cao)
+
+    User->>THM: Nhấn vào 1 giao dịch
+    THM->>THM: setSelectedTx(transaction)
+    THM->>TDM: visible=true, transaction=selectedTx
+
+    TDM->>DB: accounts.find(transaction.account_id)
+    DB-->>TDM: Account
+    TDM->>DB: categories.find(transaction.category_id)
+    DB-->>TDM: Category
+
+    TDM->>User: Render chi tiết (banner màu, số tiền, ghi chú, ngày, TK, danh mục)
+    User->>TDM: Nhấn đóng
+    TDM->>THM: onClose()
+    Note over THM,TDM: Nested modal pattern — tránh iOS multi-modal freeze
+```
 
 ---
 
@@ -240,6 +459,30 @@ graph TD
 | **Luồng chính — Xóa** | 1. Nhấn icon Thùng rác → Alert xác nhận. 2. Xác nhận → `CategoryController.deleteCategory()` → Soft Delete (`is_active = false`). |
 | **Quy tắc bất biến** | Danh mục đã gắn với giao dịch chỉ được xóa mềm, không bao giờ xóa cứng. |
 
+**Sơ đồ luồng UC07:**
+
+```mermaid
+flowchart TD
+    A(["👤 Nhấn icon Tag\ntrên SmartBudgetScreen"]) --> B["Mở CategoryManagerModal"]
+    B --> C{"Người dùng muốn?"}
+
+    C -->|"Thêm danh mục"| D["Nhập tên, chọn loại EXPENSE/INCOME, chọn màu"]
+    D --> E{"Validation\ntên ≠ rỗng?"}
+    E -->|"Thất bại"| F["Hiển thị lỗi"]
+    F --> D
+    E -->|"Thành công"| G["CategoryController.createCategory()"]
+    G --> H[("DB: Category.prepareCreate\nis_active=true")]
+    H --> I["Reload danh sách danh mục"]
+
+    C -->|"Xóa danh mục"| J["Nhấn icon 🗑️"]
+    J --> K["Alert xác nhận xóa"]
+    K -->|"Hủy"| B
+    K -->|"Xác nhận"| L["CategoryController.deleteCategory()"]
+    L --> M[("DB: Category.prepareUpdate\nis_active=false")]
+    M --> I
+    I --> N(["Danh mục mới hiển thị\ntrong modal"])
+```
+
 ---
 
 #### UC08 — Thiết Lập Ngân Sách Mục Tiêu
@@ -252,6 +495,42 @@ graph TD
 | **Xử lý edge case** | Ngày neo 31 ở tháng 2 → Tự động clamp về ngày cuối tháng (28 hoặc 29 cho năm nhuận). |
 | **Hậu điều kiện** | Ngân sách mới xuất hiện trên SmartBudgetScreen với tiến độ ban đầu là 0%. |
 
+**Sơ đồ luồng UC08:**
+
+```mermaid
+sequenceDiagram
+    actor User as 👤 Người dùng
+    participant SBS as SmartBudgetScreen
+    participant BC as BudgetController
+    participant BSR as BudgetStrategyResolver
+    participant WBS as WeeklyBudgetStrategy
+    participant MBS as MonthlyBudgetStrategy
+    participant DB as WatermelonDB
+
+    User->>SBS: Nhấn "Add Budget"
+    SBS->>SBS: Mở modal tạo ngân sách
+    User->>SBS: Nhập tên, giới hạn, chu kỳ, anchor day, danh mục
+    User->>SBS: Nhấn "Save"
+
+    SBS->>BC: createBudget({ name, amountInCents, timeframe, anchorDay, categoryId })
+    BC->>BSR: resolve(timeframe)
+
+    alt timeframe = WEEKLY
+        BSR->>WBS: calculateCycle(anchorDay, today)
+        WBS-->>BSR: { startDate, endDate }
+    else timeframe = MONTHLY
+        BSR->>MBS: calculateCycle(anchorDay, today)
+        Note over MBS: Clamp anchor nếu > ngày cuối tháng
+        MBS-->>BSR: { startDate, endDate }
+    end
+
+    BSR-->>BC: { startDate, endDate }
+    BC->>DB: Budget.prepareCreate({ ..., startDate, endDate })
+    DB-->>BC: OK
+    BC-->>SBS: { success: true }
+    SBS->>User: Ngân sách mới hiển thị, tiến độ 0%
+```
+
 ---
 
 #### UC09 — Theo Dõi Tiến Độ Chi Tiêu
@@ -261,6 +540,27 @@ graph TD
 | **Tác nhân** | Hệ thống (tự động khi người dùng mở tab Budgets) |
 | **Luồng chính** | 1. `BudgetController.getBudgetsProgress()` được gọi. 2. Với từng ngân sách, hệ thống tính tổng giao dịch EXPENSE trong chu kỳ hiện tại (lọc theo `category_id` nếu có). 3. Tính `progressPercent = (spentAmount / limitAmount) * 100`. |
 | **Hiển thị cảnh báo** | `< 80%` → Thanh xanh + trạng thái "Within Budget". `80–99%` → Thanh vàng + icon ⚠️ "Approaching Limit". `≥ 100%` → Thanh đỏ + icon ⚠️ "Budget Exceeded". |
+
+**Sơ đồ luồng UC09:**
+
+```mermaid
+flowchart TD
+    A(["👤 Người dùng mở tab Budgets"]) --> B["SmartBudgetScreen.loadData()"]
+    B --> C["BudgetController.getBudgetsProgress()"]
+    C --> D[("Query budgets từ DB")]
+    D --> E["Duyệt từng ngân sách"]
+
+    E --> F[("Query EXPENSE transactions\ntrong startDate → endDate\nLọc theo category_id nếu có")]
+    F --> G["spentAmount = Σ(amount)"]
+    G --> H["progressPercent = spentAmount / limitAmount × 100"]
+
+    H --> I{"progressPercent?"}
+    I -->|"< 80%"| J["🟢 Thanh xanh\nWithin Budget"]
+    I -->|"80–99%"| K["🟡 Thanh vàng + ⚠️\nApproaching Limit"]
+    I -->|"≥ 100%"| L["🔴 Thanh đỏ + ⚠️\nBudget Exceeded"]
+
+    J & K & L --> M(["Render BudgetCard\nvới thanh tiến độ động"])
+```
 
 ---
 
@@ -273,6 +573,38 @@ graph TD
 | **Luồng chính** | 1. Mở modal tạo nợ. 2. Nhập: Tên người, Số tiền, Loại (LENT/BORROWED), Ngày đến hạn (tính bằng số ngày từ hôm nay), Ví liên kết. 3. Tùy chọn "Deduct/Add from wallet" — nếu bật: hệ thống tự động tạo giao dịch để trừ/cộng ví tương ứng. 4. `DebtController.createDebt()` → Lưu khoản nợ với `status = OPEN`, `remaining_amount = total_amount`. |
 | **Hậu điều kiện** | Khoản nợ xuất hiện trên tab "Active"; Số dư ví được cập nhật nếu đã chọn liên kết. |
 
+**Sơ đồ luồng UC10:**
+
+```mermaid
+sequenceDiagram
+    actor User as 👤 Người dùng
+    participant DLS as DebtLedgerScreen
+    participant DC as DebtController
+    participant TF as TransactionFactory
+    participant DB as WatermelonDB
+
+    User->>DLS: Nhấn "Add"
+    DLS->>DLS: Mở modal tạo nợ
+    User->>DLS: Nhập tên người, số tiền, loại (LENT/BORROWED)
+    User->>DLS: Chọn ngày đến hạn, ví liên kết
+    User->>DLS: Bật/Tắt "Deduct/Add from wallet"
+    User->>DLS: Nhấn "Save"
+
+    DLS->>DC: createDebt({ personName, type, totalAmountInCents, dueDate, accountId, linkToAccount })
+
+    DC->>DB: Debt.prepareCreate({ status=OPEN, remaining_amount=total_amount })
+
+    alt linkToAccount = true
+        DC->>TF: create(EXPENSE nếu LENT / INCOME nếu BORROWED)
+        TF->>DB: batch([Transaction.prepareCreate, Account.prepareUpdate])
+        DB-->>TF: OK (Số dư ví cập nhật)
+    end
+
+    DB-->>DC: OK
+    DC-->>DLS: { success: true }
+    DLS->>User: Khoản nợ xuất hiện trên tab "Active"
+```
+
 ---
 
 #### UC11 — Cập Nhật Trạng Thái Trả Nợ
@@ -284,6 +616,42 @@ graph TD
 | **Luồng chính** | 1. Mở modal ghi thanh toán với số tiền mặc định là toàn bộ số còn lại. 2. Người dùng điều chỉnh số tiền thanh toán và chọn ví. 3. `DebtController.recordRepayment()` → Tạo giao dịch tương ứng + cập nhật `remaining_amount`. 4. Nếu `remaining_amount == 0` → Tự động chuyển `status = SETTLED`. |
 | **Hậu điều kiện** | Khoản nợ tất toán tự động chuyển sang tab "Settled". Số dư ví được cập nhật. |
 
+**Sơ đồ luồng UC11:**
+
+```mermaid
+sequenceDiagram
+    actor User as 👤 Người dùng
+    participant DLS as DebtLedgerScreen
+    participant DC as DebtController
+    participant DO as DebtObserver
+    participant TF as TransactionFactory
+    participant DB as WatermelonDB
+
+    User->>DLS: Nhấn "Record Payment" trên DebtCard
+    DLS->>DLS: Mở modal — số tiền mặc định = remaining_amount
+    User->>DLS: Điều chỉnh số tiền & chọn ví
+    User->>DLS: Xác nhận
+
+    DLS->>DC: recordRepayment(debtId, amountInCents, accountId)
+    DC->>TF: create(INCOME nếu LENT / EXPENSE nếu BORROWED)
+    TF->>DB: batch([Transaction.prepareCreate, Account.prepareUpdate])
+    DB-->>TF: OK
+
+    DC->>DO: notifyRepayment(debtId, amountPaid)
+    DO->>DO: new_remaining = remaining_amount - amountPaid
+
+    alt new_remaining == 0
+        DO-->>DC: Debt.prepareUpdate({ remaining=0, status=SETTLED })
+    else new_remaining > 0
+        DO-->>DC: Debt.prepareUpdate({ remaining=new_remaining })
+    end
+
+    DC->>DB: batch([debt.prepareUpdate(...)])
+    DB-->>DC: OK
+    DC-->>DLS: { success: true }
+    DLS->>User: Reload — khoản tất toán chuyển sang tab "Settled"
+```
+
 ---
 
 #### UC12 — Cài Đặt Ứng Dụng
@@ -294,6 +662,36 @@ graph TD
 | **Điều kiện kích hoạt** | Mở tab "Settings" |
 | **Chức năng con** | **Giao diện:** Chọn Light / Dark / System. **Tiền tệ:** Tùy chỉnh ký hiệu (tối đa 6 ký tự) và vị trí (tiền tố/hậu tố). **Ngôn ngữ:** EN / VI. **Thời gian:** Chọn ngày đầu tuần (CN/T2); Bật/Tắt đồng bộ giờ mạng (WorldTimeAPI). **Bảo mật:** Bật/Tắt khóa sinh trắc học (yêu cầu xác thực trước khi bật). **Danger Zone:** Xóa toàn bộ dữ liệu (Reset Database) với 2 bước xác nhận. |
 | **Hậu điều kiện** | Tất cả thay đổi được lưu vào AsyncStorage qua Zustand persist và áp dụng ngay lập tức. |
+
+**Sơ đồ luồng UC12:**
+
+```mermaid
+flowchart TD
+    A(["👤 Mở tab Settings"]) --> B["SettingsScreen hiển thị"]
+
+    B --> C{"Người dùng thay đổi?"}
+
+    C -->|"Giao diện"| D["setTheme(Light/Dark/System)"]
+    C -->|"Tiền tệ"| E["setCurrencySymbol()\nsetCurrencyPosition()"]
+    C -->|"Ngôn ngữ"| F["setLanguage(EN/VI)"]
+    C -->|"Ngày đầu tuần"| G["setFirstDayOfWeek(0/1)"]
+    C -->|"Đồng bộ giờ mạng"| H["setTimeSyncMode(device/network)"]
+
+    C -->|"Bảo mật — Bật sinh trắc học"| I["expo-local-authentication.authenticate()"]
+    I -->|"Thành công"| J["setIsBiometricEnabled(true)"]
+    I -->|"Thất bại"| K["Giữ nguyên trạng thái cũ"]
+
+    C -->|"Danger Zone: Reset DB"| L["Alert xác nhận lần 1"]
+    L -->|"Xác nhận"| M["Alert xác nhận lần 2"]
+    M -->|"Xác nhận"| N["Xóa toàn bộ database\nReset Zustand store"]
+    M -->|"Hủy"| B
+    L -->|"Hủy"| B
+
+    D & E & F & G & H & J --> O["Zustand.persist()"]
+    O --> P[("AsyncStorage — Lưu cài đặt")]
+    P --> Q(["Áp dụng ngay lập tức\ntrên toàn ứng dụng"])
+    N --> Q
+```
 
 ---
 
@@ -309,7 +707,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 | Thuộc tính | Nội dung |
 |---|---|
-| **File** | [`DashboardScreen.tsx`](file:///c:/Users/ItsCyra/Documents/GitHub/btlac/src/screens/DashboardScreen.tsx) |
+| **File** | [`DashboardScreen.tsx`](src/screens/DashboardScreen.tsx) |
 | **Loại** | Smart Screen (View chính) |
 | **Vai trò** | Màn hình tổng quan tài chính — trung tâm thông tin chính của ứng dụng. Tổng hợp và hiển thị Net Worth, danh sách ví, giao dịch gần đây, và biểu đồ phân tích. |
 | **Props / Params** | Không có props (Screen độc lập trong Bottom Tab) |
@@ -324,7 +722,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 | Thuộc tính | Nội dung |
 |---|---|
-| **File** | [`SmartBudgetScreen.tsx`](file:///c:/Users/ItsCyra/Documents/GitHub/btlac/src/screens/SmartBudgetScreen.tsx) |
+| **File** | [`SmartBudgetScreen.tsx`](src/screens/SmartBudgetScreen.tsx) |
 | **Loại** | Smart Screen |
 | **Vai trò** | Màn hình quản lý ngân sách theo chu kỳ. Cho phép tạo, xem tiến độ và xóa ngân sách. Tích hợp quản lý danh mục. |
 | **Props / Params** | Không có props |
@@ -338,7 +736,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 | Thuộc tính | Nội dung |
 |---|---|
-| **File** | [`DebtLedgerScreen.tsx`](file:///c:/Users/ItsCyra/Documents/GitHub/btlac/src/screens/DebtLedgerScreen.tsx) |
+| **File** | [`DebtLedgerScreen.tsx`](src/screens/DebtLedgerScreen.tsx) |
 | **Loại** | Smart Screen |
 | **Vai trò** | Màn hình sổ nợ — quản lý toàn bộ vòng đời khoản nợ ngang hàng (tạo → theo dõi → tất toán). |
 | **Props / Params** | Không có props |
@@ -352,7 +750,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 | Thuộc tính | Nội dung |
 |---|---|
-| **File** | [`SettingsScreen.tsx`](file:///c:/Users/ItsCyra/Documents/GitHub/btlac/src/screens/SettingsScreen.tsx) |
+| **File** | [`SettingsScreen.tsx`](src/screens/SettingsScreen.tsx) |
 | **Loại** | Smart Screen |
 | **Vai trò** | Màn hình cấu hình toàn bộ tùy chọn ứng dụng: giao diện, tiền tệ, ngôn ngữ, thời gian, bảo mật và reset DB. |
 | **Props / Params** | Không có props |
@@ -365,7 +763,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 | Thuộc tính | Nội dung |
 |---|---|
-| **File** | [`OnboardingScreen.tsx`](file:///c:/Users/ItsCyra/Documents/GitHub/btlac/src/screens/OnboardingScreen.tsx) |
+| **File** | [`OnboardingScreen.tsx`](src/screens/OnboardingScreen.tsx) |
 | **Loại** | Full-screen Flow (3 slides) |
 | **Vai trò** | Màn hình thiết lập ban đầu — chỉ hiển thị một lần khi `hasCompletedOnboarding == false`. |
 | **Props / Params** | Không có props |
@@ -379,7 +777,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 | Thuộc tính | Nội dung |
 |---|---|
-| **File** | [`BiometricLockScreen.tsx`](file:///c:/Users/ItsCyra/Documents/GitHub/btlac/src/screens/BiometricLockScreen.tsx) |
+| **File** | [`BiometricLockScreen.tsx`](src/screens/BiometricLockScreen.tsx) |
 | **Loại** | Security Gate Screen |
 | **Vai trò** | Màn hình khóa sinh trắc học — gate keeper bảo vệ toàn bộ dữ liệu tài chính. |
 | **Props** | `onUnlock: () => void` |
@@ -394,7 +792,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 | Thuộc tính | Nội dung |
 |---|---|
-| **File** | [`NetWorthCard.tsx`](file:///c:/Users/ItsCyra/Documents/GitHub/btlac/src/components/NetWorthCard.tsx) |
+| **File** | [`NetWorthCard.tsx`](src/components/NetWorthCard.tsx) |
 | **Loại** | Presentational Component (Pure UI) |
 | **Vai trò** | Thẻ tổng hợp tài sản ròng — trái tim hiển thị của Dashboard. Tính và hiển thị `netWorth = totalAssets - totalLiabilities`. |
 | **Props** | `totalAssets: number (cents)`, `totalLiabilities: number (cents)` |
@@ -408,7 +806,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 | Thuộc tính | Nội dung |
 |---|---|
-| **File** | [`AddTransactionModal.tsx`](file:///c:/Users/ItsCyra/Documents/GitHub/btlac/src/components/AddTransactionModal.tsx) |
+| **File** | [`AddTransactionModal.tsx`](src/components/AddTransactionModal.tsx) |
 | **Loại** | Modal Component (Bottom Sheet style) |
 | **Vai trò** | Giao diện nhập liệu giao dịch nhanh. Hỗ trợ 3 loại: EXPENSE, INCOME, TRANSFER. |
 | **Props** | `visible: boolean`, `onClose: () => void`, `onSuccess: () => void` |
@@ -424,7 +822,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 | Thuộc tính | Nội dung |
 |---|---|
-| **File** | [`AddAccountModal.tsx`](file:///c:/Users/ItsCyra/Documents/GitHub/btlac/src/components/AddAccountModal.tsx) |
+| **File** | [`AddAccountModal.tsx`](src/components/AddAccountModal.tsx) |
 | **Loại** | Modal Component |
 | **Vai trò** | Giao diện tạo tài khoản tài chính mới (Ví/Ngân hàng = ASSET; Thẻ tín dụng = LIABILITY). |
 | **Props** | `visible: boolean`, `onClose: () => void`, `onSuccess: () => void` |
@@ -439,7 +837,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 | Thuộc tính | Nội dung |
 |---|---|
-| **File** | [`TransactionHistoryModal.tsx`](file:///c:/Users/ItsCyra/Documents/GitHub/btlac/src/components/TransactionHistoryModal.tsx) |
+| **File** | [`TransactionHistoryModal.tsx`](src/components/TransactionHistoryModal.tsx) |
 | **Loại** | Modal Component (pageSheet style) |
 | **Vai trò** | Danh sách toàn bộ lịch sử giao dịch hiệu suất cao, sử dụng `FlashList` để xử lý số lượng lớn records. |
 | **Props** | `visible: boolean`, `onClose: () => void` |
@@ -454,7 +852,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 | Thuộc tính | Nội dung |
 |---|---|
-| **File** | [`TransactionDetailsModal.tsx`](file:///c:/Users/ItsCyra/Documents/GitHub/btlac/src/components/TransactionDetailsModal.tsx) |
+| **File** | [`TransactionDetailsModal.tsx`](src/components/TransactionDetailsModal.tsx) |
 | **Loại** | Modal Component (transparent overlay, slide animation) |
 | **Vai trò** | Hiển thị đầy đủ chi tiết một giao dịch: số tiền, ghi chú, ngày, tài khoản liên kết, danh mục liên kết. |
 | **Props** | `visible: boolean`, `transaction: Transaction | null`, `onClose: () => void` |
@@ -469,7 +867,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 | Thuộc tính | Nội dung |
 |---|---|
-| **File** | [`CategoryManagerModal.tsx`](file:///c:/Users/ItsCyra/Documents/GitHub/btlac/src/components/CategoryManagerModal.tsx) |
+| **File** | [`CategoryManagerModal.tsx`](src/components/CategoryManagerModal.tsx) |
 | **Loại** | Modal Component |
 | **Vai trò** | Giao diện CRUD danh mục chi tiêu/thu nhập — thêm mới và xóa mềm (soft delete). |
 | **Props** | `visible: boolean`, `onClose: () => void` |
@@ -486,7 +884,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 | Thuộc tính | Nội dung |
 |---|---|
-| **File** | [`AccountController.ts`](file:///c:/Users/ItsCyra/Documents/GitHub/btlac/src/controllers/AccountController.ts) |
+| **File** | [`AccountController.ts`](src/controllers/AccountController.ts) |
 | **Vai trò** | Trung gian giữa UI và database cho thực thể Account. Xác thực input và điều phối ghi dữ liệu. |
 | **Phương thức chính** | `createAccount(name, type, balanceInCents)` — Tạo tài khoản mới; Tự động tạo giao dịch điều chỉnh nếu balance > 0 |
 | | `getActiveAccounts()` — Trả về danh sách tài khoản đang hoạt động (`is_active = true`) |
@@ -499,7 +897,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 | Thuộc tính | Nội dung |
 |---|---|
-| **File** | [`TransactionController.ts`](file:///c:/Users/ItsCyra/Documents/GitHub/btlac/src/controllers/TransactionController.ts) |
+| **File** | [`TransactionController.ts`](src/controllers/TransactionController.ts) |
 | **Vai trò** | Điều phối toàn bộ vòng đời giao dịch. Xác thực input, sau đó ủy quyền cho `TransactionFactory` thực thi. |
 | **Phương thức chính** | `createTransaction({ accountId, type, amount, description, date, categoryId?, toAccountId? })` — Gọi `TransactionFactory.create()` |
 | | `getTransactions()` — Truy vấn tất cả giao dịch, sắp xếp theo ngày giảm dần |
@@ -512,7 +910,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 | Thuộc tính | Nội dung |
 |---|---|
-| **File** | [`DebtController.ts`](file:///c:/Users/ItsCyra/Documents/GitHub/btlac/src/controllers/DebtController.ts) |
+| **File** | [`DebtController.ts`](src/controllers/DebtController.ts) |
 | **Vai trò** | Quản lý vòng đời khoản nợ: tạo mới, ghi thanh toán và tự động tất toán. |
 | **Phương thức chính** | `createDebt({ personName, type, totalAmountInCents, dueDate, accountId, linkToAccount })` — Tạo khoản nợ; Nếu `linkToAccount=true` → tạo giao dịch EXPENSE/INCOME tương ứng |
 | | `recordRepayment(debtId, amountInCents, accountId)` — Ghi thanh toán qua `DebtObserver`; Nếu `remaining == 0` → set `status = SETTLED` |
@@ -524,7 +922,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 | Thuộc tính | Nội dung |
 |---|---|
-| **File** | [`BudgetController.ts`](file:///c:/Users/ItsCyra/Documents/GitHub/btlac/src/controllers/BudgetController.ts) |
+| **File** | [`BudgetController.ts`](src/controllers/BudgetController.ts) |
 | **Vai trò** | Tạo ngân sách và tính toán tiến độ chi tiêu trong chu kỳ hiện tại. |
 | **Phương thức chính** | `createBudget({ name, amountInCents, timeframe, anchorDay, categoryId? })` — Dùng `BudgetStrategyResolver` để tính `startDate`/`endDate` |
 | | `getBudgetsProgress()` — Trả về `BudgetProgress[]` gồm `spentAmount`, `remainingAmount`, `progressPercent` |
@@ -537,7 +935,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 | Thuộc tính | Nội dung |
 |---|---|
-| **File** | [`CategoryController.ts`](file:///c:/Users/ItsCyra/Documents/GitHub/btlac/src/controllers/CategoryController.ts) |
+| **File** | [`CategoryController.ts`](src/controllers/CategoryController.ts) |
 | **Vai trò** | Quản lý CRUD danh mục chi tiêu/thu nhập với chính sách soft delete. |
 | **Phương thức chính** | `createCategory(name, type, color, icon)` — Tạo danh mục mới với `is_active = true` |
 | | `getActiveCategories()` — Lấy danh sách danh mục đang hoạt động |
@@ -551,7 +949,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 | Thuộc tính | Nội dung |
 |---|---|
-| **File** | [`TransactionFactory.ts`](file:///c:/Users/ItsCyra/Documents/GitHub/btlac/src/patterns/TransactionFactory.ts) |
+| **File** | [`TransactionFactory.ts`](src/patterns/TransactionFactory.ts) |
 | **Vai trò** | Orchestrator (Nhạc trưởng) — tạo giao dịch và tổng hợp toàn bộ cập nhật liên kết thành một `database.batch()` nguyên tử duy nhất. |
 | **Cách hoạt động** | 1. Chuẩn hóa dữ liệu đầu vào (validate amount > 0, type hợp lệ). 2. Tạo record Transaction (`prepareCreate`). 3. Thông báo cho `TransactionSubject` → Các Observer trả về `prepareUpdate[]`. 4. Gom tất cả vào `database.batch([...prepared])`. |
 | **Phụ thuộc** | `TransactionSubject`, `AccountObserver`, `DebtObserver` |
@@ -584,7 +982,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 | Thuộc tính | Nội dung |
 |---|---|
-| **File** | [`ReportFacade.ts`](file:///c:/Users/ItsCyra/Documents/GitHub/btlac/src/patterns/ReportFacade.ts) |
+| **File** | [`ReportFacade.ts`](src/patterns/ReportFacade.ts) |
 | **Vai trò** | Facade đơn giản hóa việc truy vấn phức tạp để vẽ biểu đồ — ẩn hoàn toàn logic SQL và vòng lặp xử lý khỏi DashboardScreen. |
 | **Phương thức chính** | `getExpensesByCategory(startTs, endTs): CategoryExpenseReportItem[]` — Nhóm chi tiêu theo danh mục trong khoảng thời gian → Dữ liệu Pie Chart |
 | | `getDailyExpenseTrend(days): DailyExpenseReportItem[]` — Tổng chi tiêu theo ngày trong N ngày gần nhất → Dữ liệu Bar Chart |
@@ -598,7 +996,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 | Thuộc tính | Nội dung |
 |---|---|
-| **File** | [`TimeService.ts`](file:///c:/Users/ItsCyra/Documents/GitHub/btlac/src/services/TimeService.ts) |
+| **File** | [`TimeService.ts`](src/services/TimeService.ts) |
 | **Vai trò** | Cung cấp giờ đáng tin cậy cho toàn bộ hệ thống — có thể dùng giờ thiết bị hoặc đồng bộ từ WorldTimeAPI. |
 | **Phương thức chính** | `init()` — Khởi tạo, đọc `timeSyncMode` từ AsyncStorage, nếu `'network'` thì fetch giờ từ WorldTimeAPI |
 | | `getNow(): Date` — Trả về thời điểm hiện tại (đã bù offset nếu đang dùng network time) |
@@ -613,7 +1011,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 | Thuộc tính | Nội dung |
 |---|---|
-| **File** | [`appStore.ts`](file:///c:/Users/ItsCyra/Documents/GitHub/btlac/src/store/appStore.ts) |
+| **File** | [`appStore.ts`](src/store/appStore.ts) |
 | **Vai trò** | Quản lý toàn bộ cài đặt ứng dụng theo cơ chế Zustand + AsyncStorage persist. |
 | **State fields** | `theme: 'light'|'dark'|'system'`, `currencySymbol: string`, `currencyPosition: 'prefix'|'suffix'`, `language: 'en'|'vi'`, `hasCompletedOnboarding: boolean`, `isBiometricEnabled: boolean`, `firstDayOfWeek: 0|1`, `timeSyncMode: 'device'|'network'`, `networkTimezone: string` |
 | **Actions** | `setTheme`, `setCurrencySymbol`, `setCurrencyPosition`, `setLanguage`, `setHasCompletedOnboarding`, `setIsBiometricEnabled`, `setFirstDayOfWeek`, `setTimeSyncMode` |
@@ -734,7 +1132,7 @@ tests/
 
 #### 4.2.1. Nhóm Test: `currencyFormatter` — Định Dạng Tiền Tệ
 
-**File:** [`currencyFormatter.spec.ts`](file:///c:/Users/ItsCyra/Documents/GitHub/btlac/tests/utils/currencyFormatter.spec.ts)
+**File:** [`currencyFormatter.spec.ts`](tests/utils/currencyFormatter.spec.ts)
 
 | # | Tên test case | Mục tiêu kiểm thử | Kết quả |
 |---|---|---|---|
@@ -752,7 +1150,7 @@ tests/
 
 #### 4.2.2. Nhóm Test: `budgetStrategies` — Thuật Toán Chu Kỳ Ngân Sách
 
-**File:** [`budgetStrategies.spec.ts`](file:///c:/Users/ItsCyra/Documents/GitHub/btlac/tests/patterns/budgetStrategies.spec.ts)
+**File:** [`budgetStrategies.spec.ts`](tests/patterns/budgetStrategies.spec.ts)
 
 | # | Tên test case | Mục tiêu kiểm thử | Kết quả |
 |---|---|---|---|
@@ -769,7 +1167,7 @@ tests/
 
 #### 4.2.3. Nhóm Test: `AccountsAndCategories` — Thành Phần UI Tài Khoản & Danh Mục
 
-**File:** [`AccountsAndCategories.spec.tsx`](file:///c:/Users/ItsCyra/Documents/GitHub/btlac/tests/components/AccountsAndCategories.spec.tsx)
+**File:** [`AccountsAndCategories.spec.tsx`](tests/components/AccountsAndCategories.spec.tsx)
 
 *(Kết quả embedded trong tổng 13 test PASS)*
 
@@ -786,7 +1184,7 @@ tests/
 
 #### 4.2.4. Nhóm Test: `Transactions` — Thành Phần UI Giao Dịch
 
-**File:** [`Transactions.spec.tsx`](file:///c:/Users/ItsCyra/Documents/GitHub/btlac/tests/components/Transactions.spec.tsx)
+**File:** [`Transactions.spec.tsx`](tests/components/Transactions.spec.tsx)
 
 | Tên test case | Mục tiêu kiểm thử | Kết quả |
 |---|---|---|
