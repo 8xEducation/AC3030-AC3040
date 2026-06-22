@@ -7,6 +7,63 @@
 
 ---
 
+## 0. GIỚI THIỆU BÀI TOÁN
+
+### 0.1. Bối Cảnh Bài Toán
+
+#### Người dùng mục tiêu
+
+Cash Flow Wave hướng đến **cá nhân và hộ gia đình** trong độ tuổi 18–45 có nhu cầu kiểm soát tài chính cá nhân — đặc biệt là những người:
+
+- Có nhiều nguồn thu nhập hoặc nhiều ví/tài khoản ngân hàng cùng lúc (tiền mặt, thẻ ghi nợ, thẻ tín dụng).
+- Thường xuyên vay mượn hoặc cho vay tiền giữa bạn bè, người thân và cần theo dõi rõ ràng.
+- Muốn đặt ngân sách theo tháng/tuần nhưng chưa có công cụ tự động nhắc nhở khi gần vượt hạn mức.
+- Ngại chia sẻ dữ liệu tài chính lên đám mây hoặc không tin tưởng các dịch vụ yêu cầu đăng ký tài khoản.
+
+#### Vấn đề thực tế cần giải quyết
+
+Quản lý tài chính cá nhân tưởng đơn giản nhưng thực tế phát sinh nhiều điểm đau rõ ràng:
+
+1. **Không biết tiền đi đâu** — Cuối tháng nhìn lại số dư tài khoản mà không hiểu mình đã chi tiêu vào hạng mục nào, bao nhiêu.
+2. **Quản lý nợ ngang hàng lộn xộn** — Việc vay/cho vay tiền giữa cá nhân thường chỉ ghi chú vào điện thoại hoặc nhớ trong đầu, dễ gây hiểu lầm, quên số tiền hoặc quên ngày đáo hạn.
+3. **Chi tiêu vượt ngân sách không hay biết** — Không có cơ chế cảnh báo tự động, người dùng chỉ nhận ra đã vượt ngân sách khi tháng đã gần kết thúc.
+4. **Tài sản ròng mờ nhạt** — Khi có cả tài khoản tiết kiệm lẫn thẻ tín dụng đang nợ, rất khó tính nhanh được "thực ra mình đang có bao nhiêu tiền thực sự".
+
+#### Vì sao cần một ứng dụng phần mềm?
+
+Bài toán này không thể giải quyết hiệu quả bằng cách thủ công vì:
+
+- **Khối lượng dữ liệu lớn và liên tục:** Mỗi ngày có thể phát sinh hàng chục giao dịch nhỏ lẻ (ăn sáng, xăng xe, mua sắm), không thể ghi chép tay một cách bền vững.
+- **Tính toán tổng hợp phức tạp:** Net Worth, tiến độ ngân sách, phân bổ chi tiêu theo danh mục — tất cả đòi hỏi tổng hợp dữ liệu từ nhiều chiều, vượt quá khả năng xử lý thủ công nhanh chóng và chính xác.
+- **Cần cảnh báo theo thời gian thực:** Chỉ phần mềm mới có thể tính toán và cảnh báo ngay lập tức khi chi tiêu tiếp cận hoặc vượt ngưỡng ngân sách đặt trước.
+- **Dữ liệu lịch sử dài hạn:** Phân tích xu hướng chi tiêu qua nhiều tuần, nhiều tháng đòi hỏi lưu trữ và truy vấn có cấu trúc — không thể thực hiện trên giấy hay ghi chú rời rạc.
+
+#### Hạn chế của cách làm thủ công hiện tại
+
+| Cách làm hiện tại | Hạn chế cốt lõi |
+|---|---|
+| **Ghi chép tay (sổ, giấy)** | Không tổng hợp được tự động; dễ mất, nhàu nát; không có cảnh báo |
+| **Bảng tính Excel / Google Sheets** | Phải nhập liệu thủ công trên PC; công thức dễ sai; không dùng được nhanh trên di động |
+| **Ghi chú điện thoại (Notes, Zalo)** | Không có cấu trúc danh mục; không tính toán; không phân biệt được loại giao dịch |
+| **Ứng dụng ngân hàng** | Chỉ thấy giao dịch qua ngân hàng đó; không ghi nhận tiền mặt, thẻ tín dụng khác, hay nợ cá nhân |
+| **Ứng dụng tài chính đám mây** | Yêu cầu tạo tài khoản, đồng bộ dữ liệu online — gây lo ngại bảo mật và phụ thuộc kết nối mạng |
+
+---
+
+### 0.2. Mục Tiêu Của Ứng Dụng
+
+1. **Cung cấp bức tranh tài chính tổng thể, tức thì** — Người dùng mở app là thấy ngay Net Worth (tài sản ròng) chính xác, bao gồm tất cả tài khoản tài sản và khoản nợ, được tính toán theo nguyên lý kế toán kép để không bao giờ sai lệch.
+
+2. **Kiểm soát chi tiêu chủ động qua ngân sách thông minh** — Hỗ trợ đặt ngân sách theo chu kỳ tuần hoặc tháng với hệ thống cảnh báo đa cấp (xanh → vàng → đỏ), giúp người dùng can thiệp trước khi vượt hạn mức thay vì phát hiện sau khi đã xảy ra.
+
+3. **Số hoá sổ nợ cá nhân một cách minh bạch** — Ghi chép toàn bộ vòng đời khoản vay/cho vay (tạo → theo dõi → tất toán) với liên kết trực tiếp đến ví, tự động cập nhật số dư còn lại sau mỗi lần thanh toán một phần.
+
+4. **Bảo đảm quyền riêng tư tuyệt đối theo mô hình offline-first** — Toàn bộ dữ liệu tài chính được lưu cục bộ trên thiết bị, không có server, không đăng ký tài khoản, không đồng bộ đám mây — loại bỏ hoàn toàn rủi ro lộ thông tin tài chính cá nhân.
+
+5. **Đảm bảo độ chính xác tuyệt đối của số liệu tài chính** — Áp dụng lưu trữ số nguyên (integer cents) và thực thi mọi thao tác ghi dữ liệu trong một batch nguyên tử duy nhất, đảm bảo số dư tài khoản và Net Worth luôn nhất quán, không bao giờ bị sai lệch do lỗi làm tròn hay ghi dữ liệu dở dang.
+
+---
+
 ## 1. TỔNG QUAN CHỨC NĂNG CỦA ỨNG DỤNG
 
 Cash Flow Wave là ứng dụng quản lý tài chính cá nhân dạng **mobile-first**, hoạt động hoàn toàn **offline** trên nền tảng iOS và Android. Ứng dụng áp dụng nguyên lý **kế toán kép (dual-entry accounting)** ngầm bên dưới để đảm bảo tính toán tài sản ròng (Net Worth) luôn chính xác tuyệt đối. Mọi giá trị tiền tệ được lưu trữ dưới dạng **số nguyên (integer, đơn vị cents)** để loại trừ hoàn toàn sai số dấu phẩy động.
@@ -151,18 +208,221 @@ graph TD
     Screens & Components --> Store
 ```
 
+## 2. KIẾN TRÚC ỨNG DỤNG
+
+### 2.1. Tổng Quan Kiến Trúc
+
+Cash Flow Wave áp dụng kiến trúc **MVC kết hợp 4 Core Design Patterns**, được tổ chức thành các tầng (layer) tách biệt hoàn toàn về trách nhiệm. Đây không phải một lựa chọn ngẫu nhiên — mỗi quyết định kiến trúc đều xuất phát từ một ràng buộc cụ thể của bài toán tài chính cá nhân offline.
+
 ---
 
-## 2. ĐẶC TẢ CHỨC NĂNG
+### 2.2. Vì Sao Kiến Trúc Này Phù Hợp Với Bài Toán?
 
-### 2.1. Đặc Tả Use Case
+| Ràng buộc bài toán | Giải pháp kiến trúc |
+|---|---|
+| **Dữ liệu tài chính không được sai lệch** — một lỗi làm tròn hay ghi dở dang là thảm hoạ | Factory Pattern gom toàn bộ mutation vào một `database.batch()` nguyên tử duy nhất — hoặc tất cả thành công, hoặc rollback toàn bộ |
+| **Số dư nhiều tài khoản phải cập nhật đồng bộ** khi có giao dịch mới | Observer Pattern: `AccountObserver` và `DebtObserver` tự động phản ứng, trả về `prepareUpdate[]` để Factory gom vào batch |
+| **Logic ngân sách tuần/tháng phức tạp, dễ sai** ở các edge case (tháng ngắn, cuối tuần khác ngày) | Strategy Pattern: mỗi chu kỳ là một class riêng, dễ test độc lập, dễ thêm chu kỳ mới mà không sửa code cũ |
+| **Dashboard phải truy vấn nhiều chiều** (theo danh mục, theo ngày) nhưng không thể để Screen biết chi tiết SQL | Facade Pattern: `ReportFacade` ẩn toàn bộ query phức tạp, DashboardScreen chỉ gọi một dòng API |
+| **UI không được chứa nghiệp vụ** — React Native component dễ bị "phình" thành God Object | Controller Layer: mọi input từ UI bắt buộc qua validation của Controller trước khi chạm vào DB |
+| **Hoạt động hoàn toàn offline**, không có backend | WatermelonDB (SQLite) làm tầng Data duy nhất; Zustand + AsyncStorage cho state UI nhẹ |
 
 ---
+
+### 2.3. Các Layer / Module Chính và Trách Nhiệm
+
+```mermaid
+graph TB
+    subgraph Presentation ["🖥️ Presentation Layer — src/screens/ + src/components/"]
+        S1["DashboardScreen"]
+        S2["SmartBudgetScreen"]
+        S3["DebtLedgerScreen"]
+        S4["SettingsScreen"]
+        C1["AddTransactionModal"]
+        C2["AddAccountModal"]
+        C3["TransactionHistoryModal"]
+        C4["CategoryManagerModal"]
+        C5["NetWorthCard"]
+    end
+
+    subgraph StateLayer ["🗂️ Global State — src/store/"]
+        ZS["appStore (Zustand + AsyncStorage)\ntheme · currency · language · biometric\nfirstDayOfWeek · timeSyncMode"]
+    end
+
+    subgraph Application ["⚙️ Application Layer — src/controllers/ + src/services/"]
+        AC["AccountController"]
+        TC["TransactionController"]
+        DC["DebtController"]
+        BC["BudgetController"]
+        CC["CategoryController"]
+        TS["TimeService"]
+    end
+
+    subgraph Domain ["🧠 Domain Layer — src/patterns/"]
+        TF["TransactionFactory\n(Orchestrator — Atomic Batch)"]
+        AO["AccountObserver\n(Cập nhật số dư)"]
+        DO["DebtObserver\n(Cập nhật remaining)"]
+        SUB["TransactionSubject\n(Pub/Sub)"]
+        WBS["WeeklyBudgetStrategy"]
+        MBS["MonthlyBudgetStrategy"]
+        BSR["BudgetStrategyResolver"]
+        RF["ReportFacade\n(Tổng hợp biểu đồ)"]
+    end
+
+    subgraph Infrastructure ["🗄️ Infrastructure Layer — src/database/"]
+        DB[("WatermelonDB / SQLite\naccounts · transactions\ndebts · budgets · categories")]
+        SCH["schema.ts + migrations.ts"]
+        MOD["Models: Account, Transaction\nDebt, Budget, Category"]
+    end
+
+    subgraph Utils ["🔧 Utilities — src/utils/ + src/types/"]
+        U1["currencyFormatter · dateHelpers"]
+        U2["theme · i18n · seedCategories"]
+        U3["TypeScript Enums & Interfaces"]
+    end
+
+    Presentation -->|"Gọi Controller\n(không gọi DB trực tiếp)"| Application
+    Presentation <-->|"Đọc/ghi settings"| StateLayer
+    Application -->|"Ủy quyền nghiệp vụ"| Domain
+    Application -->|"Query đơn giản"| Infrastructure
+    Domain -->|"database.batch()\n(nguyên tử)"| Infrastructure
+    TF --> AO & DO & SUB
+    SUB --> AO & DO
+    BC --> BSR --> WBS & MBS
+    Application --> TS
+    Presentation & Application --> Utils
+```
+
+---
+
+### 2.4. Luồng Dữ Liệu Qua Các Layer
+
+Dưới đây là ví dụ cụ thể với hành động **"Người dùng thêm một giao dịch chi tiêu"** — luồng phức tạp nhất, đi qua tất cả các tầng:
+
+```mermaid
+sequenceDiagram
+    box rgba(59,130,246,0.1) Presentation Layer
+        participant UI as AddTransactionModal
+    end
+    box rgba(234,179,8,0.1) Application Layer
+        participant CTR as TransactionController
+    end
+    box rgba(168,85,247,0.1) Domain Layer
+        participant TF as TransactionFactory
+        participant SUB as TransactionSubject
+        participant AO as AccountObserver
+    end
+    box rgba(34,197,94,0.1) Infrastructure Layer
+        participant DB as WatermelonDB / SQLite
+    end
+
+    UI->>UI: Người dùng nhập số tiền, chọn tài khoản & danh mục
+    UI->>CTR: createTransaction(payload)
+    Note over CTR: Validation: amount > 0,<br/>accountId tồn tại, category hợp lệ
+    CTR->>TF: create(validatedPayload)
+    TF->>TF: Transaction.prepareCreate(...)
+    TF->>SUB: notify(transactionEvent)
+    SUB->>AO: onTransactionCreated(event)
+    AO->>AO: Tính balance mới = current ± amount
+    AO-->>TF: Account.prepareUpdate(newBalance)
+    TF->>DB: database.batch([prepareCreate, prepareUpdate, ...])
+    Note over DB: ⚛️ Atomic — tất cả commit<br/>hoặc tất cả rollback
+    DB-->>TF: Thành công
+    TF-->>CTR: { success: true }
+    CTR-->>UI: { success: true }
+    UI->>UI: onSuccess() → Đóng modal, Dashboard reload
+```
+
+**Nguyên tắc bất biến của luồng dữ liệu:**
+
+> [!IMPORTANT]
+> - **UI → Controller → Domain → DB** là chiều duy nhất cho mọi thao tác ghi (mutation).
+> - **UI không bao giờ gọi DB trực tiếp** để ghi dữ liệu tài chính — chỉ được query để đọc danh sách hiển thị.
+> - **Domain không biết UI tồn tại** — Pattern chỉ nhận dữ liệu thuần túy, trả về `prepareUpdate[]`.
+> - **Infrastructure không chứa logic nghiệp vụ** — chỉ là nơi lưu trữ và thực thi batch được giao.
+
+---
+
+### 2.5. Bảng Trách Nhiệm Từng Layer / Module
+
+| Layer / Module | Trách nhiệm | Không nên làm | Ví dụ file / lớp |
+|---|---|---|---|
+| **🖥️ Presentation** | Render giao diện React Native; thu nhận input người dùng; hiển thị kết quả; điều hướng giữa các màn hình | Không xử lý nghiệp vụ tài chính; không gọi `database` trực tiếp để ghi; không tính toán Net Worth hay số dư | `DashboardScreen.tsx`, `AddTransactionModal.tsx`, `NetWorthCard.tsx`, `TransactionHistoryModal.tsx` |
+| **🗂️ Global State** | Lưu trữ và đồng bộ cài đặt ứng dụng (theme, currency, language, biometric) qua Zustand + AsyncStorage persist | Không lưu dữ liệu tài chính (giao dịch, số dư); không chứa logic nghiệp vụ | `src/store/appStore.ts` |
+| **⚙️ Application / Controller** | Nhận yêu cầu từ Presentation; validation input; điều phối luồng use case; xử lý và trả về lỗi chuẩn hoá | Không phụ thuộc vào component UI cụ thể; không trực tiếp thực hiện kế toán kép; không chứa công thức tính ngân sách | `AccountController.ts`, `TransactionController.ts`, `DebtController.ts`, `BudgetController.ts`, `CategoryController.ts` |
+| **🕐 Service** | Cung cấp khả năng tích hợp hệ thống bên ngoài (WorldTimeAPI) và tính năng cắt ngang (giờ đáng tin cậy, ngày đầu tuần) | Không render UI; không ghi dữ liệu tài chính trực tiếp | `src/services/TimeService.ts` |
+| **🧠 Domain / Patterns** | Thực thi toàn bộ quy tắc nghiệp vụ kế toán: tạo giao dịch nguyên tử, cập nhật số dư theo kép, tính chu kỳ ngân sách, tổng hợp báo cáo | Không gọi `setState` của UI; không đọc store Zustand; không biết component nào đang gọi mình | `TransactionFactory.ts`, `AccountObserver.ts`, `DebtObserver.ts`, `TransactionSubject.ts`, `WeeklyBudgetStrategy.ts`, `MonthlyBudgetStrategy.ts`, `ReportFacade.ts` |
+| **🗄️ Infrastructure / Database** | Lưu trữ bền vững toàn bộ dữ liệu tài chính (SQLite); định nghĩa schema và migration; thực thi atomic batch do Domain giao | Không chứa business rule; không validation nghiệp vụ; không biết giao dịch đó có hợp lệ hay không | `src/database/index.ts`, `schema.ts`, `migrations.ts`, `models/Account.ts`, `models/Transaction.ts` |
+| **🔧 Utilities** | Cung cấp hàm tiện ích thuần túy (pure functions) không có side effect: định dạng tiền tệ, chuyển đổi ngày, seed danh mục, i18n, theming | Không gọi DB; không dispatch action; không có state nội bộ | `currencyFormatter.ts`, `dateHelpers.ts`, `theme.ts`, `i18n.ts`, `seedCategories.ts` |
+
+---
+
+### 2.6. Kiến Trúc Hỗ Trợ Kiểm Thử, Bảo Trì và Mở Rộng Ra Sao?
+
+#### Kiểm thử (Testability)
+
+Sự tách biệt layer tạo ra ranh giới kiểm thử sắc nét:
+
+| Tầng | Chiến lược kiểm thử | Ví dụ trong dự án |
+|---|---|---|
+| **Utilities** | Unit test thuần — không cần mock | `currencyFormatter.spec.ts` — test 7 case `toCents/fromCents/formatCurrency` |
+| **Domain / Patterns** | Unit test với input giả — không cần DB thật | `budgetStrategies.spec.ts` — test 6 case biên của Weekly/Monthly strategy |
+| **Presentation** | Component test với RNTL + mock Controller | `AccountsAndCategories.spec.tsx`, `Transactions.spec.tsx` — mock `AccountController`, `TransactionController` |
+| **Controller** | Integration test — mock DB, kiểm tra validation flow | Kiểm tra luồng lỗi khi input thiếu trường bắt buộc |
+
+> [!TIP]
+> Vì Domain Layer không phụ thuộc vào UI hay DB thật, các test cho `WeeklyBudgetStrategy` hay `MonthlyBudgetStrategy` chạy cực nhanh (< 5ms/case) và không cần emulator.
+
+#### Bảo trì (Maintainability)
+
+- **Thay đổi cô lập**: Sửa công thức tính chu kỳ ngân sách → chỉ sửa `WeeklyBudgetStrategy.ts`, không ảnh hưởng UI hay Controller.
+- **Lỗi dễ truy vết**: Bug về số dư sai → chắc chắn nằm trong `AccountObserver` hoặc `TransactionFactory`, không phải ở màn hình.
+- **Soft Delete bắt buộc**: Controller thi hành chính sách — UI không thể bypass để xóa cứng dữ liệu master.
+
+#### Mở rộng (Extensibility)
+
+| Tính năng mới | Cách mở rộng không phá vỡ kiến trúc cũ |
+|---|---|
+| Thêm chu kỳ ngân sách **Quý** | Tạo `QuarterlyBudgetStrategy.ts` implement cùng interface → đăng ký vào `BudgetStrategyResolver` |
+| Thêm loại báo cáo mới (Bar Chart theo tuần) | Thêm method vào `ReportFacade` — DashboardScreen gọi thêm 1 dòng |
+| Thêm loại tài khoản mới (Tiết kiệm, Đầu tư) | Mở rộng enum `AccountType` + cập nhật `AccountObserver` logic |
+| Thêm Observer thứ 3 (thông báo push khi vượt ngân sách) | Tạo `BudgetObserver.ts` và đăng ký vào `TransactionSubject` |
+| Xuất báo cáo CSV / PDF | Thêm `ExportService` ở tầng Service — gọi `ReportFacade` để lấy data |
+
+---
+
+## 3. ĐẶC TẢ CHỨC NĂNG
+
+### 3.1. Đặc Tả Use Case
+
+#### Phân Loại Độ Quan Trọng
+
+Mỗi use case được phân loại theo ba mức độ quan trọng dựa trên hai tiêu chí: **mức độ ảnh hưởng đến giá trị cốt lõi** của ứng dụng và **tần suất sử dụng** thực tế của người dùng.
+
+**Bảng tổng quan phân loại:**
+
+| Use Case | Tên | Mức độ | Lý do |
+|---|---|---|---|
+| UC01 | Hoàn thành Onboarding | 🔴 Thiết yếu | Gate keeper — không qua đây thì không dùng được app |
+| UC02 | Xác thực Sinh trắc học | 🟡 Quan trọng | Bảo mật dữ liệu tài chính nhạy cảm; tùy chọn nhưng quan trọng |
+| UC03 | Xem Báo cáo Tổng quan | 🔴 Thiết yếu | Màn hình chính — giá trị cốt lõi số 1 của ứng dụng |
+| UC04 | Quản lý Tài khoản / Ví | 🔴 Thiết yếu | Nền tảng: không có tài khoản thì không thể ghi giao dịch |
+| UC05 | Thêm Giao dịch mới | 🔴 Thiết yếu | Chức năng trung tâm — tần suất cao nhất, dữ liệu đầu vào chính |
+| UC06 | Xem Lịch sử Giao dịch | 🔴 Thiết yếu | Truy vết tài chính — không có thì mất khả năng kiểm soát |
+| UC07 | Quản lý Danh mục | 🟡 Quan trọng | Cần cho phân tích biểu đồ; danh mục mặc định đã seed sẵn |
+| UC08 | Thiết lập Ngân sách | 🟡 Quan trọng | Tính năng phân biệt với app ghi chép đơn thuần |
+| UC09 | Theo dõi Tiến độ Chi tiêu | 🟡 Quan trọng | Giá trị thực của module ngân sách — cảnh báo chủ động |
+| UC10 | Ghi chép Khoản Vay/Cho vay | 🟡 Quan trọng | Giải quyết điểm đau sổ nợ cá nhân — khác biệt cạnh tranh |
+| UC11 | Cập nhật Trạng thái Trả nợ | 🟡 Quan trọng | Bổ sung cho UC10 — hoàn thiện vòng đời khoản nợ |
+| UC12 | Cài đặt Ứng dụng | 🟢 Hỗ trợ | Cá nhân hoá trải nghiệm; app vẫn dùng được với cài đặt mặc định |
+
+
 
 #### UC01 — Hoàn thành Onboarding
 
 | Mục | Nội dung |
 |---|---|
+| **Độ quan trọng** | 🔴 Thiết yếu |
 | **Tác nhân** | Người dùng (lần đầu khởi động) |
 | **Điều kiện kích hoạt** | `hasCompletedOnboarding == false` trong Zustand store |
 | **Luồng chính** | 1. Ứng dụng hiển thị màn hình Onboarding gồm 3 slide. 2. Slide 1: Người dùng chọn Ngôn ngữ (EN/VI) và Giao diện (Sáng/Tối/Hệ thống). 3. Slide 2: Người dùng nhập Ký hiệu tiền tệ và chọn Vị trí (Tiền tố/Hậu tố). 4. Slide 3: Hệ thống hiển thị bản xác nhận cài đặt. 5. Người dùng nhấn "Get Started" → `setHasCompletedOnboarding(true)` → Chuyển sang màn hình chính. |
@@ -206,6 +466,7 @@ sequenceDiagram
 
 | Mục | Nội dung |
 |---|---|
+| **Độ quan trọng** | 🟡 Quan trọng |
 | **Tác nhân** | Người dùng |
 | **Điều kiện kích hoạt** | `isBiometricEnabled == true` và ứng dụng vừa được mở (chưa `isUnlocked`) |
 | **Luồng chính** | 1. Màn hình `BiometricLockScreen` hiển thị với nút "Unlock". 2. Người dùng nhấn "Unlock" → Hệ thống gọi `expo-local-authentication`. 3. Thiết bị yêu cầu xác thực Face ID / Vân tay / Passcode. 4. Xác thực thành công → `setIsUnlocked(true)` → Hiển thị màn hình chính. |
@@ -246,6 +507,7 @@ sequenceDiagram
 
 | Mục | Nội dung |
 |---|---|
+| **Độ quan trọng** | 🔴 Thiết yếu |
 | **Tác nhân** | Người dùng |
 | **Điều kiện kích hoạt** | Mở tab "Home" hoặc pull-to-refresh |
 | **Luồng chính** | 1. `DashboardScreen` gọi `AccountController.getActiveAccounts()` và `TransactionController.getTransactions()`. 2. Hiển thị `NetWorthCard` với `netWorth = Σ(Assets) - Σ(Liabilities)`. 3. Gọi `ReportFacade.getDailyExpenseTrend(7)` để lấy dữ liệu Bar Chart 7 ngày gần nhất. 4. Gọi `ReportFacade.getExpensesByCategory(startOfMonth, endOfMonth)` để lấy dữ liệu Pie Chart tháng hiện tại. 5. Hiển thị danh sách 5 giao dịch gần nhất. |
@@ -305,6 +567,7 @@ sequenceDiagram
 
 | Mục | Nội dung |
 |---|---|
+| **Độ quan trọng** | 🔴 Thiết yếu |
 | **Tác nhân** | Người dùng |
 | **Điều kiện kích hoạt** | Nhấn nút "+" trên phần "My Wallets" hoặc "Add Account" trong Action Center |
 | **Luồng chính** | 1. Mở `AddAccountModal`. 2. Người dùng chọn loại tài khoản: **Asset** (Tài sản: Ví tiền mặt, Ngân hàng) hoặc **Liability** (Nợ phải trả: Thẻ tín dụng). 3. Nhập tên tài khoản và số dư ban đầu. 4. Nhấn "Save" → Controller xác thực → `AccountController.createAccount()`. 5. Nếu số dư ban đầu > 0, hệ thống tự động tạo giao dịch điều chỉnh (adjustment transaction) để duy trì tính toàn vẹn kế toán. |
@@ -354,6 +617,7 @@ sequenceDiagram
 
 | Mục | Nội dung |
 |---|---|
+| **Độ quan trọng** | 🔴 Thiết yếu |
 | **Tác nhân** | Người dùng |
 | **Điều kiện kích hoạt** | Nhấn nút "Add Transaction" trên Dashboard (chỉ hiện khi đã có ít nhất 1 tài khoản) |
 | **Luồng chính** | 1. Mở `AddTransactionModal`. 2. Người dùng chọn loại giao dịch: **EXPENSE** (Chi tiêu) / **INCOME** (Thu nhập) / **TRANSFER** (Chuyển khoản). 3. Nhập số tiền, ghi chú (tùy chọn), chọn tài khoản nguồn và danh mục. 4. Với loại TRANSFER, người dùng chọn thêm tài khoản đích. 5. Nhấn "Save" → `TransactionController.createTransaction()` → `TransactionFactory.create()` → Thực thi `database.batch()` nguyên tử gồm: ghi Transaction + cập nhật Account balance qua `AccountObserver`. |
@@ -408,6 +672,7 @@ sequenceDiagram
 
 | Mục | Nội dung |
 |---|---|
+| **Độ quan trọng** | 🔴 Thiết yếu |
 | **Tác nhân** | Người dùng |
 | **Điều kiện kích hoạt** | Nhấn "See All" trên Dashboard hoặc nhấn vào một giao dịch trong danh sách gần đây |
 | **Luồng chính (Lịch sử)** | 1. Mở `TransactionHistoryModal` (pageSheet style). 2. Gọi `TransactionController.getTransactions()`. 3. Render danh sách hiệu suất cao qua `@shopify/flash-list`. 4. Nhấn vào một mục → Mở `TransactionDetailsModal` (lồng bên trong, tránh xung đột iOS multi-modal). |
@@ -453,6 +718,7 @@ sequenceDiagram
 
 | Mục | Nội dung |
 |---|---|
+| **Độ quan trọng** | 🟡 Quan trọng |
 | **Tác nhân** | Người dùng |
 | **Điều kiện kích hoạt** | Nhấn icon Tag trên SmartBudgetScreen |
 | **Luồng chính — Thêm** | 1. Mở `CategoryManagerModal`. 2. Nhập tên, chọn loại (EXPENSE/INCOME), chọn màu. 3. Nhấn "Add Category" → `CategoryController.createCategory()`. |
@@ -489,6 +755,7 @@ flowchart TD
 
 | Mục | Nội dung |
 |---|---|
+| **Độ quan trọng** | 🟡 Quan trọng |
 | **Tác nhân** | Người dùng |
 | **Điều kiện kích hoạt** | Nhấn "Add Budget" trên SmartBudgetScreen |
 | **Luồng chính** | 1. Mở modal tạo ngân sách. 2. Nhập: Tên, Số tiền giới hạn, Chu kỳ (WEEKLY/MONTHLY), Ngày neo (anchor day), Danh mục liên kết (tùy chọn). 3. `BudgetController.createBudget()` → `BudgetStrategyResolver` chọn đúng chiến lược (Weekly/Monthly). 4. Chiến lược tính `startDate` và `endDate` của chu kỳ hiện tại và lưu vào DB. |
@@ -537,6 +804,7 @@ sequenceDiagram
 
 | Mục | Nội dung |
 |---|---|
+| **Độ quan trọng** | 🟡 Quan trọng |
 | **Tác nhân** | Hệ thống (tự động khi người dùng mở tab Budgets) |
 | **Luồng chính** | 1. `BudgetController.getBudgetsProgress()` được gọi. 2. Với từng ngân sách, hệ thống tính tổng giao dịch EXPENSE trong chu kỳ hiện tại (lọc theo `category_id` nếu có). 3. Tính `progressPercent = (spentAmount / limitAmount) * 100`. |
 | **Hiển thị cảnh báo** | `< 80%` → Thanh xanh + trạng thái "Within Budget". `80–99%` → Thanh vàng + icon ⚠️ "Approaching Limit". `≥ 100%` → Thanh đỏ + icon ⚠️ "Budget Exceeded". |
@@ -568,6 +836,7 @@ flowchart TD
 
 | Mục | Nội dung |
 |---|---|
+| **Độ quan trọng** | 🟡 Quan trọng |
 | **Tác nhân** | Người dùng |
 | **Điều kiện kích hoạt** | Nhấn "Add" trên DebtLedgerScreen |
 | **Luồng chính** | 1. Mở modal tạo nợ. 2. Nhập: Tên người, Số tiền, Loại (LENT/BORROWED), Ngày đến hạn (tính bằng số ngày từ hôm nay), Ví liên kết. 3. Tùy chọn "Deduct/Add from wallet" — nếu bật: hệ thống tự động tạo giao dịch để trừ/cộng ví tương ứng. 4. `DebtController.createDebt()` → Lưu khoản nợ với `status = OPEN`, `remaining_amount = total_amount`. |
@@ -611,6 +880,7 @@ sequenceDiagram
 
 | Mục | Nội dung |
 |---|---|
+| **Độ quan trọng** | 🟡 Quan trọng |
 | **Tác nhân** | Người dùng |
 | **Điều kiện kích hoạt** | Nhấn "Record Payment" trên một thẻ nợ đang mở |
 | **Luồng chính** | 1. Mở modal ghi thanh toán với số tiền mặc định là toàn bộ số còn lại. 2. Người dùng điều chỉnh số tiền thanh toán và chọn ví. 3. `DebtController.recordRepayment()` → Tạo giao dịch tương ứng + cập nhật `remaining_amount`. 4. Nếu `remaining_amount == 0` → Tự động chuyển `status = SETTLED`. |
@@ -658,6 +928,7 @@ sequenceDiagram
 
 | Mục | Nội dung |
 |---|---|
+| **Độ quan trọng** | 🟢 Hỗ trợ |
 | **Tác nhân** | Người dùng |
 | **Điều kiện kích hoạt** | Mở tab "Settings" |
 | **Chức năng con** | **Giao diện:** Chọn Light / Dark / System. **Tiền tệ:** Tùy chỉnh ký hiệu (tối đa 6 ký tự) và vị trí (tiền tố/hậu tố). **Ngôn ngữ:** EN / VI. **Thời gian:** Chọn ngày đầu tuần (CN/T2); Bật/Tắt đồng bộ giờ mạng (WorldTimeAPI). **Bảo mật:** Bật/Tắt khóa sinh trắc học (yêu cầu xác thực trước khi bật). **Danger Zone:** Xóa toàn bộ dữ liệu (Reset Database) với 2 bước xác nhận. |
@@ -695,13 +966,13 @@ flowchart TD
 
 ---
 
-### 2.2. Đặc Tả Module Sử Dụng
+### 3.2. Đặc Tả Module Sử Dụng
 
 Phần này mô tả chi tiết từng module trong ứng dụng theo các tầng kiến trúc: **Màn hình (Screens)**, **Thành phần UI (Components)**, **Điều phối (Controllers)**, **Nghiệp vụ (Patterns)**, **Dịch vụ (Services)**, **Trạng thái (Store)**, **Tiện ích (Utils)** và **Dữ liệu (Database)**.
 
 ---
 
-#### 2.2.1. Tầng Màn Hình — `src/screens/`
+#### 3.2.1. Tầng Màn Hình — `src/screens/`
 
 ##### Module: `DashboardScreen`
 
@@ -786,7 +1057,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 ---
 
-#### 2.2.2. Tầng Thành Phần UI — `src/components/`
+#### 3.2.2. Tầng Thành Phần UI — `src/components/`
 
 ##### Module: `NetWorthCard`
 
@@ -878,7 +1149,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 ---
 
-#### 2.2.3. Tầng Điều Phối — `src/controllers/`
+#### 3.2.3. Tầng Điều Phối — `src/controllers/`
 
 ##### Module: `AccountController`
 
@@ -943,7 +1214,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 ---
 
-#### 2.2.4. Tầng Nghiệp Vụ — `src/patterns/`
+#### 3.2.4. Tầng Nghiệp Vụ — `src/patterns/`
 
 ##### Module: `TransactionFactory` *(Factory Pattern)*
 
@@ -990,7 +1261,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 ---
 
-#### 2.2.5. Tầng Dịch Vụ — `src/services/`
+#### 3.2.5. Tầng Dịch Vụ — `src/services/`
 
 ##### Module: `TimeService`
 
@@ -1005,7 +1276,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 ---
 
-#### 2.2.6. Tầng Trạng Thái Toàn Cục — `src/store/`
+#### 3.2.6. Tầng Trạng Thái Toàn Cục — `src/store/`
 
 ##### Module: `appStore` (Zustand)
 
@@ -1020,7 +1291,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 ---
 
-#### 2.2.7. Tầng Tiện Ích — `src/utils/`
+#### 3.2.7. Tầng Tiện Ích — `src/utils/`
 
 | Module | File | Vai trò |
 |---|---|---|
@@ -1032,7 +1303,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 ---
 
-#### 2.2.8. Tầng Dữ Liệu — `src/database/`
+#### 3.2.8. Tầng Dữ Liệu — `src/database/`
 
 | Module | File | Vai trò |
 |---|---|---|
@@ -1050,9 +1321,9 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 ---
 
-## 3. YÊU CẦU PHI CHỨC NĂNG
+## 4. YÊU CẦU PHI CHỨC NĂNG
 
-### 3.1. Hiệu Năng
+### 4.1. Hiệu Năng
 
 | Yêu cầu | Mức mục tiêu |
 |---|---|
@@ -1061,7 +1332,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 | **Tốc độ animation** | Tất cả animation đạt **60fps** nhờ `react-native-reanimated` chạy trên native UI thread |
 | **Thời gian khởi động** | Ứng dụng khởi động nhanh — Theme và Currency được load từ AsyncStorage ngay trước khi render, không có hiện tượng "flash" giao diện sai |
 
-### 3.2. Độ Chính Xác Tài Chính
+### 4.2. Độ Chính Xác Tài Chính
 
 | Yêu cầu | Giải pháp |
 |---|---|
@@ -1069,7 +1340,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 | **Tính toán Net Worth** | `netWorth = Σ(account.current_balance where type=ASSET) - Σ(account.current_balance where type=LIABILITY)` — Không bao giờ tính trực tiếp từ danh sách giao dịch |
 | **Nhất quán kép** | Mọi mutation dữ liệu đều thực thi trong một `database.batch()` nguyên tử duy nhất — hoặc tất cả thành công, hoặc toàn bộ rollback |
 
-### 3.3. Bảo Mật & Quyền Riêng Tư
+### 4.3. Bảo Mật & Quyền Riêng Tư
 
 | Yêu cầu | Mô tả |
 |---|---|
@@ -1078,7 +1349,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 | **Soft Delete** | Tài khoản và danh mục không bao giờ bị xóa cứng. `is_active = false` để bảo toàn lịch sử tài chính và tính toán Net Worth chính xác |
 | **Zero-login** | Không yêu cầu đăng ký hay đăng nhập, loại bỏ hoàn toàn ma sát onboarding |
 
-### 3.4. Khả Năng Sử Dụng (Usability)
+### 4.4. Khả Năng Sử Dụng (Usability)
 
 | Yêu cầu | Mô tả |
 |---|---|
@@ -1088,7 +1359,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 | **Lời chào động** | Thay đổi theo giờ trong ngày (Sáng/Chiều/Tối/Đêm) để tăng tính cá nhân hóa |
 | **Input tiếng Việt** | Sử dụng `uncontrolled TextInput` với `useRef` để tránh lỗi "Nuốt chữ" của bộ gõ Telex trên iOS |
 
-### 3.5. Độ Tin Cậy & Tính Toàn Vẹn Dữ Liệu
+### 4.5. Độ Tin Cậy & Tính Toàn Vẹn Dữ Liệu
 
 | Yêu cầu | Mô tả |
 |---|---|
@@ -1096,7 +1367,7 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 | **Thời gian đồng bộ** | Hỗ trợ đồng bộ giờ qua WorldTimeAPI để tránh sai lệch do người dùng chỉnh sai giờ thiết bị; TimeService sử dụng **Lazy Initialization** để sống sót qua Fast Refresh |
 | **Xử lý tháng ngắn** | Ngân sách tháng với anchor day 31 tự động clamp về ngày cuối tháng thực tế (28/29/30 tùy năm) |
 
-### 3.6. Khả Năng Bảo Trì & Mở Rộng
+### 4.6. Khả Năng Bảo Trì & Mở Rộng
 
 | Yêu cầu | Mô tả |
 |---|---|
@@ -1107,104 +1378,1004 @@ Phần này mô tả chi tiết từng module trong ứng dụng theo các tần
 
 ---
 
-## 4. KIỂM THỬ VÀ KẾT QUẢ
+## 5. KIỂM THỬ VÀ KẾT QUẢ
 
-### 4.1. Chiến Lược Kiểm Thử
+## 5. KIỂM THỬ VÀ KẾT QUẢ
 
-Ứng dụng sử dụng **Jest** + **React Native Testing Library (RNTL)** để kiểm thử tự động. Các test được tổ chức theo 3 tầng:
+### 5.1. Mục tiêu kiểm thử
+**Kiểm thử nhằm xác nhận chức năng nào?**
+- Xác nhận tính chính xác của các quy tắc định dạng tiền tệ (chuyển đổi cents/float không bị sai số).
+- Xác nhận logic tính toán chu kỳ ngân sách phức tạp (tuần, tháng, năm nhuận, tháng thiếu ngày).
+- Xác nhận các thao tác tạo, sửa, hiển thị trên giao diện người dùng (Thêm giao dịch, Quản lý tài khoản/danh mục).
+
+**Kiểm thử tập trung vào layer nào?**
+- Phần lớn test tập trung vào **Domain/Service Layer** (các lớp xử lý logic nghiệp vụ và Pattern) và một phần ở **UI/Component Layer**.
+
+**Vì sao phần lớn test nên nằm ở domain/service layer?**
+- Domain/Service layer chứa các quy tắc nghiệp vụ cốt lõi của ứng dụng. Bằng cách viết unit test ở đây, ta có thể chạy test cực kỳ nhanh, cô lập hoàn toàn khỏi môi trường UI (không cần render DOM/Native views), và đảm bảo rằng dù UI có thay đổi thì logic kinh doanh cốt lõi vẫn chính xác.
+
+**Những phần nào chưa kiểm thử được và lý do?**
+- **E2E Test toàn luồng:** Chưa thực hiện tự động hóa test end-to-end (từ lúc mở app đến khi hoàn thành một quy trình dài) do hạn chế về thời gian thiết lập CI/CD với thiết bị thật/emulator trên Playwright/Detox. Hiện tại phần này đang được test thủ công.
+- **Integration Test với Database:** Các test hiện tại mock WatermelonDB để chạy nhanh. Test tích hợp ghi DB thực tế chưa cấu hình tự động.
+
+### 5.2. Công cụ kiểm thử
+
+| Loại kiểm thử | Công cụ | Lệnh chạy | Ghi chú |
+|---|---|---|---|
+| Unit test | Jest, React Native Testing Library | `npm test` | Mock WatermelonDB & AsyncStorage |
+| Integration test | - | - | |
+| Coverage | Jest Coverage | `npm run test -- --coverage` | |
+| UI/E2E test | Detox / Appium | - | Dự kiến tích hợp trong tương lai |
+
+### 5.3. Danh sách test case
+
+Tổng số 23 test case, phần lớn nằm ở tầng Domain/Service.
+
+| TC ID | Tên test case | Layer | Hàm/lớp được test | Dữ liệu vào | Kết quả mong đợi | Người phụ trách | Trạng thái |
+|---|---|---|---|---|---|---|---|
+| TC01 | Convert float to cents | Domain/Utility | `currencyFormatter.toCents` | `10.50`, `0.99`, `100` | `1050`, `99`, `10000` | | Pass |
+| TC02 | Eliminate precision issues | Domain/Utility | `currencyFormatter.toCents` | `0.1 + 0.2` | `30` (không phải `30.0...04`) | | Pass |
+| TC03 | Handle zero correctly | Domain/Utility | `currencyFormatter.toCents` | `0` | `0` | | Pass |
+| TC04 | Convert cents to float | Domain/Utility | `currencyFormatter.fromCents` | `1050`, `99` | `10.50`, `0.99` | | Pass |
+| TC05 | Format with prefix | Domain/Utility | `currencyFormatter.formatCurrency` | `100000`, `'$'`, `'prefix'` | `'$1,000.00'` | | Pass |
+| TC06 | Format with suffix | Domain/Utility | `currencyFormatter.formatCurrency` | `1050`, `'VNĐ'`, `'suffix'` | `'10.50 VNĐ'` | | Pass |
+| TC07 | Handle negative cents | Domain/Utility | `currencyFormatter.formatCurrency` | `-1050`, `'$'`, `'prefix'` | `'-$10.50'` | | Pass |
+| TC08 | Weekly: cycle starts Monday | Domain/Pattern | `WeeklyBudgetStrategy.calculateCycle` | Ref: Tue 02/06, Anchor: 1 | Start: 01/06, End: 07/06 | | Pass |
+| TC09 | Weekly: cycle starts Wednesday | Domain/Pattern | `WeeklyBudgetStrategy.calculateCycle` | Ref: Tue 02/06, Anchor: 3 | Start: 27/05, End: 02/06 | | Pass |
+| TC10 | Monthly: prev month if ref < anchor | Domain/Pattern | `MonthlyBudgetStrategy.calculateCycle` | Ref: 02/06, Anchor: 5 | Start: 05/05, End: 04/06 | | Pass |
+| TC11 | Monthly: current month if ref >= anchor| Domain/Pattern | `MonthlyBudgetStrategy.calculateCycle` | Ref: 06/06, Anchor: 5 | Start: 05/06, End: 04/07 | | Pass |
+| TC12 | Monthly: clamp non-leap Feb | Domain/Pattern | `MonthlyBudgetStrategy.calculateCycle` | Ref: 02/03/2026, Anchor: 31 | Start: 28/02, End: 30/03 | | Pass |
+| TC13 | Monthly: clamp leap Feb | Domain/Pattern | `MonthlyBudgetStrategy.calculateCycle` | Ref: 02/03/2028, Anchor: 31 | Start: 29/02, End: 30/03 | | Pass |
+| TC14 | Add Wallet Account | UI/Component | `AddAccountModal` | Name: "Ví", Type: ASSET | Gọi `createAccount` | | Pass |
+| TC15 | Add Credit Card Account | UI/Component | `AddAccountModal` | Name: "Thẻ", Type: LIABILITY | Gọi `createAccount` | | Pass |
+| TC16 | Filter Account Balance text | UI/Component | `AddAccountModal` | Input: `'100abc.50xyz'` | Value lọc thành `'100.50'` | | Pass |
+| TC17 | Add Category | UI/Component | `CategoryManagerModal` | Name, Type, Icon, Color | Gọi `createCategory` | | Pass |
+| TC18 | Delete Category | UI/Component | `CategoryManagerModal` | Bấm nút Xóa ở id '1' | Thực thi lệnh Xóa | | Pass |
+| TC19 | Render NetWorth | UI/Component | `NetWorthCard` | Assets: 1M, Liab: 200k | Render UI hiển thị 800k | | Pass |
+| TC20 | Add Expense Transaction | UI/Component | `AddTransactionModal` | `150.50`, Expense, "Lunch" | Gọi `createTransaction` | | Pass |
+| TC21 | Add Income Transaction | UI/Component | `AddTransactionModal` | `2000`, Income | Gọi `createTransaction` | | Pass |
+| TC22 | Render Tx Details | UI/Component | `TransactionDetailsModal` | Tx ID tx1 | Hiển thị chi tiết "Mua sắm" | | Pass |
+| TC23 | Render Tx History | UI/Component | `TransactionHistoryModal` | Danh sách 1 giao dịch | Render List Item | | Pass |
+
+### 5.4. Cấu trúc thư mục test
 
 ```
 tests/
-├── components/               # UI Component Tests (RNTL)
-│   ├── AccountsAndCategories.spec.tsx
-│   └── Transactions.spec.tsx
-├── patterns/                 # Business Logic Tests (Pure Unit Tests)
-│   └── budgetStrategies.spec.ts
-└── utils/                    # Utility Function Tests
-    └── currencyFormatter.spec.ts
+  patterns/
+    budgetStrategies.spec.ts
+  utils/
+    currencyFormatter.spec.ts
+  components/
+    AccountsAndCategories.spec.tsx
+    Transactions.spec.tsx
 ```
 
-### 4.2. Kết Quả Kiểm Thử — Tóm Tắt
+### 5.5. Minh chứng kết quả chạy test
 
-> **Tổng số test cases: 13 | Tất cả PASS ✅**
+*Ghi chú: Đính kèm ảnh chụp màn hình terminal (IDE) hiển thị thông báo PASS xanh lá tại đây.*
 
----
+- **Tổng số test:** 23
+- **Số test pass/fail:** 23 Pass / 0 Fail
+- **Lệnh chạy test:** `npm test` hoặc `npx jest`
+- **Thời điểm chạy test:** [Thời điểm lúc tổng hợp báo cáo]
+- **Đường dẫn file test:** Nằm trong thư mục `tests/` tại root project.
 
-#### 4.2.1. Nhóm Test: `currencyFormatter` — Định Dạng Tiền Tệ
+### 5.6. Coverage
 
-**File:** [`currencyFormatter.spec.ts`](tests/utils/currencyFormatter.spec.ts)
+Chạy lệnh `npm run test -- --coverage` để xuất kết quả độ phủ code. Dưới đây là bảng tổng hợp coverage cho toàn bộ dự án từ Jest.
 
-| # | Tên test case | Mục tiêu kiểm thử | Kết quả |
-|---|---|---|---|
-| 1 | `toCents: convert standard float amounts to integer cents` | `toCents(10.50)` → `1050`; `toCents(100)` → `10000` | ✅ PASS |
-| 2 | `toCents: eliminate floating-point precision issues` | `toCents(0.1 + 0.2)` → `30` (không phải `30.000...04`) | ✅ PASS |
-| 3 | `toCents: handle zero correctly` | `toCents(0)` → `0` | ✅ PASS |
-| 4 | `fromCents: convert integer cents back to float` | `fromCents(1050)` → `10.50`; `fromCents(99)` → `0.99` | ✅ PASS |
-| 5 | `formatCurrency: format with prefix symbol` | `formatCurrency(100000, '$', 'prefix')` → `'$1,000.00'` | ✅ PASS |
-| 6 | `formatCurrency: format with suffix symbol` | `formatCurrency(1050, 'VNĐ', 'suffix')` → `'10.50 VNĐ'` | ✅ PASS |
-| 7 | `formatCurrency: handle negative cents` | `formatCurrency(-1050, '$', 'prefix')` → `'-$10.50'` | ✅ PASS |
-
-**Ý nghĩa:** Chứng minh rằng tầng định dạng tiền tệ hoàn toàn miễn nhiễm với lỗi dấu phẩy động của JavaScript — ví dụ kinh điển `0.1 + 0.2 ≠ 0.3` được xử lý chính xác.
-
----
-
-#### 4.2.2. Nhóm Test: `budgetStrategies` — Thuật Toán Chu Kỳ Ngân Sách
-
-**File:** [`budgetStrategies.spec.ts`](tests/patterns/budgetStrategies.spec.ts)
-
-| # | Tên test case | Mục tiêu kiểm thử | Kết quả |
-|---|---|---|---|
-| 8 | `WeeklyStrategy: cycle starting Monday (anchor=1) for a Tuesday` | Ref: 02/06/2026 (Thứ 3), Anchor: Thứ 2 → Start: 01/06/2026, End: 07/06/2026 | ✅ PASS |
-| 9 | `WeeklyStrategy: cycle starting Wednesday (anchor=3) for a Tuesday` | Ref: 02/06/2026, Anchor: Thứ 4 → Start: 27/05/2026, End: 02/06/2026 | ✅ PASS |
-| 10 | `MonthlyStrategy: previous month if ref < anchor day` | Ref: 02/06 (trước ngày 5) → Start: 05/05, End: 04/06 | ✅ PASS |
-| 11 | `MonthlyStrategy: current month if ref >= anchor day` | Ref: 06/06 (sau ngày 5) → Start: 05/06, End: 04/07 | ✅ PASS |
-| 12 | `MonthlyStrategy: clamp anchor to last day of February (non-leap)` | Ref: 02/03/2026, Anchor: 31 → Start: 28/02/2026, End: 30/03/2026 | ✅ PASS |
-| 13 | `MonthlyStrategy: clamp correctly for leap year February` | Ref: 02/03/2028, Anchor: 31 → Start: 29/02/2028, End: 30/03/2028 | ✅ PASS |
-
-**Ý nghĩa:** Xác nhận thuật toán tính chu kỳ ngân sách đúng trong tất cả trường hợp biên: tuần bắt đầu khác Thứ 2, chu kỳ tháng vắt qua tháng trước, năm nhuận, và tháng ngắn (28/30 ngày).
-
----
-
-#### 4.2.3. Nhóm Test: `AccountsAndCategories` — Thành Phần UI Tài Khoản & Danh Mục
-
-**File:** [`AccountsAndCategories.spec.tsx`](tests/components/AccountsAndCategories.spec.tsx)
-
-*(Kết quả embedded trong tổng 13 test PASS)*
-
-| Tên test case | Mục tiêu kiểm thử | Kết quả |
-|---|---|---|
-| `AddAccountModal: cho phép thêm Ví (Wallet)` | Nhập "My New Wallet" → Gọi `createAccount('My New Wallet', ASSET, 0)` → `onSuccess` được gọi | ✅ PASS |
-| `AddAccountModal: cho phép thêm Thẻ tín dụng` | Chọn Credit Card → Gọi `createAccount('My Credit Card', LIABILITY, 0)` | ✅ PASS |
-| `AddAccountModal: trường Số dư chỉ cho phép số` | Nhập `'100abc.50xyz'` → Tự động lọc → Value: `'100.50'` | ✅ PASS |
-| `CategoryManagerModal: cho phép thêm Category` | Nhập tên → Gọi `createCategory('New Expense Cat', 'EXPENSE', color, 'Tag')` | ✅ PASS |
-| `CategoryManagerModal: cho phép xóa Category` | Gọi `deleteCategory('1')` → Xác nhận được thực thi | ✅ PASS |
-| `NetWorthCard: render đúng thông tin tổng tài sản` | Truyền `totalAssets=1000000, totalLiabilities=200000` → Render đúng nhãn UI | ✅ PASS |
-
----
-
-#### 4.2.4. Nhóm Test: `Transactions` — Thành Phần UI Giao Dịch
-
-**File:** [`Transactions.spec.tsx`](tests/components/Transactions.spec.tsx)
-
-| Tên test case | Mục tiêu kiểm thử | Kết quả |
-|---|---|---|
-| `AddTransactionModal: cho phép thêm giao dịch Expense` | Nhập `150.50` → Nhấn Save → `createTransaction` được gọi | ✅ PASS |
-| `AddTransactionModal: cho phép thêm giao dịch Income` | Chuyển tab Income → Nhập `2000` → `createTransaction` được gọi | ✅ PASS |
-| `TransactionDetailsModal: render chi tiết giao dịch` | Modal nhận transaction → Truy vấn Account + Category → Render "Mua sắm", "Ví tiền mặt" | ✅ PASS |
-| `TransactionHistoryModal: render danh sách lịch sử` | Mock 1 transaction "My Lunch" → Hiển thị đúng trong danh sách FlashList | ✅ PASS |
-
----
-
-### 4.3. Trạng Thái Kiểm Thử Tổng Thể
-
-| Hạng mục | Trạng thái |
+| Chỉ số | Kết quả |
 |---|---|
-| **Unit Tests (Jest)** | ✅ 13/13 PASS |
-| **TypeScript Compilation** | ✅ `npx tsc --noEmit` — Zero errors |
-| **Production Build (Hermes bytecode)** | ✅ `npx expo export -c` — Thành công cho iOS & Android |
-| **iOS Multi-Modal Stack** | ✅ Nested modal pattern hoạt động, không còn frozen UI |
-| **Vietnamese IME (Telex)** | ✅ Uncontrolled TextInput + useRef giải quyết lỗi "Nuốt chữ" |
-| **WatermelonDB Native Link** | ✅ Chạy ổn định trên Custom Dev Client (expo run:ios / expo run:android) |
+| Statement coverage | 50.14% |
+| Branch coverage | 38.31% |
+| Function/method coverage | 43.30% |
+| Line coverage | 50.32% |
+
+*(Đính kèm ảnh chụp màn hình bảng kết quả HTML coverage của Jest tại đây)*
+
+
+## 6. THIẾT KẾ LỚP / MODULE VÀ MINH CHỨNG SOLID
+
+### 6.1. Biểu Đồ Lớp Trích Đoạn
+
+Biểu đồ dưới đây tập trung vào **nhóm lớp xử lý giao dịch** — phần phức tạp và quan trọng nhất của hệ thống, nơi 4 design patterns hội tụ để đảm bảo tính toán tài chính không bao giờ sai lệch.
+
+```mermaid
+classDiagram
+    %% ─── INTERFACE ───────────────────────────────────────────────
+    class TransactionObserver {
+        <<interface>>
+        +onTransactionCreated(tx, ctx?) Promise~Model[]~
+        +onTransactionUpdated?(tx, oldTx, ctx?) Promise~Model[]~
+        +onTransactionDeleted?(tx, ctx?) Promise~Model[]~
+    }
+
+    class BudgetTimeframeStrategy {
+        <<interface>>
+        +calculateCycle(anchorDay, refDate?) BudgetCycle
+    }
+
+    %% ─── DOMAIN LAYER ────────────────────────────────────────────
+    class TransactionFactory {
+        <<static class>>
+        +create(params, ctx?) Promise~Transaction~
+        +update(tx, params, ctx?) Promise~Transaction~
+        +delete(tx, ctx?) Promise~void~
+    }
+
+    class TransactionSubject {
+        <<static class>>
+        -observers: TransactionObserver[]
+        -initialized: boolean
+        -getObservers() TransactionObserver[]
+        +subscribe(observer) void
+        +unsubscribe(observer) void
+        +notifyCreated(tx, ctx?) Promise~Model[]~
+        +notifyUpdated(tx, oldTx, ctx?) Promise~Model[]~
+        +notifyDeleted(tx, ctx?) Promise~Model[]~
+    }
+
+    class AccountObserver {
+        +onTransactionCreated(tx, ctx?) Promise~Model[]~
+        +onTransactionUpdated(tx, oldTx, ctx?) Promise~Model[]~
+        +onTransactionDeleted(tx, ctx?) Promise~Model[]~
+        -applyTransactionEffect(tx) Promise~Model[]~
+        -revertTransactionEffect(tx) Promise~Model[]~
+    }
+
+    class DebtObserver {
+        +onTransactionCreated(tx, ctx?) Promise~Model[]~
+        +onTransactionUpdated(tx, oldTx, ctx?) Promise~Model[]~
+        +onTransactionDeleted(tx, ctx?) Promise~Model[]~
+    }
+
+    class WeeklyBudgetStrategy {
+        +calculateCycle(anchorDay, refDate?) BudgetCycle
+    }
+
+    class MonthlyBudgetStrategy {
+        +calculateCycle(anchorDay, refDate?) BudgetCycle
+    }
+
+    class BudgetStrategyResolver {
+        <<static class>>
+        -weekly: WeeklyBudgetStrategy
+        -monthly: MonthlyBudgetStrategy
+        +getStrategy(timeframe) BudgetTimeframeStrategy
+    }
+
+    class ReportFacade {
+        <<static class>>
+        +getExpensesByCategory(start, end) Promise~CategoryExpenseItem[]~
+        +getDailyExpenseTrend(days) Promise~DailyExpenseItem[]~
+    }
+
+    %% ─── APPLICATION LAYER ───────────────────────────────────────
+    class TransactionController {
+        <<static class>>
+        +createTransaction(params, ctx?) Promise~Result~
+        +updateTransaction(id, params, ctx?) Promise~Result~
+        +deleteTransaction(id, ctx?) Promise~Result~
+        +getTransactions() Promise~Result~
+    }
+
+    class AccountController {
+        <<static class>>
+        +createAccount(name, type, balance) Promise~Result~
+        +getActiveAccounts() Promise~Result~
+        +archiveAccount(id) Promise~Result~
+    }
+
+    %% ─── RELATIONSHIPS ───────────────────────────────────────────
+    AccountObserver ..|> TransactionObserver : implements
+    DebtObserver ..|> TransactionObserver : implements
+    WeeklyBudgetStrategy ..|> BudgetTimeframeStrategy : implements
+    MonthlyBudgetStrategy ..|> BudgetTimeframeStrategy : implements
+
+    TransactionFactory --> TransactionSubject : notify observers
+    TransactionSubject --> TransactionObserver : broadcasts to
+    BudgetStrategyResolver --> BudgetTimeframeStrategy : returns
+    BudgetStrategyResolver --> WeeklyBudgetStrategy : holds
+    BudgetStrategyResolver --> MonthlyBudgetStrategy : holds
+
+    TransactionController --> TransactionFactory : delegates to
+    TransactionController --> TransactionSubject : via Factory
+    AccountController --> TransactionFactory : creates adjustment tx
+
+    ReportFacade ..> TransactionObserver : reads DB directly
+```
+
+---
+
+### 6.2. Minh Chứng SRP — Single Responsibility Principle
+
+> **Định nghĩa:** Mỗi lớp/module chỉ nên có **một lý do duy nhất để thay đổi** — tức là chỉ chịu trách nhiệm về một nhóm hành vi cụ thể.
+
+| Lớp / Module | Trách nhiệm chính | Trách nhiệm đã tách ra lớp/module khác | Vì sao thể hiện SRP? |
+|---|---|---|---|
+| **`TransactionController`** | Nhận input từ UI, validation (amount > 0, accountId hợp lệ, transfer không trùng tài khoản), trả về `{ success, data, error }` | Không tự tạo transaction hay cập nhật số dư — ủy quyền hoàn toàn cho `TransactionFactory` | Nếu quy tắc validation thay đổi → chỉ sửa Controller. Nếu cách lưu DB thay đổi → chỉ sửa Factory. Hai lý do thay đổi ở hai lớp riêng biệt |
+| **`TransactionFactory`** | Orchestrate toàn bộ quá trình ghi: chuẩn bị record, thu thập `prepareUpdate[]` từ Observers, thực thi một `database.batch()` nguyên tử | Không biết validation rules; không biết UI nào gọi; không tự tính số dư — giao cho `TransactionSubject` và Observers | Lý do duy nhất để sửa Factory: thay đổi cơ chế atomic write của WatermelonDB |
+| **`AccountObserver`** | Tính toán ảnh hưởng của một giao dịch lên số dư tài khoản (apply/revert theo loại INCOME/EXPENSE/TRANSFER và AccountType) | Không quyết định giao dịch nào được tạo; không gọi `database.batch()` trực tiếp — chỉ trả về `Model[]` | Lý do duy nhất để sửa: thay đổi công thức tính số dư tài khoản |
+| **`DebtObserver`** | Tính toán ảnh hưởng của thanh toán lên `remaining_amount` của khoản nợ và auto-SETTLE | Không quan tâm đến số dư ví — đó là việc của `AccountObserver` | Tách biệt hoàn toàn: hai observer xử lý hai thực thể khác nhau, không can thiệp nhau |
+| **`BudgetStrategyResolver`** | Chọn đúng class chiến lược dựa trên enum `BudgetTimeframe` | Không chứa công thức tính ngày; không biết ngày đầu tuần là gì — đó là việc của từng Strategy | Lý do duy nhất để sửa: thêm một loại timeframe mới vào enum |
+| **`ReportFacade`** | Tổng hợp và nhóm dữ liệu giao dịch thành format vẽ biểu đồ (Pie Chart, Bar Chart) | Không render UI; không lưu dữ liệu; không validation | DashboardScreen không cần biết SQL hay vòng lặp — Facade gói gọn trách nhiệm tổng hợp báo cáo |
+| **`currencyFormatter`** | Chuyển đổi số thực ↔ cents (`toCents`, `fromCents`) và định dạng hiển thị (`formatCurrency`) | Không gọi DB; không đọc store Zustand; không render bất kỳ thứ gì | Pure functions không có side effect — lý do thay đổi duy nhất: thay đổi quy tắc định dạng tiền tệ |
+
+---
+
+### 6.3. Minh Chứng OCP — Open/Closed Principle
+
+> **Định nghĩa:** Phần mềm nên **mở để mở rộng** (thêm hành vi mới) nhưng **đóng để sửa đổi** (không cần sửa code đang ổn định).
+
+| Điểm mở rộng | Interface / Abstract liên quan | Cách thêm chức năng mới | File / Lớp minh chứng |
+|---|---|---|---|
+| **Thêm loại Observer mới** (ví dụ: gửi push notification khi chi tiêu vượt ngân sách) | `TransactionObserver` interface với 3 method `onCreate/Update/Delete` | Tạo `BudgetAlertObserver.ts` implement `TransactionObserver` → gọi `TransactionSubject.subscribe(new BudgetAlertObserver())` — không sửa Factory hay Subject | `src/patterns/TransactionObserver.ts`, `TransactionSubject.ts` |
+| **Thêm chu kỳ ngân sách mới** (Quý / Năm) | `BudgetTimeframeStrategy` interface với method `calculateCycle(anchorDay, refDate?)` | Tạo `QuarterlyBudgetStrategy.ts` implement interface → đăng ký vào `BudgetStrategyResolver.getStrategy()` — `BudgetController` không cần sửa | `src/patterns/BudgetTimeframeStrategy.ts`, `BudgetStrategyResolver.ts` |
+| **Thêm loại báo cáo mới** (ví dụ: trend tuần, phân tích theo nhãn) | `ReportFacade` là facade class với static methods | Thêm method mới vào `ReportFacade` — DashboardScreen gọi thêm 1 dòng, các method cũ không thay đổi | `src/patterns/ReportFacade.ts` |
+| **Thêm loại tài khoản mới** (Tiết kiệm, Crypto) | `AccountType` enum + `AccountObserver` phân nhánh theo type | Mở rộng enum `AccountType`, thêm nhánh `if` vào `applyTransactionEffect` — Controller và Factory không thay đổi | `src/patterns/AccountObserver.ts`, `src/types/index.ts` |
+
+**Ví dụ cụ thể — Strategy Pattern:**
+
+Khi cần thêm chu kỳ ngân sách **Quý (Quarterly)**, nhóm chỉ cần:
+```
+// Tạo file mới — không sửa bất kỳ file hiện có nào
+class QuarterlyBudgetStrategy implements BudgetTimeframeStrategy {
+  calculateCycle(anchorDay: number, referenceDate?: Date): BudgetCycle { ... }
+}
+
+// Chỉ thêm 1 nhánh vào Resolver
+static getStrategy(timeframe: BudgetTimeframe): BudgetTimeframeStrategy {
+  if (timeframe === BudgetTimeframe.QUARTERLY) return this.quarterly  // ← thêm
+  if (timeframe === BudgetTimeframe.WEEKLY) return this.weekly
+  return this.monthly
+}
+```
+`BudgetController`, `SmartBudgetScreen`, và tất cả test cũ **không cần sửa**.
+
+---
+
+### 6.4. Minh Chứng DIP — Dependency Inversion Principle
+
+> **Định nghĩa:** Module cấp cao không phụ thuộc trực tiếp vào module cấp thấp. Cả hai phụ thuộc vào **abstraction (interface)**. Điều này cho phép swap implementation mà không phá vỡ module cấp cao.
+
+| Module cấp cao | Abstraction phụ thuộc | Module triển khai cụ thể | Cách inject / khởi tạo | Lợi ích |
+|---|---|---|---|---|
+| **`TransactionSubject`** | `TransactionObserver` interface | `AccountObserver`, `DebtObserver` | Lazy Init trong `getObservers()` — tạo `[new AccountObserver(), new DebtObserver()]` | Có thể thêm/bỏ Observer mà không sửa Subject; khi test có thể inject `MockObserver` |
+| **`TransactionFactory`** | `TransactionSubject` (thông qua static interface) | Toàn bộ Observer chain | Factory gọi `TransactionSubject.notifyCreated()` — không biết Observer nào đang lắng nghe | Factory không phụ thuộc vào `AccountObserver` hay `DebtObserver` trực tiếp |
+| **`BudgetController`** | `BudgetTimeframeStrategy` interface | `WeeklyBudgetStrategy` / `MonthlyBudgetStrategy` | Gọi `BudgetStrategyResolver.getStrategy(timeframe)` trả về interface — không new trực tiếp | Khi test `BudgetController`, có thể inject `MockBudgetStrategy` để test logic mà không cần tính toán ngày thật |
+| **`TransactionController`** | `TransactionFactory` (static class) | `WatermelonDB` (ẩn bên trong Factory) | Controller gọi `TransactionFactory.create()` — không biết DB nào ở dưới | Nếu sau này đổi ORM từ WatermelonDB sang SQLite thuần, chỉ sửa Factory — Controller không thay đổi |
+| **`AccountController`** | `TransactionFactory` (static class) | `WatermelonDB` + `AccountObserver` chain | `AccountController.createAccount()` gọi `TransactionFactory.create()` cho adjustment transaction | AccountController không trực tiếp biết `AccountObserver` tồn tại — chỉ biết Factory |
+
+**Minh chứng bằng code — TransactionSubject không phụ thuộc concrete Observer:**
+
+```typescript
+// TransactionSubject chỉ biết interface — không import AccountObserver/DebtObserver trực tiếp trong notify
+static async notifyCreated(tx: Transaction, ctx?: TransactionContext): Promise<Model[]> {
+  const results = await Promise.all(
+    this.getObservers().map(
+      (observer: TransactionObserver) =>  // ← typed as interface, not concrete class
+        observer.onTransactionCreated(tx, ctx)
+    )
+  )
+  return results.flat()
+}
+```
+
+**Lợi ích khi kiểm thử:** Trong các test của `AddTransactionModal`, nhóm mock hoàn toàn `TransactionController` mà không cần WatermelonDB thật:
+```typescript
+// tests/components/Transactions.spec.tsx
+jest.mock('../../src/controllers/TransactionController')
+// → UI test chạy mà không cần DB, không cần Observer, không cần Factory thật
+```
+
+---
+
+### 6.5. Các Nguyên Tắc SOLID Khác
+
+| Nguyên tắc | Minh chứng trong dự án | File / Lớp liên quan |
+|---|---|---|
+| **LSP — Liskov Substitution Principle** | `WeeklyBudgetStrategy` và `MonthlyBudgetStrategy` đều implement `BudgetTimeframeStrategy`. `BudgetController` sử dụng biến kiểu `BudgetTimeframeStrategy` — có thể swap bất kỳ implementation nào mà code gọi vẫn hoạt động đúng, không cần biết đang dùng Weekly hay Monthly. Tương tự, `AccountObserver` và `DebtObserver` đều có thể được đặt vào `TransactionObserver[]` và `TransactionSubject` gọi mà không cần kiểm tra kiểu thực. | `src/patterns/BudgetTimeframeStrategy.ts`, `WeeklyBudgetStrategy.ts`, `MonthlyBudgetStrategy.ts`, `TransactionObserver.ts` |
+| **ISP — Interface Segregation Principle** | `TransactionObserver` interface khai báo `onTransactionCreated` là bắt buộc, còn `onTransactionUpdated?` và `onTransactionDeleted?` là **tuỳ chọn** (dấu `?`). `DebtObserver` chỉ implement 3 method liên quan đến nợ — không bị ép implement các method không cần thiết. `TransactionSubject` kiểm tra `observer.onTransactionUpdated ?` trước khi gọi, đảm bảo không có class nào phải implement method trống để thỏa mãn interface. | `src/patterns/TransactionObserver.ts`, `DebtObserver.ts`, `AccountObserver.ts`, `TransactionSubject.ts` |
+
+**Chi tiết ISP — Interface được thiết kế tối giản:**
+
+```typescript
+// TransactionObserver.ts — Interface nhỏ, method tuỳ chọn tránh "fat interface"
+export interface TransactionObserver {
+  onTransactionCreated(tx: Transaction, ctx?: TransactionContext): Promise<Model[]>   // bắt buộc
+  onTransactionUpdated?(tx, oldTx, ctx?): Promise<Model[]>    // tuỳ chọn — dấu ?
+  onTransactionDeleted?(tx, ctx?): Promise<Model[]>           // tuỳ chọn — dấu ?
+}
+
+// TransactionSubject.ts — Kiểm tra trước khi gọi method tuỳ chọn
+observer.onTransactionUpdated
+  ? observer.onTransactionUpdated(tx, oldTx, ctx)
+  : Promise.resolve([])   // không ép implement — tránh vi phạm ISP
+```
+
+---
+
+## 7. DESIGN PATTERN
+
+### 7.1. Tổng Hợp Pattern Đã Dùng
+
+| STT | Pattern | Nhóm | Vị trí trong dự án | Vấn đề cần giải quyết | Lý do chọn |
+|---|---|---|---|---|---|
+| 1 | **Factory** | Creational | `src/patterns/TransactionFactory.ts` | Mỗi giao dịch kéo theo nhiều cập nhật liên kết (số dư ví, trạng thái nợ) — nếu ghi lần lượt, một lỗi giữa chừng sẽ phá vỡ tính toàn vẹn dữ liệu | Factory đóng vai trò Orchestrator: chuẩn hóa input, thu gom toàn bộ `prepareUpdate[]` từ Observer, thực thi một `database.batch()` duy nhất — nguyên tử hoàn toàn |
+| 2 | **Observer** | Behavioral | `TransactionSubject.ts`, `AccountObserver.ts`, `DebtObserver.ts`, `TransactionObserver.ts` | Khi một giao dịch được tạo, số dư tài khoản và khoản nợ liên quan phải cập nhật đồng bộ — nhưng Factory không nên biết chi tiết cách tính số dư | Observer tách logic cập nhật từng thực thể ra class riêng; Factory chỉ phát sự kiện, không biết có bao nhiêu subscriber hay họ làm gì |
+| 3 | **Strategy** | Behavioral | `BudgetTimeframeStrategy.ts`, `WeeklyBudgetStrategy.ts`, `MonthlyBudgetStrategy.ts`, `BudgetStrategyResolver.ts` | Ngân sách tuần và tháng có công thức tính chu kỳ hoàn toàn khác nhau (và cả edge case như năm nhuận, tháng 28/30/31 ngày) — nhồi hết vào một hàm tạo ra code khó test và khó mở rộng | Mỗi thuật toán là một class riêng implement cùng interface; `BudgetController` không cần biết đang dùng Strategy nào — Resolver quyết định |
+| 4 | **Facade** | Structural | `src/patterns/ReportFacade.ts` | `DashboardScreen` cần dữ liệu vẽ biểu đồ (Pie Chart theo danh mục, Bar Chart theo ngày) — nhưng để lấy được cần query nhiều bảng, lọc, nhóm, tính tổng, sort | Facade đóng gói toàn bộ complexity thành 2 method: `getExpensesByCategory()` và `getDailyExpenseTrend()` — Screen chỉ gọi 1 dòng |
+
+---
+
+### 7.2. Pattern 1: Factory Pattern
+
+#### Vấn đề trước khi dùng pattern
+
+**Mô tả vấn đề thiết kế:**
+
+Trong ứng dụng tài chính, mỗi khi người dùng tạo một giao dịch, hệ thống phải thực hiện **nhiều thao tác ghi liên kết** vào database:
+1. Ghi bản ghi giao dịch mới vào bảng `transactions`
+2. Cập nhật `currentBalance` của tài khoản nguồn
+3. Nếu là TRANSFER: cập nhật thêm `currentBalance` của tài khoản đích
+4. Nếu là thanh toán nợ: cập nhật `remainingAmount` và `status` của khoản nợ
+
+**Nếu không có Factory:**
+- UI (Screen/Modal) phải tự gọi lần lượt từng thao tác → nếu bước 2 lỗi sau khi bước 1 đã commit, database rơi vào trạng thái không nhất quán (giao dịch tồn tại nhưng số dư không thay đổi)
+- Code ghi DB bị lặp ở mọi nơi cần tạo giao dịch: `AddTransactionModal`, `AccountController`, `DebtController`
+- `DashboardScreen` phụ thuộc chặt vào WatermelonDB API — thay đổi ORM yêu cầu sửa nhiều file
+- WatermelonDB có cơ chế **ActionQueue locking** — gọi nhiều `database.write()` lồng nhau gây deadlock silent
+
+#### Cách áp dụng trong dự án
+
+**File / lớp liên quan:**
+
+| Vai trò | File |
+|---|---|
+| **Factory (Orchestrator)** | `src/patterns/TransactionFactory.ts` |
+| **Input type** | `CreateTransactionParams` (interface trong cùng file) |
+| **Subject (Pub/Sub)** | `src/patterns/TransactionSubject.ts` |
+| **Consumers** | `TransactionController`, `AccountController`, `DebtController` |
+| **Infrastructure** | WatermelonDB `database.batch()` |
+
+**Mô tả vai trò các lớp:**
+
+- **`TransactionFactory`** (Factory / Orchestrator): Nhận `CreateTransactionParams`, chuẩn hóa dữ liệu, `prepareCreate` bản ghi giao dịch, gọi `TransactionSubject.notifyCreated()` để thu thập tất cả `Model[]` cần cập nhật từ Observer, rồi gọi một lệnh `database.batch()` duy nhất.
+- **`CreateTransactionParams`** (Product spec): Interface định nghĩa đầu vào chuẩn hóa cho mọi giao dịch — giúp tất cả caller dùng cùng một schema.
+- **`TransactionSubject`**: Pub/Sub mediator — Factory không biết Observer nào đang lắng nghe.
+- **`TransactionController`, `AccountController`, `DebtController`**: Các Concrete Consumer — gọi `TransactionFactory.create/update/delete()`, không bao giờ gọi `database.write()` trực tiếp.
+
+**Luồng hoạt động:**
+
+```
+UI → TransactionController.createTransaction(params)
+       ↓ validation
+     TransactionFactory.create(params, ctx)
+       ↓ database.write() bắt đầu
+     Transaction.prepareCreate(...)         ← chuẩn bị ghi giao dịch
+     TransactionSubject.notifyCreated(tx)   ← phát sự kiện
+       ↓ returns Model[] từ AccountObserver + DebtObserver
+     database.batch([tx, ...observerModels]) ← một lệnh duy nhất, nguyên tử
+       ↓ commit
+     return Transaction
+```
+
+#### Sơ đồ minh họa
+
+```mermaid
+classDiagram
+    class CreateTransactionParams {
+        <<interface>>
+        +accountId: string
+        +type: TransactionType
+        +amount: number
+        +description: string
+        +date: number
+        +categoryId?: string
+        +toAccountId?: string
+    }
+
+    class TransactionFactory {
+        <<Orchestrator — Factory>>
+        +create(params, ctx?) Promise~Transaction~
+        +update(tx, params, ctx?) Promise~Transaction~
+        +delete(tx, ctx?) Promise~void~
+    }
+
+    class TransactionSubject {
+        -observers: TransactionObserver[]
+        +notifyCreated(tx, ctx?) Promise~Model[]~
+        +notifyUpdated(tx, old, ctx?) Promise~Model[]~
+        +notifyDeleted(tx, ctx?) Promise~Model[]~
+    }
+
+    class TransactionController {
+        <<Consumer>>
+        +createTransaction(params, ctx?) Result
+        +updateTransaction(id, params, ctx?) Result
+        +deleteTransaction(id, ctx?) Result
+    }
+
+    class AccountController {
+        <<Consumer>>
+        +createAccount(name, type, balance) Result
+    }
+
+    class DebtController {
+        <<Consumer>>
+        +createDebt(params) Result
+        +recordRepayment(debtId, amount, accountId) Result
+    }
+
+    class WatermelonDB {
+        <<Infrastructure>>
+        +write(action) Promise~T~
+        +batch(models[]) Promise~void~
+    }
+
+    TransactionFactory --> TransactionSubject : notifyCreated/Updated/Deleted
+    TransactionFactory --> WatermelonDB : database.batch() — atomic
+    TransactionController --> TransactionFactory : delegates create/update/delete
+    AccountController --> TransactionFactory : creates adjustment transaction
+    DebtController --> TransactionFactory : creates repayment transaction
+    TransactionFactory ..> CreateTransactionParams : consumes
+```
+
+#### Lợi ích đạt được
+
+| Lợi ích | Mô tả cụ thể |
+|---|---|
+| **Tính nguyên tử (Atomicity)** | Một lệnh `database.batch()` duy nhất — nếu một bước lỗi, toàn bộ rollback. Net Worth không bao giờ sai lệch giữa chừng |
+| **Giải quyết ActionQueue deadlock** | WatermelonDB không cho phép lồng nhiều `database.write()` — Factory bọc tất cả vào một `write()` duy nhất |
+| **Giảm code trùng lặp** | Logic ghi DB không còn nằm rải rác trong Screen/Modal — tập trung hoàn toàn vào Factory |
+| **Dễ test** | `TransactionController` test chỉ cần mock `TransactionFactory.create` — không cần DB thật |
+| **Mở rộng dễ** | Thêm Observer mới (ví dụ: ghi audit log) → chỉ register vào `TransactionSubject`, Factory không thay đổi |
+
+#### Giới hạn và đánh đổi
+
+| Giới hạn | Mô tả |
+|---|---|
+| **Static class** | `TransactionFactory` dùng static methods — không thể inject hay mock dễ dàng ở unit test (cần dùng `jest.spyOn`) |
+| **Phụ thuộc WatermelonDB API** | Factory biết trực tiếp `database.batch()` — nếu đổi ORM cần sửa Factory |
+| **Observer lazy-init** | Danh sách Observer được khởi tạo trong lần gọi đầu tiên — trong môi trường test cần reset `TransactionSubject.initialized` |
+
+---
+
+### 7.3. Pattern 2: Observer Pattern
+
+#### Vấn đề trước khi dùng pattern
+
+**Mô tả vấn đề thiết kế:**
+
+Mỗi giao dịch tài chính kéo theo **cập nhật lan tỏa** đến nhiều thực thể khác nhau:
+- Giao dịch **EXPENSE** → giảm số dư tài khoản nguồn
+- Giao dịch **TRANSFER** → giảm tài khoản nguồn, tăng tài khoản đích
+- Giao dịch **thanh toán nợ** → giảm số dư ví + giảm `remaining_amount` của khoản nợ + auto-SETTLE nếu về 0
+
+**Nếu không có Observer:**
+- `TransactionFactory` phải tự biết cách tính số dư tài khoản → vi phạm SRP (Factory vừa orchestrate vừa tính nghiệp vụ)
+- `TransactionFactory` phải biết cả nghiệp vụ nợ → hai domain (Account + Debt) bị ghép chặt vào một class
+- Mỗi loại "hậu quả" (consequence) thêm một `if/else` trong Factory → ngày càng phình to, khó test từng loại riêng
+- Khi thêm loại hậu quả mới (ví dụ: cộng điểm thưởng) → phải sửa Factory
+
+#### Cách áp dụng trong dự án
+
+**File / lớp / interface liên quan:**
+
+| Vai trò Observer Pattern | File |
+|---|---|
+| **Subject (Publisher)** | `src/patterns/TransactionSubject.ts` |
+| **Observer Interface** | `src/patterns/TransactionObserver.ts` |
+| **Concrete Observer 1** | `src/patterns/AccountObserver.ts` |
+| **Concrete Observer 2** | `src/patterns/DebtObserver.ts` |
+| **Event trigger** | `TransactionFactory` gọi `TransactionSubject.notify*()` |
+
+**Mô tả vai trò các lớp:**
+
+- **`TransactionObserver`** (Interface): Định nghĩa contract 3 event: `onTransactionCreated`, `onTransactionUpdated?`, `onTransactionDeleted?`. Method tùy chọn (dấu `?`) — Observer chỉ implement những gì nó quan tâm.
+- **`TransactionSubject`** (Publisher): Quản lý danh sách Observer qua **Lazy Initialization** (tránh mất subscriber sau Expo Fast Refresh). Phát sự kiện song song (`Promise.all`) và gom kết quả.
+- **`AccountObserver`** (Concrete Observer 1): Tính `currentBalance` mới sau mỗi sự kiện giao dịch. Xử lý cả INCOME/EXPENSE/TRANSFER và logic Asset vs Liability. Trả về `Account.prepareUpdate[]` — không ghi DB trực tiếp.
+- **`DebtObserver`** (Concrete Observer 2): Chỉ hoạt động khi `context.debtId` có giá trị. Tính `remainingAmount` mới và tự động set `status = SETTLED` khi về 0. Trả về `Debt.prepareUpdate[]`.
+
+**Luồng hoạt động:**
+
+```
+TransactionFactory.create(params, { debtId: 'abc' })
+  ↓
+TransactionSubject.notifyCreated(tx, { debtId: 'abc' })
+  ↓ Promise.all([...observers.map(o => o.onTransactionCreated(tx, ctx))])
+  ├── AccountObserver.onTransactionCreated(tx)
+  │     → tính balance mới → return [Account.prepareUpdate(...)]
+  └── DebtObserver.onTransactionCreated(tx, { debtId: 'abc' })
+        → tính remaining mới → return [Debt.prepareUpdate(...)]
+  ↓ results.flat() → [AccountUpdate, DebtUpdate]
+TransactionFactory: database.batch([tx, AccountUpdate, DebtUpdate])
+```
+
+#### Sơ đồ minh họa
+
+```mermaid
+classDiagram
+    class TransactionObserver {
+        <<interface>>
+        +onTransactionCreated(tx, ctx?) Promise~Model[]~
+        +onTransactionUpdated?(tx, old, ctx?) Promise~Model[]~
+        +onTransactionDeleted?(tx, ctx?) Promise~Model[]~
+    }
+
+    class TransactionSubject {
+        <<Publisher — Singleton>>
+        -observers: TransactionObserver[]
+        -initialized: boolean
+        -getObservers() TransactionObserver[]
+        +subscribe(observer) void
+        +unsubscribe(observer) void
+        +notifyCreated(tx, ctx?) Promise~Model[]~
+        +notifyUpdated(tx, old, ctx?) Promise~Model[]~
+        +notifyDeleted(tx, ctx?) Promise~Model[]~
+    }
+
+    class AccountObserver {
+        <<Concrete Observer 1>>
+        +onTransactionCreated(tx, ctx?) Promise~Model[]~
+        +onTransactionUpdated(tx, old, ctx?) Promise~Model[]~
+        +onTransactionDeleted(tx, ctx?) Promise~Model[]~
+        -applyTransactionEffect(tx) Promise~Model[]~
+        -revertTransactionEffect(tx) Promise~Model[]~
+    }
+
+    class DebtObserver {
+        <<Concrete Observer 2>>
+        +onTransactionCreated(tx, ctx?) Promise~Model[]~
+        +onTransactionUpdated(tx, old, ctx?) Promise~Model[]~
+        +onTransactionDeleted(tx, ctx?) Promise~Model[]~
+    }
+
+    AccountObserver ..|> TransactionObserver : implements
+    DebtObserver ..|> TransactionObserver : implements
+    TransactionSubject --> TransactionObserver : broadcasts to
+    TransactionSubject --> AccountObserver : holds (lazy init)
+    TransactionSubject --> DebtObserver : holds (lazy init)
+```
+
+#### Lợi ích đạt được
+
+| Lợi ích | Mô tả cụ thể |
+|---|---|
+| **Tách biệt domain** | `AccountObserver` không biết `DebtObserver` tồn tại — hai nghiệp vụ độc lập hoàn toàn |
+| **Factory sạch** | Factory chỉ orchestrate, không chứa công thức tính số dư hay remaining |
+| **Mở rộng dễ dàng** | Thêm `BudgetAlertObserver` → chỉ implement interface + subscribe — không sửa Factory hay Subject |
+| **Return `prepareUpdate[]` thay vì ghi trực tiếp** | Observer không tự gọi `database.write()` — để Factory gom vào batch nguyên tử |
+| **Lazy Init** | `getObservers()` khởi tạo Observer lần đầu gọi — sống sót qua Expo Fast Refresh |
+
+#### Giới hạn và đánh đổi
+
+| Giới hạn | Mô tả |
+|---|---|
+| **Khó trace luồng** | Khi đọc code Factory, không thấy rõ "ai" cập nhật số dư — phải biết Observer đang được register |
+| **Observer cần biết DB** | `AccountObserver` và `DebtObserver` vẫn trực tiếp query database để tìm Account/Debt — không hoàn toàn pure |
+| **Static Subject** | `TransactionSubject` dùng static state — khó reset trong test nếu không cẩn thận |
+
+---
+
+### 7.4. Pattern 3: Strategy Pattern
+
+#### Vấn đề trước khi dùng pattern
+
+**Mô tả vấn đề thiết kế:**
+
+Tính năng Smart Budget cho phép đặt ngân sách theo **WEEKLY** hoặc **MONTHLY**. Hai chu kỳ này có công thức tính `startDate`/`endDate` hoàn toàn khác nhau, kèm các edge case phức tạp:
+
+- **Weekly:** Phải biết "ngày đầu tuần" do người dùng cấu hình (CN hay T2), rồi tìm đúng tuần chứa ngày tham chiếu
+- **Monthly:** Phải xử lý anchor day > ngày thực tế của tháng (anchor=31 vào tháng 2 → clamp về 28 hoặc 29 năm nhuận)
+
+**Nếu không có Strategy:**
+```typescript
+// BudgetController bị ô nhiễm với if/else phức tạp
+if (timeframe === 'WEEKLY') {
+  // 20 dòng tính ngày tuần
+} else if (timeframe === 'MONTHLY') {
+  // 30 dòng tính ngày tháng + clamp
+}
+// Khi thêm 'QUARTERLY' → sửa file BudgetController
+```
+- Code phức tạp, khó test từng thuật toán riêng biệt
+- Thêm chu kỳ mới (Quý, Năm) → phải mở file `BudgetController` để sửa — vi phạm OCP
+
+#### Cách áp dụng trong dự án
+
+**File / lớp / interface liên quan:**
+
+| Vai trò Strategy Pattern | File |
+|---|---|
+| **Strategy Interface** | `src/patterns/BudgetTimeframeStrategy.ts` |
+| **Concrete Strategy A** | `src/patterns/WeeklyBudgetStrategy.ts` |
+| **Concrete Strategy B** | `src/patterns/MonthlyBudgetStrategy.ts` |
+| **Strategy Resolver** | `src/patterns/BudgetStrategyResolver.ts` |
+| **Context** | `src/controllers/BudgetController.ts` |
+
+**Mô tả vai trò các lớp:**
+
+- **`BudgetTimeframeStrategy`** (Interface): Định nghĩa contract duy nhất `calculateCycle(anchorDay, referenceDate?): BudgetCycle` — trả về `{ startDate, endDate }`.
+- **`WeeklyBudgetStrategy`** (Concrete A): Tính chu kỳ 7 ngày dựa trên `anchorDay` (1–7 theo cấu hình `firstDayOfWeek`). Tích hợp `TimeService.getFirstDayOfWeek()`.
+- **`MonthlyBudgetStrategy`** (Concrete B): Tính chu kỳ tháng với clamp tự động. Hàm helper nội bộ `getMaxDayOfMonth(year, month)` xử lý tháng ngắn.
+- **`BudgetStrategyResolver`** (Factory nhỏ): Giữ singleton instance của cả hai Strategy — trả về đúng Strategy theo `BudgetTimeframe` enum.
+- **`BudgetController`** (Context): Gọi `BudgetStrategyResolver.getStrategy(timeframe).calculateCycle(anchorDay)` — không biết strategy nào đang chạy.
+
+#### Sơ đồ minh họa
+
+```mermaid
+classDiagram
+    class BudgetTimeframeStrategy {
+        <<interface>>
+        +calculateCycle(anchorDay, refDate?) BudgetCycle
+    }
+
+    class BudgetCycle {
+        <<interface>>
+        +startDate: Date
+        +endDate: Date
+    }
+
+    class WeeklyBudgetStrategy {
+        <<Concrete Strategy A>>
+        +calculateCycle(anchorDay, refDate?) BudgetCycle
+    }
+
+    class MonthlyBudgetStrategy {
+        <<Concrete Strategy B>>
+        +calculateCycle(anchorDay, refDate?) BudgetCycle
+    }
+
+    class BudgetStrategyResolver {
+        <<Resolver — mini Factory>>
+        -weekly: WeeklyBudgetStrategy
+        -monthly: MonthlyBudgetStrategy
+        +getStrategy(timeframe) BudgetTimeframeStrategy
+    }
+
+    class BudgetController {
+        <<Context>>
+        +createBudget(params) Result
+        +getBudgetsProgress() Result
+    }
+
+    WeeklyBudgetStrategy ..|> BudgetTimeframeStrategy : implements
+    MonthlyBudgetStrategy ..|> BudgetTimeframeStrategy : implements
+    BudgetStrategyResolver --> WeeklyBudgetStrategy : holds instance
+    BudgetStrategyResolver --> MonthlyBudgetStrategy : holds instance
+    BudgetStrategyResolver --> BudgetTimeframeStrategy : returns
+    BudgetController --> BudgetStrategyResolver : getStrategy(timeframe)
+    BudgetController ..> BudgetTimeframeStrategy : uses via Resolver
+    BudgetTimeframeStrategy --> BudgetCycle : returns
+```
+
+#### Lợi ích đạt được
+
+| Lợi ích | Mô tả cụ thể |
+|---|---|
+| **Tách biệt thuật toán** | Weekly và Monthly là 2 file riêng — thay đổi một không ảnh hưởng cái kia |
+| **Testability tối ưu** | `budgetStrategies.spec.ts` test từng class riêng với 6 case biên (leap year, tháng 28, tuần vắt tháng) mà không cần DB hay UI |
+| **OCP** | Thêm `QuarterlyBudgetStrategy` → tạo file mới + thêm 1 nhánh Resolver — `BudgetController` không thay đổi |
+| **Tích hợp TimeService** | Strategy tự gọi `TimeService.getNow()` và `TimeService.getFirstDayOfWeek()` — cô lập hoàn toàn logic thời gian |
+
+#### Giới hạn và đánh đổi
+
+| Giới hạn | Mô tả |
+|---|---|
+| **Overhead class** | Với chỉ 2 strategy hiện tại, pattern có vẻ over-engineered so với `if/else` đơn giản — nhưng đây là đầu tư cho mở rộng tương lai |
+| **Resolver phải cập nhật** | Khi thêm Strategy mới, vẫn phải sửa `BudgetStrategyResolver` — không hoàn toàn OCP tuyệt đối |
+
+---
+
+### 7.5. Pattern 4: Facade Pattern
+
+#### Vấn đề trước khi dùng pattern
+
+**Mô tả vấn đề thiết kế:**
+
+`DashboardScreen` cần hiển thị 2 loại biểu đồ:
+1. **Pie Chart** — Tổng chi tiêu theo danh mục trong tháng
+2. **Bar Chart** — Chi tiêu theo ngày trong 7 ngày gần nhất
+
+Để lấy dữ liệu này, hệ thống phải:
+- Query bảng `transactions` với filter `type = EXPENSE` + khoảng thời gian
+- Query bảng `categories` để lấy tên và màu
+- Join thủ công (WatermelonDB không có SQL JOIN)
+- Group by category / group by date
+- Tính tổng, sort, format thành cấu trúc của thư viện `react-native-gifted-charts`
+
+**Nếu không có Facade:**
+```typescript
+// DashboardScreen.tsx — 60+ dòng query/aggregation lẫn với render logic
+const transactions = await database.get('transactions')
+  .query(Q.where('type', 'EXPENSE'), Q.where('date', Q.between(start, end)))
+  .fetch()
+const categories = await database.get('categories').query().fetch()
+const categoryMap = new Map(categories.map(c => [c.id, c]))
+const sumMap = new Map()
+transactions.forEach(tx => { /* tính tổng */ })
+// ... 30 dòng nữa
+```
+- Screen vừa là View vừa là Query Engine — vi phạm SRP
+- Logic này bị lặp nếu nhiều Screen cần báo cáo
+- Khó test vì phụ thuộc trực tiếp vào WatermelonDB
+
+#### Cách áp dụng trong dự án
+
+**File / lớp liên quan:**
+
+| Vai trò Facade Pattern | File |
+|---|---|
+| **Facade** | `src/patterns/ReportFacade.ts` |
+| **Client** | `src/screens/DashboardScreen.tsx` |
+| **Subsystem 1** | WatermelonDB — `database.get('transactions').query()` |
+| **Subsystem 2** | WatermelonDB — `database.get('categories').query()` |
+| **Subsystem 3** | `TimeService.getNow()` |
+| **Output types** | `CategoryExpenseReportItem[]`, `DailyExpenseReportItem[]` |
+
+**Mô tả vai trò các lớp:**
+
+- **`ReportFacade`** (Facade): Cung cấp 2 static method đơn giản ẩn hoàn toàn logic query phức tạp. Bên trong: query 2 bảng → join thủ công qua Map → aggregate → sort → format output.
+- **`DashboardScreen`** (Client): Chỉ gọi `ReportFacade.getExpensesByCategory(start, end)` và `ReportFacade.getDailyExpenseTrend(7)` — không biết gì về SQL, Map, hay cách tính ngày.
+- **WatermelonDB + TimeService** (Subsystems): Các hệ thống con phức tạp được bọc hoàn toàn bên trong Facade.
+
+**Luồng hoạt động:**
+
+```
+DashboardScreen.loadData()
+  ↓
+ReportFacade.getExpensesByCategory(startOfMonth, endOfMonth)
+  ├── database.get('transactions').query(EXPENSE, date range).fetch()
+  ├── database.get('categories').query().fetch()
+  ├── Build categoryMap: Map<id, Category>
+  ├── Build sumMap: Map<categoryId, totalCents>
+  ├── Transform → CategoryExpenseReportItem[]
+  └── Sort by value DESC → return
+
+ReportFacade.getDailyExpenseTrend(7)
+  ├── TimeService.getNow() → today
+  ├── Build date range: today-6 → today
+  ├── database.get('transactions').query(EXPENSE, date range).fetch()
+  ├── Initialize trendMap: Map<dateString, 0>
+  ├── Accumulate transactions into trendMap
+  └── Format → DailyExpenseReportItem[] (label + value)
+```
+
+#### Sơ đồ minh họa
+
+```mermaid
+classDiagram
+    class DashboardScreen {
+        <<Client>>
+        +loadData() void
+    }
+
+    class ReportFacade {
+        <<Facade>>
+        +getExpensesByCategory(start, end) Promise~CategoryExpenseReportItem[]~
+        +getDailyExpenseTrend(days) Promise~DailyExpenseReportItem[]~
+    }
+
+    class CategoryExpenseReportItem {
+        <<Output DTO>>
+        +value: number
+        +color: string
+        +text: string
+        +categoryId: string
+    }
+
+    class DailyExpenseReportItem {
+        <<Output DTO>>
+        +value: number
+        +label: string
+    }
+
+    class TransactionDB {
+        <<Subsystem 1>>
+        +query(filters) Transaction[]
+    }
+
+    class CategoryDB {
+        <<Subsystem 2>>
+        +query() Category[]
+    }
+
+    class TimeService {
+        <<Subsystem 3>>
+        +getNow() Date
+    }
+
+    DashboardScreen --> ReportFacade : gọi 2 method đơn giản
+    ReportFacade --> TransactionDB : query EXPENSE transactions
+    ReportFacade --> CategoryDB : fetch all categories
+    ReportFacade --> TimeService : getNow() cho date range
+    ReportFacade ..> CategoryExpenseReportItem : produces
+    ReportFacade ..> DailyExpenseReportItem : produces
+```
+
+#### Lợi ích đạt được
+
+| Lợi ích | Mô tả cụ thể |
+|---|---|
+| **DashboardScreen cực kỳ sạch** | Screen không chứa một dòng query hay aggregation — chỉ gọi 2 hàm |
+| **Tái sử dụng** | Bất kỳ Screen nào cần báo cáo chi tiêu đều có thể gọi `ReportFacade` |
+| **Dễ test Facade độc lập** | Mock WatermelonDB và TimeService → test từng method của Facade mà không cần UI |
+| **Thêm báo cáo mới** | Thêm method vào Facade → Screen gọi thêm 1 dòng, không thay đổi gì đã có |
+
+#### Giới hạn và đánh đổi
+
+| Giới hạn | Mô tả |
+|---|---|
+| **Không reactive** | `ReportFacade` là one-shot fetch — không subscribe WatermelonDB Observable, phải pull-to-refresh thủ công |
+| **Phụ thuộc WatermelonDB** | Facade biết trực tiếp API của WatermelonDB — nếu đổi DB cần sửa Facade |
+| **Static class** | Không thể inject hay subclass — khó mock trong test tích hợp |
+
+---
+
+### 7.6. Các Pattern Có Thể Cân Nhắc
+
+Bảng dưới đây tổng hợp các pattern phổ biến và trả lời rõ **khi nào phù hợp** — giúp đội ngũ ra quyết định khi mở rộng tính năng trong tương lai.
+
+| Pattern | Khi nào phù hợp | Có trong dự án? |
+|---|---|---|
+| **Factory Method / Abstract Factory** | Cần tạo nhiều loại object cùng họ, che giấu logic khởi tạo phức tạp | ✅ `TransactionFactory` — tạo giao dịch nguyên tử |
+| **Builder** | Object có nhiều tham số tùy chọn, cần tạo từng bước (ví dụ: Report với filter linh hoạt) | ⬜ Chưa dùng — có thể cân nhắc khi mở rộng `ReportFacade` |
+| **Singleton** | Chỉ dùng thận trọng cho cấu hình/logging/service dùng chung | ⚠️ `TimeService` và `database` instance là singleton ngầm định qua module export |
+| **Strategy** | Có nhiều thuật toán/chính sách có thể hoán đổi | ✅ `WeeklyBudgetStrategy` + `MonthlyBudgetStrategy` |
+| **Observer / Pub-Sub** | Một thay đổi cần thông báo cho nhiều thành phần | ✅ `TransactionSubject` → `AccountObserver` + `DebtObserver` |
+| **Adapter** | Cần bọc thư viện/API bên ngoài để phù hợp interface nội bộ | ⬜ Chưa dùng — có thể áp dụng nếu thêm Payment API bên ngoài |
+| **Facade** | Cần cung cấp interface đơn giản cho một hệ thống con phức tạp | ✅ `ReportFacade` — ẩn query + aggregation |
+| **Repository** | Tách logic truy cập dữ liệu khỏi domain/service | ⚠️ WatermelonDB Models đóng vai trò Repository ngầm định; Controllers truy vấn trực tiếp |
+| **MVC / MVVM** | Tách UI, trạng thái, xử lý và dữ liệu | ✅ Toàn bộ kiến trúc: View (screens/components) → Controller → Pattern (Domain) → DB |
+
+---
+
+## 8. REFACTORING VÀ CHẤT LƯỢNG MÃ NGUỒN
+
+### 8.1. Code Smell Đã Phát Hiện
+
+| STT | Code Smell | Vị trí | Ảnh hưởng | Cách xử lý |
+|---|---|---|---|---|
+| 1 | **Primitive Obsession** | Toàn dự án — giá trị tiền tệ ban đầu dùng `number` (float) tự do | Lỗi làm tròn kiểu `0.1 + 0.2 = 0.30000000000000004` có thể làm sai số dư ví | Standardize tất cả monetary value thành **integer cents** (×100). `toCents()/fromCents()` xử lý tại biên UI, không bao giờ lưu float vào DB |
+| 2 | **Long Method / God Method** | `getBudgetsProgress()` trong `BudgetController.ts` (80+ dòng) thực hiện: fetch DB, rollover cycle, query transactions, lookup categories, tính toán, format output | Khó đọc, khó test từng bước riêng, loop có side effect (write DB bên trong for-loop) | **Extract Method**: tách logic rollover thành khối rõ ràng với comment phân đoạn; tách category lookup ra ngoài loop (O(n+m) thay vì O(n×m)); thêm comment mô tả từng pha |
+| 3 | **Duplicated Code — Result Shape** | 5 Controller (Account, Transaction, Debt, Budget, Category) đều return `{ success: boolean; data?: T; error?: string }` nhưng không có type chung | Nếu muốn thêm field (ví dụ: `metadata`) phải sửa tất cả Controllers đồng loạt | Có thể extract `ControllerResult<T>` generic type — hiện tại chấp nhận vì là interface ngầm định nhất quán |
+| 4 | **Feature Envy** | `DebtController.createDebt()` tự tính `txType` dựa trên `DebtType` để quyết định EXPENSE/INCOME — logic này thuộc về domain Debt, không phải Controller | Controller biết quá nhiều về nghiệp vụ chuyển đổi loại giao dịch cho nợ | Logic được comment rõ ràng (`// Money leaves wallet to lend to someone`) để làm tường minh intent; có thể extract thành `DebtTransactionTypeResolver` nếu scale |
+| 5 | **Magic Number** | `BudgetController.getBudgetsProgress()` — `if (nowSeconds > budget.endDate)` so sánh timestamp trực tiếp | Không rõ đơn vị (giây hay millisecond?), dễ nhầm khi maintain | Giải quyết bằng comment rõ ràng và naming nhất quán (`xxxSeconds` cho tất cả timestamp variables) |
+| 6 | **Inappropriate Intimacy** | `AccountObserver` trực tiếp query `database.get('accounts').find(accountId)` | Observer biết cấu trúc DB và Table name hardcoded `'accounts'` | Chấp nhận trade-off vì WatermelonDB không có Repository pattern; Table name được centralise trong schema |
+| 7 | **Dead Code / Unused Import** | Các file screen ban đầu có import unused từ thư viện — ví dụ Alert, StyleSheet tạm dùng khi debug | Làm tăng bundle size và gây confusion khi đọc import list | Cleanup thực hiện định kỳ; TypeScript `noUnusedLocals` trong `tsconfig.json` bắt lỗi tại compile time |
+
+---
+
+### 8.2. Refactoring Đã Thực Hiện
+
+| STT | Trước refactoring | Sau refactoring | Kỹ thuật áp dụng | Minh chứng |
+|---|---|---|---|---|
+| 1 | Float được dùng trực tiếp để lưu tiền tệ vào DB, tính toán số dư | Integer cents + `toCents()`/`fromCents()` tại biên UI | **Introduce Parameter Object + Standardize Primitive** | `src/utils/currencyFormatter.ts`, `tests/utils/currencyFormatter.spec.ts` |
+| 2 | Logic tính chu kỳ ngân sách (weekly/monthly) nằm trong `BudgetController` với `if/else` dài | Tách thành `WeeklyBudgetStrategy` và `MonthlyBudgetStrategy` implement cùng interface | **Extract Class + Introduce Interface** | `src/patterns/BudgetTimeframeStrategy.ts`, `WeeklyBudgetStrategy.ts`, `MonthlyBudgetStrategy.ts` |
+| 3 | Logic cập nhật số dư tài khoản và khoản nợ nằm trong `TransactionFactory` | Tách thành `AccountObserver` và `DebtObserver` đăng ký vào `TransactionSubject` | **Extract Class + Introduce Observer** | `src/patterns/AccountObserver.ts`, `DebtObserver.ts`, `TransactionSubject.ts` |
+| 4 | `DashboardScreen` chứa 60+ dòng query + aggregation để lấy dữ liệu biểu đồ | Toàn bộ query logic được đặt vào `ReportFacade` — Screen chỉ gọi 2 method | **Extract Class (Facade)** | `src/patterns/ReportFacade.ts` |
+| 5 | `getBudgetsProgress()` query category riêng lẻ trong vòng lặp (N+1 query problem) | Fetch tất cả categories một lần trước loop, build `Map<id, Category>` để O(1) lookup | **Optimize Loop / Hoist Invariant** | `src/controllers/BudgetController.ts` dòng 91–92 |
+| 6 | Test files nằm rải rác trong `src/` cùng source code | Di chuyển toàn bộ vào thư mục `tests/` tách biệt | **Restructure Project Layout** | `tests/patterns/`, `tests/utils/`, `tests/components/` |
+
+---
+
+#### Chi Tiết Refactoring Quan Trọng
+
+**R1 — Standardize Primitive: Float → Integer Cents**
+
+```diff
+// TRƯỚC — Lưu float trực tiếp vào DB, tính toán bị lỗi floating-point
+- const balance = account.currentBalance + amount  // 0.1 + 0.2 = 0.30000000000000004 🚨
+- database.write(() => account.update(a => { a.currentBalance = balance }))
+
+// SAU — Tất cả amount là integer (cents), formatting chỉ ở UI
++ // DB invariant: amount luôn là integer (cents × 100)
++ const newBalance = account.currentBalance + transaction.amount  // 10 + 20 = 30 ✅
++ models.push(account.prepareUpdate(acc => { acc.currentBalance += amount }))
+```
+
+```typescript
+// currencyFormatter.ts — Biên UI xử lý chuyển đổi
+export function toCents(amount: number): number {
+  return Math.round(amount * 100)  // Math.round() ngăn floating-point drift
+}
+export function fromCents(cents: number): number {
+  return cents / 100
+}
+```
+
+**R2 — Extract Class: BudgetController inline logic → Strategy Pattern**
+
+```diff
+// TRƯỚC — if/else phức tạp trong BudgetController
+- if (timeframe === 'WEEKLY') {
+-   const firstDay = appStore.getState().firstDayOfWeek
+-   let currentDay = start.getDay() - firstDay + 1
+-   if (currentDay <= 0) currentDay += 7
+-   // ... 15 dòng tính toán tiếp ...
+- } else if (timeframe === 'MONTHLY') {
+-   // ... 20 dòng khác với edge case tháng ngắn ...
+- }
+
+// SAU — BudgetController chỉ còn 2 dòng
++ const strategy = BudgetStrategyResolver.getStrategy(params.timeframe)
++ const cycle = strategy.calculateCycle(params.anchorDay)
+```
+
+**R3 — Hoist Invariant: Giải quyết N+1 Query trong getBudgetsProgress()**
+
+```diff
+// TRƯỚC — Query category riêng cho mỗi budget trong loop (N+1 queries)
+- for (const budget of budgets) {
+-   if (budget.categoryId) {
+-     const cat = await database.get('categories').find(budget.categoryId)  // N queries
+-     categoryName = cat.name
+-   }
+- }
+
+// SAU — 1 query duy nhất trước loop, O(1) lookup bên trong
++ // Build a category Map once before the loop — O(1) lookup per budget
++ // instead of a separate database.find() call per iteration (O(n*m) → O(n+m))
++ const allCategories = await database.get('categories').query().fetch()  // 1 query
++ const categoryMap = new Map(allCategories.map(c => [c.id, c]))
++
++ for (const budget of budgets) {
++   const cat = categoryMap.get(budget.categoryId)  // O(1), no async
++ }
+```
+
+---
+
+### 8.3. Tác Động Của Refactoring
+
+#### Code Dễ Đọc Hơn Ở Điểm Nào?
+
+| Module / Pattern | Trước | Sau |
+|---|---|---|
+| **`BudgetController.createBudget()`** | Phải đọc 30+ dòng công thức tính ngày để hiểu chu kỳ | Chỉ còn `strategy.calculateCycle(anchorDay)` — tên gọi tự mô tả intent |
+| **`TransactionFactory`** | Phải trace qua nhiều bước ghi DB để hiểu "ai cập nhật số dư?" | Rõ ràng: `TransactionSubject.notifyCreated(tx)` → Observer phản ứng |
+| **`DashboardScreen`** | 60+ dòng query/aggregation lẫn với render | 2 dòng: `ReportFacade.getExpensesByCategory()` và `getDailyExpenseTrend()` |
+| **`AccountObserver`** | N/A (trước kia không tồn tại — logic nằm rải rác) | `applyTransactionEffect()` / `revertTransactionEffect()` — tên method mô tả chính xác hành vi |
+| **Tất cả monetary value** | `amount: 10.50` — không rõ đơn vị | `amount: 1050` (cents) — convention được enforce ở mọi nơi trong codebase |
+
+#### Test Có Giúp Đảm Bảo Refactoring Không Làm Sai Chức Năng?
+
+**Có — và đây là lý do chính để viết test trước khi refactor.**
+
+Dự án có **4 file test** với tổng **19+ test cases** bao phủ phần cốt lõi:
+
+| File test | Số test | Bảo vệ refactoring nào |
+|---|---|---|
+| `tests/utils/currencyFormatter.spec.ts` | 7 cases | Đảm bảo `toCents/fromCents/formatCurrency` không thay đổi hành vi khi refactor formatting logic |
+| `tests/patterns/budgetStrategies.spec.ts` | 4 cases Monthly + 2 cases Weekly | Đảm bảo Strategy Pattern không làm sai công thức tính ngày sau khi tách class |
+| `tests/components/Transactions.spec.tsx` | Mock-based component test | Đảm bảo UI không bị break khi Controller signature thay đổi |
+| `tests/components/AccountsAndCategories.spec.tsx` | Mock-based component test | Đảm bảo Account và Category flow hoạt động sau restructure |
+
+**Ví dụ cụ thể:** Khi refactor `MonthlyBudgetStrategy` để xử lý leap year, test case sau phát hiện ngay nếu logic clamp bị sai:
+
+```typescript
+it('should correctly handle February leap years during clamping', () => {
+  // Tháng 2 năm 2028 có 29 ngày (năm nhuận)
+  const refDate = new Date(2028, 2, 2)
+  const cycle = strategy.calculateCycle(31, refDate)  // anchor=31, nhưng Feb chỉ có 29 ngày
+  
+  expect(cycle.startDate.getDate()).toBe(29)  // clamp về 29, không phải 31 hay 28
+})
+```
+
+> [!TIP]
+> Nhờ test chạy < 5ms/case và không cần emulator, team có thể refactor Strategy mạnh dạn và verify ngay — không phải test thủ công trên thiết bị.
+
+#### Module Nào Dễ Mở Rộng Hơn Sau Khi Refactor?
+
+| Module | Trước refactor | Sau refactor — Điểm mở rộng cụ thể |
+|---|---|---|
+| **Budget Strategies** | Thêm chu kỳ mới → sửa `BudgetController` (có thể break existing logic) | Tạo `QuarterlyBudgetStrategy.ts` → implement interface → đăng ký Resolver. `BudgetController` **không thay đổi** |
+| **Transaction Side Effects** | Thêm hành vi mới khi tạo GD → sửa `TransactionFactory` (ngày càng lớn) | Tạo class mới implement `TransactionObserver` → `TransactionSubject.subscribe()`. Factory **không thay đổi** |
+| **Report / Analytics** | Thêm loại biểu đồ → sửa Screen, thêm query logic vào UI | Thêm 1 static method vào `ReportFacade`. Screen chỉ gọi thêm **1 dòng** |
+| **Currency Formatting** | Logic format rải rác trong mỗi Screen | Thay đổi logic format → sửa duy nhất `currencyFormatter.ts`. Test suite verify ngay tính đúng đắn |
+| **Monetary Storage** | Float tự do — refactor thành cents phải sửa nhiều chỗ | Invariant được enforce: **tất cả** amount trong DB đều là cents. Thêm tính năng mới không cần lo lắng về float |
 
 ---
 

@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1782155098532" clover="3.2.0">
+  <project timestamp="1782155098532" name="All files">
+    <metrics statements="267" coveredstatements="210" conditionals="224" coveredconditionals="144" methods="77" coveredmethods="50" elements="568" coveredelements="404" complexity="0" loc="267" ncloc="267" packages="6" files="12" classes="12"/>
+    <package name="components">
+      <metrics statements="210" coveredstatements="162" conditionals="197" coveredconditionals="126" methods="58" coveredmethods="41"/>
+      <file name="AddAccountModal.tsx" path="/Users/mac/Github code shit/cash-flow-wave/src/components/AddAccountModal.tsx">
+        <metrics statements="36" coveredstatements="28" conditionals="40" coveredconditionals="27" methods="6" coveredmethods="6"/>
+        <line num="16" count="1" type="stmt"/>
+        <line num="17" count="7" type="stmt"/>
+        <line num="18" count="7" type="stmt"/>
+        <line num="20" count="7" type="stmt"/>
+        <line num="21" count="7" type="stmt"/>
+        <line num="22" count="7" type="stmt"/>
+        <line num="23" count="7" type="stmt"/>
+        <line num="24" count="7" type="stmt"/>
+        <line num="26" count="7" type="stmt"/>
+        <line num="27" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="28" count="0" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="32" count="2" type="stmt"/>
+        <line num="33" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="34" count="0" type="stmt"/>
+        <line num="35" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="36" count="0" type="stmt"/>
+        <line num="37" count="0" type="stmt"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="42" count="2" type="stmt"/>
+        <line num="43" count="2" type="stmt"/>
+        <line num="45" count="2" type="stmt"/>
+        <line num="46" count="2" type="stmt"/>
+        <line num="48" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="49" count="2" type="stmt"/>
+        <line num="50" count="2" type="stmt"/>
+        <line num="51" count="2" type="stmt"/>
+        <line num="52" count="2" type="stmt"/>
+        <line num="53" count="2" type="stmt"/>
+        <line num="55" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="59" count="7" type="stmt"/>
+        <line num="89" count="1" type="stmt"/>
+        <line num="105" count="1" type="stmt"/>
+        <line num="122" count="2" type="stmt"/>
+        <line num="134" count="1" type="stmt"/>
+        <line num="168" count="1" type="stmt"/>
+      </file>
+      <file name="AddTransactionModal.tsx" path="/Users/mac/Github code shit/cash-flow-wave/src/components/AddTransactionModal.tsx">
+        <metrics statements="72" coveredstatements="53" conditionals="81" coveredconditionals="57" methods="26" coveredmethods="20"/>
+        <line num="20" count="1" type="stmt"/>
+        <line num="21" count="6" type="stmt"/>
+        <line num="26" count="6" type="stmt"/>
+        <line num="30" count="6" type="stmt"/>
+        <line num="31" count="0" type="stmt"/>
+        <line num="38" count="1" type="stmt"/>
+        <line num="39" count="6" type="stmt"/>
+        <line num="44" count="6" type="stmt"/>
+        <line num="48" count="6" type="stmt"/>
+        <line num="49" count="0" type="stmt"/>
+        <line num="56" count="1" type="stmt"/>
+        <line num="57" count="8" type="stmt"/>
+        <line num="58" count="8" type="stmt"/>
+        <line num="59" count="8" type="stmt"/>
+        <line num="61" count="8" type="stmt"/>
+        <line num="62" count="8" type="cond" truecount="1" falsecount="1"/>
+        <line num="75" count="8" type="stmt"/>
+        <line num="77" count="8" type="stmt"/>
+        <line num="78" count="3" type="stmt"/>
+        <line num="79" count="3" type="stmt"/>
+        <line num="80" count="3" type="stmt"/>
+        <line num="81" count="3" type="stmt"/>
+        <line num="83" count="3" type="stmt"/>
+        <line num="84" count="3" type="cond" truecount="4" falsecount="0"/>
+        <line num="85" count="2" type="stmt"/>
+        <line num="88" count="3" type="stmt"/>
+        <line num="89" count="3" type="stmt"/>
+        <line num="90" count="3" type="cond" truecount="1" falsecount="1"/>
+        <line num="91" count="3" type="stmt"/>
+        <line num="92" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="93" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="95" count="3" type="cond" truecount="4" falsecount="1"/>
+        <line num="96" count="3" type="stmt"/>
+        <line num="97" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="98" count="0" type="stmt"/>
+        <line num="102" count="3" type="stmt"/>
+        <line num="109" count="0" type="stmt"/>
+        <line num="113" count="3" type="stmt"/>
+        <line num="116" count="8" type="stmt"/>
+        <line num="117" count="1" type="cond" truecount="3" falsecount="1"/>
+        <line num="118" count="0" type="stmt"/>
+        <line num="119" count="0" type="stmt"/>
+        <line num="121" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="122" count="0" type="stmt"/>
+        <line num="123" count="0" type="stmt"/>
+        <line num="125" count="1" type="cond" truecount="3" falsecount="1"/>
+        <line num="126" count="0" type="stmt"/>
+        <line num="127" count="0" type="stmt"/>
+        <line num="130" count="1" type="stmt"/>
+        <line num="132" count="1" type="stmt"/>
+        <line num="134" count="1" type="stmt"/>
+        <line num="143" count="1" type="stmt"/>
+        <line num="145" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="146" count="0" type="stmt"/>
+        <line num="147" count="0" type="stmt"/>
+        <line num="148" count="0" type="stmt"/>
+        <line num="149" count="0" type="stmt"/>
+        <line num="151" count="1" type="cond" truecount="2" falsecount="0"/>
+        <line num="155" count="8" type="stmt"/>
+        <line num="156" count="6" type="stmt"/>
+        <line num="159" count="0" type="stmt"/>
+        <line num="164" count="8" type="stmt"/>
+        <line num="165" count="6" type="stmt"/>
+        <line num="168" count="0" type="stmt"/>
+        <line num="173" count="8" type="stmt"/>
+        <line num="205" count="0" type="stmt"/>
+        <line num="216" count="1" type="stmt"/>
+        <line num="231" count="1" type="stmt"/>
+        <line num="241" count="0" type="stmt"/>
+        <line num="253" count="8" type="stmt"/>
+        <line num="267" count="8" type="stmt"/>
+        <line num="303" count="1" type="stmt"/>
+      </file>
+      <file name="CategoryManagerModal.tsx" path="/Users/mac/Github code shit/cash-flow-wave/src/components/CategoryManagerModal.tsx">
+        <metrics statements="46" coveredstatements="31" conditionals="34" coveredconditionals="16" methods="17" coveredmethods="9"/>
+        <line num="15" count="1" type="stmt"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="18" count="5" type="stmt"/>
+        <line num="19" count="5" type="stmt"/>
+        <line num="21" count="5" type="stmt"/>
+        <line num="24" count="5" type="stmt"/>
+        <line num="25" count="5" type="stmt"/>
+        <line num="26" count="5" type="stmt"/>
+        <line num="27" count="5" type="stmt"/>
+        <line num="28" count="5" type="stmt"/>
+        <line num="31" count="5" type="stmt"/>
+        <line num="32" count="3" type="stmt"/>
+        <line num="33" count="3" type="stmt"/>
+        <line num="34" count="3" type="stmt"/>
+        <line num="36" count="0" type="stmt"/>
+        <line num="40" count="5" type="stmt"/>
+        <line num="41" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="42" count="0" type="stmt"/>
+        <line num="43" count="0" type="stmt"/>
+        <line num="46" count="1" type="stmt"/>
+        <line num="47" count="1" type="stmt"/>
+        <line num="48" count="1" type="stmt"/>
+        <line num="49" count="1" type="stmt"/>
+        <line num="50" count="1" type="stmt"/>
+        <line num="51" count="1" type="stmt"/>
+        <line num="53" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="55" count="1" type="stmt"/>
+        <line num="59" count="5" type="stmt"/>
+        <line num="60" count="0" type="stmt"/>
+        <line num="69" count="0" type="stmt"/>
+        <line num="70" count="0" type="stmt"/>
+        <line num="71" count="0" type="stmt"/>
+        <line num="73" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="81" count="5" type="stmt"/>
+        <line num="82" count="5" type="stmt"/>
+        <line num="84" count="5" type="stmt"/>
+        <line num="114" count="0" type="stmt"/>
+        <line num="128" count="0" type="stmt"/>
+        <line num="141" count="1" type="stmt"/>
+        <line num="148" count="40" type="stmt"/>
+        <line num="155" count="0" type="stmt"/>
+        <line num="174" count="3" type="stmt"/>
+        <line num="181" count="0" type="stmt"/>
+        <line num="191" count="0" type="stmt"/>
+        <line num="198" count="0" type="stmt"/>
+        <line num="214" count="1" type="stmt"/>
+      </file>
+      <file name="NetWorthCard.tsx" path="/Users/mac/Github code shit/cash-flow-wave/src/components/NetWorthCard.tsx">
+        <metrics statements="11" coveredstatements="11" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="21" count="1" type="stmt"/>
+        <line num="22" count="1" type="stmt"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="24" count="1" type="stmt"/>
+        <line num="26" count="1" type="stmt"/>
+        <line num="27" count="1" type="stmt"/>
+        <line num="28" count="1" type="stmt"/>
+        <line num="29" count="1" type="stmt"/>
+        <line num="31" count="1" type="stmt"/>
+        <line num="88" count="1" type="stmt"/>
+      </file>
+      <file name="TransactionDetailsModal.tsx" path="/Users/mac/Github code shit/cash-flow-wave/src/components/TransactionDetailsModal.tsx">
+        <metrics statements="23" coveredstatements="20" conditionals="24" coveredconditionals="15" methods="2" coveredmethods="2"/>
+        <line num="28" count="1" type="stmt"/>
+        <line num="33" count="4" type="stmt"/>
+        <line num="34" count="4" type="stmt"/>
+        <line num="35" count="4" type="stmt"/>
+        <line num="37" count="4" type="stmt"/>
+        <line num="38" count="4" type="stmt"/>
+        <line num="42" count="4" type="stmt"/>
+        <line num="43" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="44" count="1" type="stmt"/>
+        <line num="45" count="1" type="stmt"/>
+        <line num="46" count="1" type="stmt"/>
+        <line num="48" count="0" type="stmt"/>
+        <line num="51" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="52" count="1" type="stmt"/>
+        <line num="53" count="1" type="stmt"/>
+        <line num="54" count="1" type="stmt"/>
+        <line num="56" count="0" type="stmt"/>
+        <line num="59" count="0" type="stmt"/>
+        <line num="63" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="65" count="2" type="stmt"/>
+        <line num="66" count="2" type="stmt"/>
+        <line num="68" count="2" type="stmt"/>
+        <line num="167" count="1" type="stmt"/>
+      </file>
+      <file name="TransactionHistoryModal.tsx" path="/Users/mac/Github code shit/cash-flow-wave/src/components/TransactionHistoryModal.tsx">
+        <metrics statements="22" coveredstatements="19" conditionals="18" coveredconditionals="11" methods="6" coveredmethods="3"/>
+        <line num="26" count="1" type="stmt"/>
+        <line num="30" count="2" type="stmt"/>
+        <line num="31" count="2" type="stmt"/>
+        <line num="32" count="2" type="stmt"/>
+        <line num="34" count="2" type="stmt"/>
+        <line num="35" count="2" type="stmt"/>
+        <line num="36" count="2" type="stmt"/>
+        <line num="39" count="2" type="stmt"/>
+        <line num="40" count="1" type="stmt"/>
+        <line num="41" count="1" type="stmt"/>
+        <line num="42" count="1" type="cond" truecount="3" falsecount="1"/>
+        <line num="43" count="1" type="stmt"/>
+        <line num="45" count="1" type="stmt"/>
+        <line num="48" count="2" type="stmt"/>
+        <line num="49" count="1" type="stmt"/>
+        <line num="50" count="1" type="stmt"/>
+        <line num="52" count="1" type="stmt"/>
+        <line num="58" count="0" type="stmt"/>
+        <line num="94" count="2" type="stmt"/>
+        <line num="124" count="0" type="stmt"/>
+        <line num="137" count="0" type="stmt"/>
+        <line num="143" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="patterns">
+      <metrics statements="36" coveredstatements="36" conditionals="16" coveredconditionals="9" methods="3" coveredmethods="3"/>
+      <file name="MonthlyBudgetStrategy.ts" path="/Users/mac/Github code shit/cash-flow-wave/src/patterns/MonthlyBudgetStrategy.ts">
+        <metrics statements="23" coveredstatements="23" conditionals="11" coveredconditionals="6" methods="2" coveredmethods="2"/>
+        <line num="6" count="4" type="stmt"/>
+        <line num="7" count="4" type="stmt"/>
+        <line num="8" count="4" type="stmt"/>
+        <line num="11" count="4" type="stmt"/>
+        <line num="12" count="8" type="stmt"/>
+        <line num="16" count="4" type="stmt"/>
+        <line num="17" count="4" type="stmt"/>
+        <line num="18" count="4" type="stmt"/>
+        <line num="23" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="25" count="1" type="stmt"/>
+        <line num="28" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="29" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="30" count="1" type="stmt"/>
+        <line num="31" count="1" type="stmt"/>
+        <line num="32" count="1" type="stmt"/>
+        <line num="34" count="1" type="stmt"/>
+        <line num="37" count="3" type="cond" truecount="1" falsecount="1"/>
+        <line num="38" count="3" type="cond" truecount="1" falsecount="1"/>
+        <line num="39" count="3" type="stmt"/>
+        <line num="40" count="3" type="stmt"/>
+        <line num="42" count="3" type="stmt"/>
+        <line num="43" count="3" type="stmt"/>
+        <line num="46" count="4" type="stmt"/>
+      </file>
+      <file name="WeeklyBudgetStrategy.ts" path="/Users/mac/Github code shit/cash-flow-wave/src/patterns/WeeklyBudgetStrategy.ts">
+        <metrics statements="13" coveredstatements="13" conditionals="5" coveredconditionals="3" methods="1" coveredmethods="1"/>
+        <line num="6" count="2" type="stmt"/>
+        <line num="7" count="2" type="stmt"/>
+        <line num="13" count="2" type="stmt"/>
+        <line num="14" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="16" count="2" type="stmt"/>
+        <line num="17" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="18" count="1" type="stmt"/>
+        <line num="21" count="2" type="stmt"/>
+        <line num="22" count="2" type="stmt"/>
+        <line num="24" count="2" type="stmt"/>
+        <line num="25" count="2" type="stmt"/>
+        <line num="26" count="2" type="stmt"/>
+        <line num="28" count="2" type="stmt"/>
+      </file>
+    </package>
+    <package name="services">
+      <metrics statements="3" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="1"/>
+      <file name="TimeService.ts" path="/Users/mac/Github code shit/cash-flow-wave/src/services/TimeService.ts">
+        <metrics statements="3" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="1"/>
+        <line num="9" count="0" type="stmt"/>
+        <line num="13" count="2" type="stmt"/>
+        <line num="17" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="store">
+      <metrics statements="11" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="10" coveredmethods="2"/>
+      <file name="appStore.ts" path="/Users/mac/Github code shit/cash-flow-wave/src/store/appStore.ts">
+        <metrics statements="11" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="10" coveredmethods="2"/>
+        <line num="27" count="1" type="stmt"/>
+        <line num="29" count="1" type="stmt"/>
+        <line num="38" count="0" type="stmt"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="41" count="0" type="stmt"/>
+        <line num="42" count="0" type="stmt"/>
+        <line num="43" count="0" type="stmt"/>
+        <line num="44" count="0" type="stmt"/>
+        <line num="45" count="0" type="stmt"/>
+        <line num="49" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="types">
+      <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <file name="index.ts" path="/Users/mac/Github code shit/cash-flow-wave/src/types/index.ts">
+        <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      </file>
+    </package>
+    <package name="utils">
+      <metrics statements="7" coveredstatements="7" conditionals="11" coveredconditionals="9" methods="3" coveredmethods="3"/>
+      <file name="currencyFormatter.ts" path="/Users/mac/Github code shit/cash-flow-wave/src/utils/currencyFormatter.ts">
+        <metrics statements="7" coveredstatements="7" conditionals="11" coveredconditionals="9" methods="3" coveredmethods="3"/>
+        <line num="2" count="7" type="stmt"/>
+        <line num="6" count="18" type="stmt"/>
+        <line num="15" count="14" type="stmt"/>
+        <line num="16" count="14" type="stmt"/>
+        <line num="17" count="14" type="stmt"/>
+        <line num="21" count="14" type="cond" truecount="2" falsecount="0"/>
+        <line num="22" count="14" type="cond" truecount="2" falsecount="0"/>
+      </file>
+    </package>
+  </project>
+</coverage>
