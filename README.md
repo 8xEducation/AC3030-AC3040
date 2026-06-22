@@ -29,7 +29,7 @@ Dưới đây là hướng dẫn từ bước bạn vừa `git pull` mã nguồn
   - Tạo 1 Virtual Device (máy ảo).
   - Bật [USB Debugging](https://developer.android.com/studio/debug/dev-options) trong [Developer Options](https://developer.android.com/studio/debug/dev-options). Nếu dùng Android Studio, USB Debugging đã được bật mặc định.
   - Cài đặt [Usb Driver](https://developer.android.com/studio/run/win-usb).
-  - Cài đặt [Java version 17-21](https://www.oracle.com/java/technologies/downloads/).
+  - Cài đặt [Java version 21](https://www.oracle.com/java/technologies/downloads/).
 - Nếu build app cho iOS:
   - Cài đặt [Xcode](https://developer.apple.com/xcode/). (Chỉ dành cho MacOS)
 
